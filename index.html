@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PresentToU — 대화 기반 선물 TOP 3 추천</title>
+  <style>
+    :root {
+      --bg: #0f1020;
+      --card: #1a1c33;
+      --accent: #ff7a9c;
+      --accent2: #7c8cff;
+      --text: #f2f3fb;
+      --muted: #a7abc7;
+      --line: #2b2e4a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Pretendard", "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: radial-gradient(1200px 600px at 70% -10%, #23264a 0%, var(--bg) 55%);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 48px 20px 80px; }
+
+    header { text-align: center; margin-bottom: 40px; }
+    .logo {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-weight: 800; font-size: 28px; letter-spacing: -0.5px;
+    }
+    .logo .gift { font-size: 30px; }
+    .grad { background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    header p { color: var(--muted); margin-top: 10px; font-size: 15px; }
+
+    .panel {
+      background: var(--card); border: 1px solid var(--line);
+      border-radius: 18px; padding: 28px; margin-bottom: 28px;
+    }
+    .panel h2 { font-size: 17px; margin-bottom: 6px; }
+    .panel .hint { color: var(--muted); font-size: 13px; margin-bottom: 18px; }
+
+    .uploads { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 620px){ .uploads { grid-template-columns: 1fr; } }
+    .drop {
+      border: 1.5px dashed var(--line); border-radius: 14px; padding: 22px 16px;
+      text-align: center; cursor: pointer; transition: .18s; background: #15172b;
+    }
+    .drop:hover { border-color: var(--accent2); background: #181b34; }
+    .drop.filled { border-color: var(--accent); border-style: solid; }
+    .drop .ico { font-size: 26px; }
+    .drop .label { font-weight: 600; margin-top: 8px; font-size: 14px; }
+    .drop .sub { color: var(--muted); font-size: 12px; margin-top: 4px; word-break: break-all; }
+    .drop input { display: none; }
+
+    .cta {
+      display: block; width: 100%; margin-top: 22px; padding: 16px;
+      border: none; border-radius: 14px; cursor: pointer;
+      font-size: 16px; font-weight: 700; color: #fff;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transition: transform .1s, opacity .2s;
+    }
+    .cta:hover { transform: translateY(-1px); }
+    .cta:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+
+    .status { text-align: center; color: var(--muted); font-size: 14px; margin: 8px 0 0; min-height: 20px; }
+    .timer { color: var(--accent2); font-weight: 700; }
+
+    /* 결과 */
+    .results { display: none; }
+    .results.show { display: block; }
+    .results h2 { text-align: center; font-size: 20px; margin-bottom: 6px; }
+    .results .sub { text-align: center; color: var(--muted); font-size: 13px; margin-bottom: 24px; }
+
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    @media (max-width: 720px){ .cards { grid-template-columns: 1fr; } }
+
+    .card { perspective: 1200px; height: 340px; }
+    .card-inner {
+      position: relative; width: 100%; height: 100%;
+      transition: transform .6s; transform-style: preserve-3d;
+    }
+    .card:hover .card-inner, .card:focus-within .card-inner { transform: rotateY(180deg); }
+    .face {
+      position: absolute; inset: 0; backface-visibility: hidden;
+      border-radius: 18px; border: 1px solid var(--line);
+      padding: 20px; display: flex; flex-direction: column;
+    }
+    .front { background: var(--card); }
+    .thumb {
+      height: 130px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+      font-size: 56px; margin-bottom: 14px;
+    }
+    .rank { position: absolute; top: 14px; left: 14px; background: rgba(0,0,0,.4); border-radius: 999px; padding: 2px 10px; font-size: 12px; font-weight: 700; }
+    .name { font-weight: 800; font-size: 17px; }
+    .reason { color: var(--muted); font-size: 13px; margin-top: 6px; flex: 1; }
+    .price { font-weight: 700; color: var(--accent); margin-top: 8px; }
+    .flip-hint { color: var(--muted); font-size: 11px; margin-top: 10px; }
+
+    .back { background: linear-gradient(160deg, #20233f, #191b30); transform: rotateY(180deg); }
+    .back h3 { font-size: 16px; margin-bottom: 8px; }
+    .back .detail { color: var(--muted); font-size: 13px; flex: 1; }
+    .back .signals { margin-top: 10px; font-size: 12px; }
+    .back .signals span { display: inline-block; background: #2a2e52; border-radius: 999px; padding: 2px 9px; margin: 3px 3px 0 0; }
+    .link {
+      display: block; text-align: center; margin-top: 12px; padding: 11px;
+      border-radius: 12px; text-decoration: none; font-weight: 700; color: #fff;
+      background: linear-gradient(90deg, var(--accent2), var(--accent));
+    }
+
+    .empty { text-align: center; color: var(--muted); padding: 30px; }
+    .restart { display: block; margin: 26px auto 0; background: none; border: 1px solid var(--line); color: var(--muted); padding: 10px 20px; border-radius: 10px; cursor: pointer; }
+    footer { text-align: center; color: var(--muted); font-size: 12px; margin-top: 40px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo"><span class="gift">🎁</span><span class="grad">PresentToU</span></div>
+      <p>취향을 잘 모르는 상대에게 줄 선물, 대화 데이터로 1분 안에 TOP 3 추천</p>
+    </header>
+
+    <!-- 입력 패널 -->
+    <section class="panel" id="inputPanel">
+      <h2>대화 데이터 업로드</h2>
+      <p class="hint">카카오톡 대화 내보내기 파일과 통화 음성 녹음 중 하나 이상을 올려주세요. (데모: 실제 분석 없이 예시 추천을 보여줍니다)</p>
+      <div class="uploads">
+        <label class="drop" id="dropChat">
+          <div class="ico">💬</div>
+          <div class="label">카카오톡 대화 파일</div>
+          <div class="sub">.txt / .csv</div>
+          <input type="file" id="chatFile" accept=".txt,.csv" />
+        </label>
+        <label class="drop" id="dropVoice">
+          <div class="ico">🎙️</div>
+          <div class="label">통화 음성 녹음</div>
+          <div class="sub">.mp3 / .m4a / .wav</div>
+          <input type="file" id="voiceFile" accept="audio/*" />
+        </label>
+      </div>
+      <button class="cta" id="recommendBtn" disabled>TOP 3 선물 추천받기</button>
+      <p class="status" id="status"></p>
+    </section>
+
+    <!-- 결과 패널 -->
+    <section class="results" id="results">
+      <h2>이 사람에게 무난한 선물 TOP 3</h2>
+      <p class="sub"><span class="timer" id="elapsed"></span> · 카드에 커서를 올리면 상세와 구매 링크가 보여요</p>
+      <div class="cards" id="cards"></div>
+      <button class="restart" id="restartBtn">다시 추천받기</button>
+    </section>
+
+    <footer>데모 프로토타입 · 업로드 데이터는 저장하지 않습니다 · 회원가입/결제 없음</footer>
+  </div>
+
+  <script>
+    // 데모용 사전 큐레이션 선물 후보 (실서비스에서는 대화 신호 매칭으로 대체)
+    const GIFT_POOL = [
+      { emoji: "🕯️", bg: "linear-gradient(135deg,#ff9a9e,#fad0c4)", name: "감성 디퓨저 세트", reason: "집에서 보내는 시간을 좋아하는 신호", price: "3~5만원", detail: "은은한 향과 인테리어를 모두 챙기는 무난한 선물. 취향을 크게 타지 않아 실패 확률이 낮아요.", signals: ["집/휴식", "인테리어", "무난템"], link: "https://www.coupang.com/np/search?q=디퓨저+세트" },
+      { emoji: "☕", bg: "linear-gradient(135deg,#a18cd1,#fbc2eb)", name: "스페셜티 원두 + 드립백", reason: "커피 이야기가 자주 등장", price: "2~4만원", detail: "커피를 즐기는 상대에게 부담 없는 소비재 선물. 취향이 갈려도 여러 원두 구성으로 안전합니다.", signals: ["커피", "카페", "일상소비"], link: "https://www.coupang.com/np/search?q=스페셜티+원두+드립백" },
+      { emoji: "🧴", bg: "linear-gradient(135deg,#84fab0,#8fd3f4)", name: "핸드크림 · 립밤 키트", reason: "건조함/피부 관련 언급", price: "1.5~3만원", detail: "가볍게 주고받기 좋은 뷰티 소품. 친밀도가 낮아도 부담 없는 대표적인 무난템입니다.", signals: ["뷰티", "실용", "부담없음"], link: "https://www.coupang.com/np/search?q=핸드크림+립밤+세트" },
+      { emoji: "🍫", bg: "linear-gradient(135deg,#f6d365,#fda085)", name: "프리미엄 초콜릿 박스", reason: "단 것/디저트 선호 신호", price: "2~3만원", detail: "누구에게나 무난한 클래식 선택. 포장이 예뻐 성의를 표현하기 좋아요.", signals: ["디저트", "선물세트", "클래식"], link: "https://www.coupang.com/np/search?q=프리미엄+초콜릿+선물세트" },
+      { emoji: "🌿", bg: "linear-gradient(135deg,#d4fc79,#96e6a1)", name: "미니 공기정화 화분", reason: "책상/사무 공간 대화", price: "2~4만원", detail: "관리가 쉬운 반려식물. 사무실 책상에 두기 좋아 직장 동료 선물로 적합합니다.", signals: ["사무공간", "식물", "저관리"], link: "https://www.coupang.com/np/search?q=공기정화+미니+화분" },
+      { emoji: "🎧", bg: "linear-gradient(135deg,#fbc2eb,#a6c1ee)", name: "블루투스 미니 스피커", reason: "음악/노래 관심 신호", price: "3~5만원", detail: "음악을 즐기는 상대를 위한 실용 가전. 디자인 위주 모델은 인테리어 소품으로도 좋아요.", signals: ["음악", "가전", "실용"], link: "https://www.coupang.com/np/search?q=블루투스+미니+스피커" }
+    ];
+
+    const chatFile = document.getElementById('chatFile');
+    const voiceFile = document.getElementById('voiceFile');
+    const dropChat = document.getElementById('dropChat');
+    const dropVoice = document.getElementById('dropVoice');
+    const btn = document.getElementById('recommendBtn');
+    const statusEl = document.getElementById('status');
+    const results = document.getElementById('results');
+    const inputPanel = document.getElementById('inputPanel');
+    const cardsEl = document.getElementById('cards');
+    const elapsedEl = document.getElementById('elapsed');
+
+    function refresh() {
+      const hasAny = chatFile.files.length || voiceFile.files.length;
+      btn.disabled = !hasAny;
+    }
+
+    function bindDrop(input, drop) {
+      input.addEventListener('change', () => {
+        if (input.files.length) {
+          drop.classList.add('filled');
+          drop.querySelector('.sub').textContent = input.files[0].name;
+        } else {
+          drop.classList.remove('filled');
+        }
+        refresh();
+      });
+    }
+    bindDrop(chatFile, dropChat);
+    bindDrop(voiceFile, dropVoice);
+
+    function pick3() {
+      const pool = [...GIFT_POOL];
+      const out = [];
+      for (let i = 0; i < 3; i++) {
+        out.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
+      }
+      return out;
+    }
+
+    function render(gifts) {
+      cardsEl.innerHTML = gifts.map((g, i) => `
+        <div class="card" tabindex="0">
+          <div class="card-inner">
+            <div class="face front">
+              <div class="rank">TOP ${i + 1}</div>
+              <div class="thumb" style="background:${g.bg}">${g.emoji}</div>
+              <div class="name">${g.name}</div>
+              <div class="reason">${g.reason}</div>
+              <div class="price">예상 ${g.price}</div>
+              <div class="flip-hint">↺ 커서를 올리면 상세 보기</div>
+            </div>
+            <div class="face back">
+              <h3>${g.name}</h3>
+              <div class="detail">${g.detail}</div>
+              <div class="signals">${g.signals.map(s => `<span># ${s}</span>`).join('')}</div>
+              <a class="link" href="${g.link}" target="_blank" rel="noopener">상품 페이지로 이동 →</a>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    btn.addEventListener('click', () => {
+      const start = performance.now();
+      statusEl.innerHTML = '대화·음성 데이터에서 취향 신호를 분석하는 중… <span class="timer">⏱</span>';
+      btn.disabled = true;
+      // 데모: 실제 분석 대신 약간의 지연 후 결과 (1분 미만 목표 시각화)
+      setTimeout(() => {
+        const sec = ((performance.now() - start) / 1000).toFixed(1);
+        elapsedEl.textContent = `${sec}초 만에 추천 완료`;
+        render(pick3());
+        inputPanel.style.display = 'none';
+        results.classList.add('show');
+        results.scrollIntoView({ behavior: 'smooth' });
+      }, 1200);
+    });
+
+    document.getElementById('restartBtn').addEventListener('click', () => {
+      results.classList.remove('show');
+      inputPanel.style.display = '';
+      statusEl.textContent = '';
+      inputPanel.scrollIntoView({ behavior: 'smooth' });
+    });
+  </script>
+</body>
+</html>

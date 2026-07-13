@@ -1,0 +1,6 @@
+# 로컬 머신 설정 (저장소에 올리지 않음)
+.claude/settings.local.json
+
+# OS/에디터 부산물
+.DS_Store
+Thumbs.db
