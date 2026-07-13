@@ -255,9 +255,8 @@
     // 오디오로 인식할 확장자 (OpenAI whisper 지원 포맷)
     const AUDIO_EXT = ['.wav', '.mp3', '.m4a', '.ogg', '.webm', '.mpga', '.mp4', '.mpeg'];
     const MAX_AUDIO_BYTES = 4 * 1024 * 1024; // Vercel 서버리스 요청 본문 한도(~4.5MB) 보호
-    // OpenAI 프로젝트가 접근 가능한 전사 모델. 프로젝트에 whisper 대신 다른 모델만 있으면
-    // 여기서 'gpt-4o-mini-transcribe' 등으로 바꾸면 됩니다.
-    const TRANSCRIBE_MODEL = 'whisper-1';
+    // Groq 전사 모델. 더 빠른 'whisper-large-v3-turbo'로 바꿔도 됩니다.
+    const TRANSCRIBE_MODEL = 'whisper-large-v3';
 
     // 음성 파일을 서버(/api/transcribe)로 보내 전사 텍스트를 받는다 (키는 서버에만 존재)
     async function transcribe(file) {
