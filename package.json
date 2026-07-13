@@ -1,0 +1,10 @@
+{
+  "name": "present-to-u",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "대화 데이터 기반 선물 TOP 3 추천 데모 (Vercel + OpenAI)",
+  "engines": {
+    "node": ">=18"
+  }
+}

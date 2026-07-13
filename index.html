@@ -10,6 +10,7 @@
       --card: #1a1c33;
       --accent: #ff7a9c;
       --accent2: #7c8cff;
+      --danger: #ff5566;
       --text: #f2f3fb;
       --muted: #a7abc7;
       --line: #2b2e4a;
@@ -88,6 +89,7 @@
     .cta:disabled { opacity: .45; cursor: not-allowed; transform: none; }
 
     .status { text-align: center; color: var(--muted); font-size: 14px; margin: 8px 0 0; min-height: 20px; }
+    .status.err { color: var(--danger); }
     .timer { color: var(--accent2); font-weight: 700; }
 
     /* 결과 */
@@ -95,6 +97,10 @@
     .results.show { display: block; }
     .results h2 { text-align: center; font-size: 20px; margin-bottom: 6px; }
     .results .sub { text-align: center; color: var(--muted); font-size: 13px; margin-bottom: 24px; }
+
+    .analysis { background: linear-gradient(160deg,#1c1f3a,#171930); border: 1px solid var(--line); border-radius: 16px; padding: 20px 22px; margin-bottom: 26px; }
+    .analysis .tag { font-size: 12px; color: var(--accent2); font-weight: 700; letter-spacing: .04em; }
+    .analysis p { margin-top: 6px; font-size: 15px; }
 
     .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
     @media (max-width: 720px){ .cards { grid-template-columns: 1fr; } }
@@ -132,6 +138,11 @@
       background: linear-gradient(90deg, var(--accent2), var(--accent));
     }
 
+    .forbidden { margin-top: 26px; border: 1px solid rgba(255,85,102,.5); background: linear-gradient(160deg, rgba(255,85,102,.10), rgba(255,85,102,.03)); border-radius: 16px; padding: 20px 22px; }
+    .forbidden .tag { font-size: 12px; color: var(--danger); font-weight: 700; letter-spacing: .04em; }
+    .forbidden .fname { font-weight: 800; font-size: 17px; margin-top: 6px; }
+    .forbidden .freason { color: var(--muted); font-size: 14px; margin-top: 4px; }
+
     .empty { text-align: center; color: var(--muted); padding: 30px; }
     .restart { display: block; margin: 26px auto 0; background: none; border: 1px solid var(--line); color: var(--muted); padding: 10px 20px; border-radius: 10px; cursor: pointer; }
     footer { text-align: center; color: var(--muted); font-size: 12px; margin-top: 40px; }
@@ -147,7 +158,7 @@
     <!-- 입력 패널 -->
     <section class="panel" id="inputPanel">
       <h2>선물 추천 정보 입력</h2>
-      <p class="hint">선물 받는 사람의 정보와 대화 데이터를 입력해주세요. txt, wav, zip 파일을 지원합니다. (데모: 실제 분석 없이 예시 추천을 보여줍니다)</p>
+      <p class="hint">선물 받는 사람의 정보와 대화 데이터를 입력해주세요. txt, wav, zip 파일을 지원합니다. (실제 AI가 관계·취향을 분석해 추천합니다)</p>
       <div class="uploads">
         <label class="drop">
           <div class="ico">👤</div>
@@ -180,7 +191,9 @@
     <section class="results" id="results">
       <h2>이 사람에게 무난한 선물 TOP 3</h2>
       <p class="sub"><span class="timer" id="elapsed"></span> · 카드에 커서를 올리면 상세와 구매 링크가 보여요</p>
+      <div class="analysis" id="analysis"></div>
       <div class="cards" id="cards"></div>
+      <div class="forbidden" id="forbidden"></div>
       <button class="restart" id="restartBtn">다시 추천받기</button>
     </section>
 
@@ -188,16 +201,6 @@
   </div>
 
   <script>
-    // 데모용 사전 큐레이션 선물 후보 (실서비스에서는 대화 신호 매칭으로 대체)
-    const GIFT_POOL = [
-      { emoji: "🕯️", bg: "linear-gradient(135deg,#ff9a9e,#fad0c4)", name: "감성 디퓨저 세트", reason: "집에서 보내는 시간을 좋아하는 신호", price: "3~5만원", detail: "은은한 향과 인테리어를 모두 챙기는 무난한 선물. 취향을 크게 타지 않아 실패 확률이 낮아요.", signals: ["집/휴식", "인테리어", "무난템"], link: "https://www.coupang.com/np/search?q=디퓨저+세트" },
-      { emoji: "☕", bg: "linear-gradient(135deg,#a18cd1,#fbc2eb)", name: "스페셜티 원두 + 드립백", reason: "커피 이야기가 자주 등장", price: "2~4만원", detail: "커피를 즐기는 상대에게 부담 없는 소비재 선물. 취향이 갈려도 여러 원두 구성으로 안전합니다.", signals: ["커피", "카페", "일상소비"], link: "https://www.coupang.com/np/search?q=스페셜티+원두+드립백" },
-      { emoji: "🧴", bg: "linear-gradient(135deg,#84fab0,#8fd3f4)", name: "핸드크림 · 립밤 키트", reason: "건조함/피부 관련 언급", price: "1.5~3만원", detail: "가볍게 주고받기 좋은 뷰티 소품. 친밀도가 낮아도 부담 없는 대표적인 무난템입니다.", signals: ["뷰티", "실용", "부담없음"], link: "https://www.coupang.com/np/search?q=핸드크림+립밤+세트" },
-      { emoji: "🍫", bg: "linear-gradient(135deg,#f6d365,#fda085)", name: "프리미엄 초콜릿 박스", reason: "단 것/디저트 선호 신호", price: "2~3만원", detail: "누구에게나 무난한 클래식 선택. 포장이 예뻐 성의를 표현하기 좋아요.", signals: ["디저트", "선물세트", "클래식"], link: "https://www.coupang.com/np/search?q=프리미엄+초콜릿+선물세트" },
-      { emoji: "🌿", bg: "linear-gradient(135deg,#d4fc79,#96e6a1)", name: "미니 공기정화 화분", reason: "책상/사무 공간 대화", price: "2~4만원", detail: "관리가 쉬운 반려식물. 사무실 책상에 두기 좋아 직장 동료 선물로 적합합니다.", signals: ["사무공간", "식물", "저관리"], link: "https://www.coupang.com/np/search?q=공기정화+미니+화분" },
-      { emoji: "🎧", bg: "linear-gradient(135deg,#fbc2eb,#a6c1ee)", name: "블루투스 미니 스피커", reason: "음악/노래 관심 신호", price: "3~5만원", detail: "음악을 즐기는 상대를 위한 실용 가전. 디자인 위주 모델은 인테리어 소품으로도 좋아요.", signals: ["음악", "가전", "실용"], link: "https://www.coupang.com/np/search?q=블루투스+미니+스피커" }
-    ];
-
     const dataFile = document.getElementById('dataFile');
     const recipientName = document.getElementById('recipientName');
     const budgetMin = document.getElementById('budgetMin');
@@ -209,24 +212,28 @@
     const results = document.getElementById('results');
     const inputPanel = document.getElementById('inputPanel');
     const cardsEl = document.getElementById('cards');
+    const analysisEl = document.getElementById('analysis');
+    const forbiddenEl = document.getElementById('forbidden');
     const elapsedEl = document.getElementById('elapsed');
+
+    const THUMB_BG = [
+      'linear-gradient(135deg,#ff9a9e,#fad0c4)',
+      'linear-gradient(135deg,#a18cd1,#fbc2eb)',
+      'linear-gradient(135deg,#84fab0,#8fd3f4)'
+    ];
 
     function refresh() {
       btn.disabled = !recipientName.value.trim() || !dataFile.files.length;
     }
-
-    function bindDrop(input, drop) {
-      input.addEventListener('change', () => {
-        if (input.files.length) {
-          drop.classList.add('filled');
-          drop.querySelector('.sub').textContent = input.files[0].name;
-        } else {
-          drop.classList.remove('filled');
-        }
-        refresh();
-      });
-    }
-    bindDrop(dataFile, dropData);
+    dataFile.addEventListener('change', () => {
+      if (dataFile.files.length) {
+        dropData.classList.add('filled');
+        dropData.querySelector('.sub').textContent = dataFile.files[0].name;
+      } else {
+        dropData.classList.remove('filled');
+      }
+      refresh();
+    });
     recipientName.addEventListener('input', refresh);
     [budgetMin, budgetMax].forEach(input => input.addEventListener('input', () => {
       if (Number(budgetMin.value) > Number(budgetMax.value)) {
@@ -237,57 +244,95 @@
       refresh();
     }));
 
-    function pick3() {
-      const pool = [...GIFT_POOL];
-      const out = [];
-      for (let i = 0; i < 3; i++) {
-        out.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
-      }
-      return out;
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, (c) =>
+        ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     }
 
-    function render(gifts) {
-      cardsEl.innerHTML = gifts.map((g, i) => `
+    // 텍스트 파일이면 내용을 읽고, 그 외(오디오/zip)는 이름·예산 기준으로만 추천
+    async function readConversation(file) {
+      const name = (file.name || '').toLowerCase();
+      if (name.endsWith('.txt') || name.endsWith('.csv') || (file.type || '').startsWith('text')) {
+        return { text: await file.text(), note: '' };
+      }
+      return { text: '', note: `업로드 파일(${file.name})은 텍스트가 아니라 내용 분석은 생략했고, 이름·예산 기준으로 추천했습니다.` };
+    }
+
+    function render(data) {
+      analysisEl.innerHTML = `<div class="tag">관계 · 취향 분석</div><p>${esc(data.analysis)}</p>`;
+
+      const top3 = Array.isArray(data.top3) ? data.top3.slice(0, 3) : [];
+      cardsEl.innerHTML = top3.map((g, i) => {
+        const link = 'https://www.coupang.com/np/search?q=' + encodeURIComponent(g.query || g.name || '');
+        const signals = Array.isArray(g.signals) ? g.signals : [];
+        return `
         <div class="card" tabindex="0">
           <div class="card-inner">
             <div class="face front">
               <div class="rank">TOP ${i + 1}</div>
-              <div class="thumb" style="background:${g.bg}">${g.emoji}</div>
-              <div class="name">${g.name}</div>
-              <div class="reason">${g.reason}</div>
-              <div class="price">예상 ${g.price}</div>
+              <div class="thumb" style="background:${THUMB_BG[i % THUMB_BG.length]}">${esc(g.emoji || '🎁')}</div>
+              <div class="name">${esc(g.name)}</div>
+              <div class="reason">${esc(g.reason)}</div>
+              <div class="price">예상 ${esc(g.price)}</div>
               <div class="flip-hint">↺ 커서를 올리면 상세 보기</div>
             </div>
             <div class="face back">
-              <h3>${g.name}</h3>
-              <div class="detail">${g.detail}</div>
-              <div class="signals">${g.signals.map(s => `<span># ${s}</span>`).join('')}</div>
-              <a class="link" href="${g.link}" target="_blank" rel="noopener">상품 페이지로 이동 →</a>
+              <h3>${esc(g.name)}</h3>
+              <div class="detail">${esc(g.detail)}</div>
+              <div class="signals">${signals.map((s) => `<span># ${esc(s)}</span>`).join('')}</div>
+              <a class="link" href="${link}" target="_blank" rel="noopener">상품 페이지로 이동 →</a>
             </div>
           </div>
-        </div>
-      `).join('');
+        </div>`;
+      }).join('');
+
+      const f = data.forbidden || {};
+      forbiddenEl.innerHTML =
+        `<div class="tag">🚫 절대 금지 선물</div>
+         <div class="fname">${esc(f.name)}</div>
+         <div class="freason">${esc(f.reason)}</div>`;
     }
 
-    btn.addEventListener('click', () => {
-      const start = performance.now();
-      statusEl.innerHTML = '대화·음성 데이터에서 취향 신호를 분석하는 중… <span class="timer">⏱</span>';
+    btn.addEventListener('click', async () => {
+      if (!recipientName.value.trim() || !dataFile.files.length) return;
+      statusEl.className = 'status';
+      statusEl.innerHTML = '대화 내용을 AI가 분석하는 중… <span class="timer">⏱</span>';
       btn.disabled = true;
-      // 데모: 실제 분석 대신 약간의 지연 후 결과 (1분 미만 목표 시각화)
-      setTimeout(() => {
+      const start = performance.now();
+      try {
+        const { text, note } = await readConversation(dataFile.files[0]);
+        const res = await fetch('/api/recommend', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            recipientName: recipientName.value.trim(),
+            budgetMin: Number(budgetMin.value),
+            budgetMax: Number(budgetMax.value),
+            conversation: text,
+            note,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
+
         const sec = ((performance.now() - start) / 1000).toFixed(1);
-        elapsedEl.textContent = `${sec}초 만에 추천 완료`;
-        render(pick3());
+        elapsedEl.textContent = `${sec}초 만에 분석 완료`;
+        render(data);
         inputPanel.style.display = 'none';
         results.classList.add('show');
         results.scrollIntoView({ behavior: 'smooth' });
-      }, 1200);
+      } catch (err) {
+        statusEl.className = 'status err';
+        statusEl.textContent = '오류: ' + err.message;
+        btn.disabled = false;
+      }
     });
 
     document.getElementById('restartBtn').addEventListener('click', () => {
       results.classList.remove('show');
       inputPanel.style.display = '';
       statusEl.textContent = '';
+      statusEl.className = 'status';
       inputPanel.scrollIntoView({ behavior: 'smooth' });
     });
   </script>
