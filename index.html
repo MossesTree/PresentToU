@@ -178,9 +178,15 @@
         </label>
         <label class="drop" id="dropData">
           <div class="ico">💬</div>
-          <div class="label">대화 데이터 업로드</div>
-          <div class="sub">.txt(대화) / 음성(.wav·.m4a 자동 전사) · 여러 개</div>
-          <input type="file" id="dataFile" accept=".txt,.csv,.wav,.mp3,.m4a,.zip,audio/wav,application/zip" multiple />
+          <div class="label">대화 텍스트 업로드</div>
+          <div class="sub">.txt / .csv · 여러 개</div>
+          <input type="file" id="dataFile" accept=".txt,.csv,text/plain" multiple />
+        </label>
+        <label class="drop" id="dropVoice">
+          <div class="ico">🎙️</div>
+          <div class="label">음성 인식 (통화 녹음)</div>
+          <div class="sub">.wav / .mp3 / .m4a · 자동 전사 · 여러 개</div>
+          <input type="file" id="voiceFile" accept=".wav,.mp3,.m4a,.ogg,.webm,audio/*" multiple />
         </label>
       </div>
       <button class="cta" id="recommendBtn" disabled>TOP 3 선물 추천받기</button>
@@ -207,6 +213,8 @@
     const budgetMax = document.getElementById('budgetMax');
     const budgetValue = document.getElementById('budgetValue');
     const dropData = document.getElementById('dropData');
+    const voiceFile = document.getElementById('voiceFile');
+    const dropVoice = document.getElementById('dropVoice');
     const btn = document.getElementById('recommendBtn');
     const statusEl = document.getElementById('status');
     const results = document.getElementById('results');
@@ -223,20 +231,25 @@
     ];
 
     function refresh() {
-      btn.disabled = !recipientName.value.trim() || !dataFile.files.length;
+      btn.disabled = !recipientName.value.trim() || (!dataFile.files.length && !voiceFile.files.length);
     }
-    dataFile.addEventListener('change', () => {
-      if (dataFile.files.length) {
-        dropData.classList.add('filled');
-        const names = Array.from(dataFile.files).map((f) => f.name);
-        dropData.querySelector('.sub').textContent =
-          names.length === 1 ? names[0] : `${names.length}개 파일: ${names.join(', ')}`;
-      } else {
-        dropData.classList.remove('filled');
-        dropData.querySelector('.sub').textContent = '.txt(대화) / 음성(.wav·.m4a 자동 전사) · 여러 개';
-      }
-      refresh();
-    });
+    // 파일 선택 시 드롭 영역에 파일명/개수 표시
+    function bindDrop(input, drop, placeholder) {
+      input.addEventListener('change', () => {
+        if (input.files.length) {
+          drop.classList.add('filled');
+          const names = Array.from(input.files).map((f) => f.name);
+          drop.querySelector('.sub').textContent =
+            names.length === 1 ? names[0] : `${names.length}개 파일: ${names.join(', ')}`;
+        } else {
+          drop.classList.remove('filled');
+          drop.querySelector('.sub').textContent = placeholder;
+        }
+        refresh();
+      });
+    }
+    bindDrop(dataFile, dropData, '.txt / .csv · 여러 개');
+    bindDrop(voiceFile, dropVoice, '.wav / .mp3 / .m4a · 자동 전사 · 여러 개');
     recipientName.addEventListener('input', refresh);
     [budgetMin, budgetMax].forEach(input => input.addEventListener('input', () => {
       if (Number(budgetMin.value) > Number(budgetMax.value)) {
@@ -338,13 +351,13 @@
     }
 
     btn.addEventListener('click', async () => {
-      if (!recipientName.value.trim() || !dataFile.files.length) return;
+      if (!recipientName.value.trim() || (!dataFile.files.length && !voiceFile.files.length)) return;
       statusEl.className = 'status';
       statusEl.innerHTML = '파일을 처리하는 중… <span class="timer">⏱</span>';
       btn.disabled = true;
       const start = performance.now();
       try {
-        const { text, note } = await readConversations(dataFile.files);
+        const { text, note } = await readConversations([...dataFile.files, ...voiceFile.files]);
         statusEl.innerHTML = '대화 내용을 AI가 분석하는 중… <span class="timer">⏱</span>';
         const res = await fetch('/api/recommend', {
           method: 'POST',
