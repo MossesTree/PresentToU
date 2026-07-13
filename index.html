@@ -40,8 +40,8 @@
     .panel h2 { font-size: 17px; margin-bottom: 6px; }
     .panel .hint { color: var(--muted); font-size: 13px; margin-bottom: 18px; }
 
-    .uploads { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    @media (max-width: 620px){ .uploads { grid-template-columns: 1fr; } }
+    .uploads { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    @media (max-width: 720px){ .uploads { grid-template-columns: 1fr; } }
     .drop {
       border: 1.5px dashed var(--line); border-radius: 14px; padding: 22px 16px;
       text-align: center; cursor: pointer; transition: .18s; background: #15172b;
@@ -52,6 +52,30 @@
     .drop .label { font-weight: 600; margin-top: 8px; font-size: 14px; }
     .drop .sub { color: var(--muted); font-size: 12px; margin-top: 4px; word-break: break-all; }
     .drop input { display: none; }
+    .drop input[type="text"], .drop input[type="number"] {
+      display: block; width: 100%; padding: 8px; border: 1px solid var(--line);
+      border-radius: 8px; background: #0f1020; color: var(--text); text-align: center;
+    }
+    .budget-range { text-align: left; }
+    .budget-track { position: relative; height: 24px; margin-top: 8px; }
+    .budget-track::before {
+      content: ""; position: absolute; top: 10px; left: 0; right: 0; height: 4px;
+      border-radius: 4px; background: var(--line);
+    }
+    .drop input[type="range"] {
+      position: absolute; inset: 0; display: block; width: 100%; margin: 0;
+      appearance: none; background: transparent; pointer-events: none;
+    }
+    .drop input[type="range"]::-webkit-slider-runnable-track { background: transparent; }
+    .drop input[type="range"]::-moz-range-track { background: transparent; }
+    .drop input[type="range"]::-webkit-slider-thumb {
+      appearance: none; width: 18px; height: 18px; margin-top: -7px; border: 0;
+      border-radius: 50%; background: var(--accent); pointer-events: auto; cursor: pointer;
+    }
+    .drop input[type="range"]::-moz-range-thumb {
+      width: 18px; height: 18px; border: 0; border-radius: 50%; background: var(--accent);
+      pointer-events: auto; cursor: pointer;
+    }
 
     .cta {
       display: block; width: 100%; margin-top: 22px; padding: 16px;
@@ -122,18 +146,34 @@
 
     <!-- 입력 패널 -->
     <section class="panel" id="inputPanel">
-      <h2>대화 데이터 업로드</h2>
-      <p class="hint">카카오톡 대화 내보내기 파일과 통화 음성 녹음 중 하나 이상을 올려주세요. (데모: 실제 분석 없이 예시 추천을 보여줍니다)</p>
+      <h2>선물 추천 정보 입력</h2>
+      <p class="hint">선물 받는 사람의 정보와 대화 데이터를 입력해주세요. (데모: 실제 분석 없이 예시 추천을 보여줍니다)</p>
       <div class="uploads">
+        <label class="drop">
+          <div class="ico">👤</div>
+          <div class="label">선물 받는 사람</div>
+          <div class="sub"><input type="text" id="recipientName" placeholder="이름 입력" /></div>
+        </label>
+        <label class="drop">
+          <div class="ico">💰</div>
+          <div class="label">선물 예산</div>
+          <div class="sub budget-range">
+            <div class="budget-track" aria-label="예산 범위">
+              <input type="range" id="budgetMin" min="1000" max="300000" step="1000" value="50000" aria-label="최소 예산" />
+              <input type="range" id="budgetMax" min="1000" max="300000" step="1000" value="100000" aria-label="최대 예산" />
+            </div>
+          </div>
+          <div class="sub" id="budgetValue">50,000원 ~ 100,000원</div>
+        </label>
         <label class="drop" id="dropChat">
           <div class="ico">💬</div>
-          <div class="label">카카오톡 대화 파일</div>
+          <div class="label">대화 데이터 파일</div>
           <div class="sub">.txt / .csv</div>
           <input type="file" id="chatFile" accept=".txt,.csv" />
         </label>
         <label class="drop" id="dropVoice">
           <div class="ico">🎙️</div>
-          <div class="label">통화 음성 녹음</div>
+          <div class="label">음성 녹음 파일</div>
           <div class="sub">.mp3 / .m4a / .wav</div>
           <input type="file" id="voiceFile" accept="audio/*" />
         </label>
@@ -166,6 +206,10 @@
 
     const chatFile = document.getElementById('chatFile');
     const voiceFile = document.getElementById('voiceFile');
+    const recipientName = document.getElementById('recipientName');
+    const budgetMin = document.getElementById('budgetMin');
+    const budgetMax = document.getElementById('budgetMax');
+    const budgetValue = document.getElementById('budgetValue');
     const dropChat = document.getElementById('dropChat');
     const dropVoice = document.getElementById('dropVoice');
     const btn = document.getElementById('recommendBtn');
@@ -176,8 +220,7 @@
     const elapsedEl = document.getElementById('elapsed');
 
     function refresh() {
-      const hasAny = chatFile.files.length || voiceFile.files.length;
-      btn.disabled = !hasAny;
+      btn.disabled = !recipientName.value.trim() || !(chatFile.files.length || voiceFile.files.length);
     }
 
     function bindDrop(input, drop) {
@@ -193,6 +236,15 @@
     }
     bindDrop(chatFile, dropChat);
     bindDrop(voiceFile, dropVoice);
+    recipientName.addEventListener('input', refresh);
+    [budgetMin, budgetMax].forEach(input => input.addEventListener('input', () => {
+      if (Number(budgetMin.value) > Number(budgetMax.value)) {
+        if (input === budgetMin) budgetMax.value = budgetMin.value;
+        else budgetMin.value = budgetMax.value;
+      }
+      budgetValue.textContent = `${Number(budgetMin.value).toLocaleString()}원 ~ ${Number(budgetMax.value).toLocaleString()}원`;
+      refresh();
+    }));
 
     function pick3() {
       const pool = [...GIFT_POOL];
