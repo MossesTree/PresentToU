@@ -65,6 +65,17 @@ export default async function handler(req, res) {
       return;
     }
 
+    // 컨텍스트 길이 초과 방지: 대화가 너무 길면 최근 부분만 사용
+    // (모델 한도 128K 토큰. 한국어는 글자당 토큰이 커서 보수적으로 자름)
+    const MAX_CHARS = 16000;
+    let convo = conversation || '';
+    let convoNote = note || '';
+    if (convo.length > MAX_CHARS) {
+      convo = convo.slice(-MAX_CHARS); // 최근 대화 위주로 분석
+      const extra = `대화가 매우 길어 최근 약 ${MAX_CHARS.toLocaleString('ko-KR')}자만 분석했습니다.`;
+      convoNote = convoNote ? `${convoNote} ${extra}` : extra;
+    }
+
     const aiRes = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -75,7 +86,7 @@ export default async function handler(req, res) {
         model: MODEL,
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user', content: buildUserPrompt({ recipientName, budgetMin, budgetMax, conversation, note }) },
+          { role: 'user', content: buildUserPrompt({ recipientName, budgetMin, budgetMax, conversation: convo, note: convoNote }) },
         ],
         response_format: { type: 'json_object' },
         temperature: 0.7,
