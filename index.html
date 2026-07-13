@@ -179,8 +179,8 @@
         <label class="drop" id="dropData">
           <div class="ico">💬</div>
           <div class="label">대화 데이터 업로드</div>
-          <div class="sub">.txt / .wav / .zip</div>
-          <input type="file" id="dataFile" accept=".txt,.csv,.wav,.mp3,.m4a,.zip,audio/wav,application/zip" />
+          <div class="sub">.txt / .wav / .zip · 여러 개 가능</div>
+          <input type="file" id="dataFile" accept=".txt,.csv,.wav,.mp3,.m4a,.zip,audio/wav,application/zip" multiple />
         </label>
       </div>
       <button class="cta" id="recommendBtn" disabled>TOP 3 선물 추천받기</button>
@@ -228,9 +228,12 @@
     dataFile.addEventListener('change', () => {
       if (dataFile.files.length) {
         dropData.classList.add('filled');
-        dropData.querySelector('.sub').textContent = dataFile.files[0].name;
+        const names = Array.from(dataFile.files).map((f) => f.name);
+        dropData.querySelector('.sub').textContent =
+          names.length === 1 ? names[0] : `${names.length}개 파일: ${names.join(', ')}`;
       } else {
         dropData.classList.remove('filled');
+        dropData.querySelector('.sub').textContent = '.txt / .wav / .zip · 여러 개 가능';
       }
       refresh();
     });
@@ -249,13 +252,24 @@
         ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     }
 
-    // 텍스트 파일이면 내용을 읽고, 그 외(오디오/zip)는 이름·예산 기준으로만 추천
-    async function readConversation(file) {
-      const name = (file.name || '').toLowerCase();
-      if (name.endsWith('.txt') || name.endsWith('.csv') || (file.type || '').startsWith('text')) {
-        return { text: await file.text(), note: '' };
+    // 여러 파일 지원: 텍스트 파일들은 파일명 헤더와 함께 이어붙이고, 그 외(오디오/zip)는 참고 메모로
+    async function readConversations(files) {
+      const parts = [];
+      const skipped = [];
+      for (const file of files) {
+        const name = (file.name || '').toLowerCase();
+        const isText = name.endsWith('.txt') || name.endsWith('.csv') || (file.type || '').startsWith('text');
+        if (isText) {
+          const content = await file.text();
+          parts.push(`===== ${file.name} =====\n${content}`);
+        } else {
+          skipped.push(file.name);
+        }
       }
-      return { text: '', note: `업로드 파일(${file.name})은 텍스트가 아니라 내용 분석은 생략했고, 이름·예산 기준으로 추천했습니다.` };
+      const note = skipped.length
+        ? `텍스트가 아닌 파일(${skipped.join(', ')})은 내용 분석에서 제외했습니다.`
+        : '';
+      return { text: parts.join('\n\n'), note };
     }
 
     function render(data) {
@@ -300,7 +314,7 @@
       btn.disabled = true;
       const start = performance.now();
       try {
-        const { text, note } = await readConversation(dataFile.files[0]);
+        const { text, note } = await readConversations(dataFile.files);
         const res = await fetch('/api/recommend', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
