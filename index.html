@@ -179,7 +179,7 @@
         <label class="drop" id="dropData">
           <div class="ico">💬</div>
           <div class="label">대화 데이터 업로드</div>
-          <div class="sub">.txt / .wav / .zip · 여러 개 가능</div>
+          <div class="sub">.txt(대화) / 음성(.wav·.m4a 자동 전사) · 여러 개</div>
           <input type="file" id="dataFile" accept=".txt,.csv,.wav,.mp3,.m4a,.zip,audio/wav,application/zip" multiple />
         </label>
       </div>
@@ -233,7 +233,7 @@
           names.length === 1 ? names[0] : `${names.length}개 파일: ${names.join(', ')}`;
       } else {
         dropData.classList.remove('filled');
-        dropData.querySelector('.sub').textContent = '.txt / .wav / .zip · 여러 개 가능';
+        dropData.querySelector('.sub').textContent = '.txt(대화) / 음성(.wav·.m4a 자동 전사) · 여러 개';
       }
       refresh();
     });
@@ -252,23 +252,54 @@
         ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     }
 
-    // 여러 파일 지원: 텍스트 파일들은 파일명 헤더와 함께 이어붙이고, 그 외(오디오/zip)는 참고 메모로
+    // 오디오로 인식할 확장자 (OpenAI whisper 지원 포맷)
+    const AUDIO_EXT = ['.wav', '.mp3', '.m4a', '.ogg', '.webm', '.mpga', '.mp4', '.mpeg'];
+    const MAX_AUDIO_BYTES = 4 * 1024 * 1024; // Vercel 서버리스 요청 본문 한도(~4.5MB) 보호
+    // OpenAI 프로젝트가 접근 가능한 전사 모델. 프로젝트에 whisper 대신 다른 모델만 있으면
+    // 여기서 'gpt-4o-mini-transcribe' 등으로 바꾸면 됩니다.
+    const TRANSCRIBE_MODEL = 'whisper-1';
+
+    // 음성 파일을 서버(/api/transcribe)로 보내 전사 텍스트를 받는다 (키는 서버에만 존재)
+    async function transcribe(file) {
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('model', TRANSCRIBE_MODEL);
+      const res = await fetch('/api/transcribe', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
+      return data.text || '';
+    }
+
+    // 여러 파일 지원: 텍스트는 원문, 음성은 전사해서 파일명 헤더와 함께 이어붙인다
     async function readConversations(files) {
       const parts = [];
       const skipped = [];
-      for (const file of files) {
+      const list = Array.from(files);
+      for (let i = 0; i < list.length; i++) {
+        const file = list[i];
         const name = (file.name || '').toLowerCase();
         const isText = name.endsWith('.txt') || name.endsWith('.csv') || (file.type || '').startsWith('text');
+        const isAudio = AUDIO_EXT.some((e) => name.endsWith(e)) || (file.type || '').startsWith('audio');
         if (isText) {
           const content = await file.text();
           parts.push(`===== ${file.name} =====\n${content}`);
+        } else if (isAudio) {
+          if (file.size > MAX_AUDIO_BYTES) {
+            skipped.push(`${file.name} (음성 파일이 4MB를 초과)`);
+            continue;
+          }
+          statusEl.innerHTML = `음성 파일 전사 중 (${i + 1}/${list.length}: ${esc(file.name)})… <span class="timer">⏱</span>`;
+          try {
+            const text = await transcribe(file);
+            parts.push(`===== ${file.name} (음성 전사) =====\n${text}`);
+          } catch (e) {
+            skipped.push(`${file.name} (전사 실패: ${e.message})`);
+          }
         } else {
           skipped.push(file.name);
         }
       }
-      const note = skipped.length
-        ? `텍스트가 아닌 파일(${skipped.join(', ')})은 내용 분석에서 제외했습니다.`
-        : '';
+      const note = skipped.length ? `일부 파일 제외/실패: ${skipped.join(', ')}` : '';
       return { text: parts.join('\n\n'), note };
     }
 
@@ -310,11 +341,12 @@
     btn.addEventListener('click', async () => {
       if (!recipientName.value.trim() || !dataFile.files.length) return;
       statusEl.className = 'status';
-      statusEl.innerHTML = '대화 내용을 AI가 분석하는 중… <span class="timer">⏱</span>';
+      statusEl.innerHTML = '파일을 처리하는 중… <span class="timer">⏱</span>';
       btn.disabled = true;
       const start = performance.now();
       try {
         const { text, note } = await readConversations(dataFile.files);
+        statusEl.innerHTML = '대화 내용을 AI가 분석하는 중… <span class="timer">⏱</span>';
         const res = await fetch('/api/recommend', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
