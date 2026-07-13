@@ -147,7 +147,7 @@
     <!-- 입력 패널 -->
     <section class="panel" id="inputPanel">
       <h2>선물 추천 정보 입력</h2>
-      <p class="hint">선물 받는 사람의 정보와 대화 데이터를 입력해주세요. (데모: 실제 분석 없이 예시 추천을 보여줍니다)</p>
+      <p class="hint">선물 받는 사람의 정보와 대화 데이터를 입력해주세요. txt, wav, zip 파일을 지원합니다. (데모: 실제 분석 없이 예시 추천을 보여줍니다)</p>
       <div class="uploads">
         <label class="drop">
           <div class="ico">👤</div>
@@ -165,17 +165,11 @@
           </div>
           <div class="sub" id="budgetValue">50,000원 ~ 100,000원</div>
         </label>
-        <label class="drop" id="dropChat">
+        <label class="drop" id="dropData">
           <div class="ico">💬</div>
-          <div class="label">대화 데이터 파일</div>
-          <div class="sub">.txt / .csv</div>
-          <input type="file" id="chatFile" accept=".txt,.csv" />
-        </label>
-        <label class="drop" id="dropVoice">
-          <div class="ico">🎙️</div>
-          <div class="label">음성 녹음 파일</div>
-          <div class="sub">.mp3 / .m4a / .wav</div>
-          <input type="file" id="voiceFile" accept="audio/*" />
+          <div class="label">대화 데이터 업로드</div>
+          <div class="sub">.txt / .wav / .zip</div>
+          <input type="file" id="dataFile" accept=".txt,.csv,.wav,.mp3,.m4a,.zip,audio/wav,application/zip" />
         </label>
       </div>
       <button class="cta" id="recommendBtn" disabled>TOP 3 선물 추천받기</button>
@@ -204,14 +198,12 @@
       { emoji: "🎧", bg: "linear-gradient(135deg,#fbc2eb,#a6c1ee)", name: "블루투스 미니 스피커", reason: "음악/노래 관심 신호", price: "3~5만원", detail: "음악을 즐기는 상대를 위한 실용 가전. 디자인 위주 모델은 인테리어 소품으로도 좋아요.", signals: ["음악", "가전", "실용"], link: "https://www.coupang.com/np/search?q=블루투스+미니+스피커" }
     ];
 
-    const chatFile = document.getElementById('chatFile');
-    const voiceFile = document.getElementById('voiceFile');
+    const dataFile = document.getElementById('dataFile');
     const recipientName = document.getElementById('recipientName');
     const budgetMin = document.getElementById('budgetMin');
     const budgetMax = document.getElementById('budgetMax');
     const budgetValue = document.getElementById('budgetValue');
-    const dropChat = document.getElementById('dropChat');
-    const dropVoice = document.getElementById('dropVoice');
+    const dropData = document.getElementById('dropData');
     const btn = document.getElementById('recommendBtn');
     const statusEl = document.getElementById('status');
     const results = document.getElementById('results');
@@ -220,7 +212,7 @@
     const elapsedEl = document.getElementById('elapsed');
 
     function refresh() {
-      btn.disabled = !recipientName.value.trim() || !(chatFile.files.length || voiceFile.files.length);
+      btn.disabled = !recipientName.value.trim() || !dataFile.files.length;
     }
 
     function bindDrop(input, drop) {
@@ -234,8 +226,7 @@
         refresh();
       });
     }
-    bindDrop(chatFile, dropChat);
-    bindDrop(voiceFile, dropVoice);
+    bindDrop(dataFile, dropData);
     recipientName.addEventListener('input', refresh);
     [budgetMin, budgetMax].forEach(input => input.addEventListener('input', () => {
       if (Number(budgetMin.value) > Number(budgetMax.value)) {
