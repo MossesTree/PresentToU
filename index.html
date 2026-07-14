@@ -335,6 +335,7 @@
     }
     .name { font-weight: 900; font-size: 16px; line-height: 1.35; }
     .reason { color: var(--muted-foreground); font-size: 13px; line-height: 1.5; margin-top: 6px; flex: 1; }
+    .reason-label { display: block; margin-bottom: 4px; color: var(--primary); font-size: 11px; font-weight: 700; letter-spacing: .08em; }
     .price { font-weight: 700; color: var(--primary); margin-top: 8px; font-size: 15px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
     .flip-hint { color: var(--muted-foreground); font-size: 11px; margin-top: 10px; }
     .back { background: oklch(0.93 0.03 20 / 0.35); transform: rotateY(180deg); }
@@ -788,10 +789,11 @@
       elements.cards.innerHTML = gifts.map((gift, index) => {
         const links = createPurchaseLinks(gift);
         const signals = Array.isArray(gift.signals) ? gift.signals : [];
+        const recommendationReason = gift.reason || '대화에서 확인한 취향과 선택한 예산을 바탕으로 추천했습니다.';
         return `<div class="card" tabindex="0"><div class="card-inner">
           <div class="face front"><div class="rank">TOP ${index + 1}</div>
             <div class="thumb" style="background:${THUMBNAIL_BACKGROUNDS[index % THUMBNAIL_BACKGROUNDS.length]}">${escapeHtml(gift.emoji || '🎁')}</div>
-            <div class="name">${escapeHtml(gift.name)}</div><div class="reason">${escapeHtml(gift.reason)}</div>
+            <div class="name">${escapeHtml(gift.name)}</div><div class="reason"><span class="reason-label">추천 근거</span>${escapeHtml(recommendationReason)}</div>
             <div class="price">예상 ${escapeHtml(gift.price)}</div><div class="flip-hint">↺ 커서를 올리면 상세 보기</div>
           </div><div class="face back"><h3>${escapeHtml(gift.name)}</h3>
             <div class="detail">${escapeHtml(gift.detail)}</div>
