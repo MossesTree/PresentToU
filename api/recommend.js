@@ -103,6 +103,37 @@ ${recent && recent.trim() ? recent : '(대화 텍스트 없음)'}
 
 ${note ? `[참고 노트]\n${note}` : ''}`;
 }
+
+// 2차 패스: TOP 3의 각 "방향/카테고리"를 실제로 구매 가능한 구체적 상품 하나로 특정한다
+async function refineToProduct(apiKey, item, ctx) {
+  const sys = `너는 쇼핑 큐레이터야. 주어진 "선물 방향/카테고리"를 실제로 구매 가능한 '구체적인 상품 하나'로 특정해라.
+- 브랜드·모델·구성처럼 쇼핑몰에서 검색하면 바로 살 수 있는 수준으로 구체화해라. 카테고리·뭉뚱그린 표현(예: "커피 세트")은 금지, 하나의 실제 상품으로.
+- 가격대는 반드시 입력된 예산 범위 안이어야 한다.
+- 한국어로, 마크다운 없이 아래 JSON만 출력해라.
+[JSON]
+{"name":"구체적 상품명(브랜드/모델 포함)","emoji":"대표 이모지 1개","reason":"이 상품을 고른 핵심 근거 한 줄","price":"예상 가격대(예산 내)","detail":"상세 설명 2~3문장","signals":["취향/니즈 키워드 3개"],"query":"쿠팡 검색용 구체 키워드"}`;
+  const user = `[받는 사람] ${ctx.recipientName || '(미입력)'}
+[예산 범위] ${won(ctx.budgetMin)} ~ ${won(ctx.budgetMax)}
+[추천 방향] ${item.name || ''}
+[추천 이유] ${item.reason || ''}
+[취향 신호] ${(Array.isArray(item.signals) ? item.signals : []).join(', ')}`;
+  const content = await callOpenAI(apiKey, [
+    { role: 'system', content: sys },
+    { role: 'user', content: user },
+  ], { json: true, temperature: 0.6 });
+  const p = JSON.parse(content);
+  // 모델이 일부 필드를 빠뜨리면 원래 항목 값으로 보완
+  return {
+    name: p.name || item.name,
+    emoji: p.emoji || item.emoji || '🎁',
+    reason: p.reason || item.reason || '',
+    price: p.price || item.price || '',
+    detail: p.detail || item.detail || '',
+    signals: Array.isArray(p.signals) && p.signals.length ? p.signals : (item.signals || []),
+    query: p.query || p.name || item.query || item.name,
+  };
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'POST만 지원합니다.' });
@@ -152,7 +183,18 @@ export default async function handler(req, res) {
       { role: 'user', content: buildUserPrompt({ recipientName, budgetMin, budgetMax, summary, recent, note: convoNote }) },
     ], { json: true, temperature: 0.7 });
 
-    res.status(200).json(JSON.parse(content));
+    const result = JSON.parse(content);
+
+    // 2차 패스: 각 추천을 구체적인 단일 상품으로 특정 (병렬, 실패 시 원본 유지)
+    if (Array.isArray(result.top3)) {
+      result.top3 = await Promise.all(
+        result.top3.slice(0, 3).map((item) =>
+          refineToProduct(apiKey, item, { recipientName, budgetMin, budgetMax }).catch(() => item)
+        )
+      );
+    }
+
+    res.status(200).json(result);
   } catch (err) {
     console.error(err);
     const status = err.status && err.status >= 400 && err.status < 600 ? 502 : 500;
