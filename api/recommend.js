@@ -10,6 +10,16 @@ const MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini';
 const RECENT_CHARS = 12000;   // 최근 대화 원문 유지 길이
 const SUMMARY_MAX = 4000;     // 요약문 최대 길이
 const SUMMARY_SRC_CAP = 40000; // 요약 대상으로 한 번에 넣는 최대 원문 길이(컨텍스트 보호)
+// 서버 로그를 요청 ID와 함께 남겨 긴 추천 요청의 병목 구간을 추적한다
+function createRequestId(req) {
+  return req.headers['x-request-id'] || `${Date.now().toString(36)}-${Math.random().toString(16).slice(2)}`;
+}
+
+function logEvent(requestId, event, details = {}, level = 'info') {
+  const payload = JSON.stringify({ scope: 'recommend', timestamp: new Date().toISOString(), requestId, event, ...details });
+  if (level === 'error') console.error(payload);
+  else console.log(payload);
+}
 
 // 2차 웹검색(gpt-5.6-luna)은 응답이 오래 걸려 함수 실행 시간을 넉넉히 잡는다. Vercel Hobby 최대 60초.
 export const config = { maxDuration: 60 };
@@ -58,7 +68,7 @@ async function summarizeConversation(apiKey, text) {
 }
 
 const SYSTEM_PROMPT = `너는 선물 추천 전문가야. 
-사용자가 제공한 정보(받는 사람 이름, 성별, 예산 범위, 이전 대화 요약, 최근 대화 원문)를 종합 분석해서 다음 세 가지 임무를 수행해.
+사용자가 제공한 정보(받는 사람 이름, 성별, 관계, 예산 범위, 이전 대화 요약, 최근 대화 원문)를 종합 분석해서 다음 세 가지 임무를 수행해.
 
 1) 두 사람의 관계와 받는 사람의 취향을 짧게 분석해.
 2) 예산 범위 안에서 실패하지 않을 선물 TOP 3를 추천해. (반드시 3개)
@@ -90,13 +100,14 @@ const SYSTEM_PROMPT = `너는 선물 추천 전문가야.
   }
 }`;
 
-function buildUserPrompt({ recipientName, gender, budgetMin, budgetMax, summary, recent, note }) {
+function buildUserPrompt({ recipientName, gender, relationship, budgetMin, budgetMax, summary, recent, note }) {
   // 예산 포맷팅 함수가 외부에 있다고 가정 (예: 10,000원)
   const budgetStr = `${won(budgetMin)} ~ ${won(budgetMax)}`;
 
   return `[입력 데이터]
 - 받는 사람: ${recipientName || '(미입력)'}
 - 성별: ${gender || '(미입력)'}
+- 관계: ${relationship || '(미입력)'}
 - 예산 범위: ${budgetStr}
 
 [이전 대화 요약]
@@ -163,6 +174,7 @@ async function refineToProduct(apiKey, item, ctx) {
 
 [받는 사람] ${ctx.recipientName || '(미입력)'}
 [성별] ${ctx.gender || '(미입력)'}
+[관계] ${ctx.relationship || '(미입력)'}
 [예산 범위] ${won(ctx.budgetMin)} ~ ${won(ctx.budgetMax)}
 [추천 방향] ${item.name || ''}
 [추천 이유] ${item.reason || ''}
@@ -187,13 +199,20 @@ async function refineToProduct(apiKey, item, ctx) {
 }
 
 export default async function handler(req, res) {
+  const requestId = createRequestId(req);
+  const startedAt = Date.now();
+  const log = (event, details = {}, level = 'info') => logEvent(requestId, event, details, level);
+  res.setHeader('x-request-id', requestId);
+  log('request.start', { method: req.method });
   if (req.method !== 'POST') {
+    log('request.rejected', { reason: 'method_not_allowed' }, 'error');
     res.status(405).json({ error: 'POST만 지원합니다.' });
     return;
   }
 
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
+    log('request.rejected', { reason: 'missing_api_key' }, 'error');
     res.status(500).json({ error: '환경변수 OPENAI_API_KEY가 설정되지 않았습니다.' });
     return;
   }
@@ -201,10 +220,12 @@ export default async function handler(req, res) {
   try {
     // Vercel은 JSON 본문을 자동 파싱하지만, 문자열로 올 경우도 방어
     const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
-    const { recipientName, gender, budgetMin, budgetMax, conversation, note } = body;
+    const { recipientName, gender, relationship, budgetMin, budgetMax, conversation, note } = body;
+    log('request.body.parsed', { conversationLength: (conversation || '').length, hasRecipientName: Boolean(recipientName), hasNote: Boolean(note), budgetMin, budgetMax });
 
     // 이름 또는 대화 내용 중 하나는 있어야 추천 가능
     if ((!recipientName || !recipientName.trim()) && (!conversation || !conversation.trim())) {
+      log('request.rejected', { reason: 'missing_input' }, 'error');
       res.status(400).json({ error: '받는 사람 이름 또는 대화 내용이 필요합니다.' });
       return;
     }
@@ -220,34 +241,55 @@ export default async function handler(req, res) {
       const older = convo.slice(0, -RECENT_CHARS);
       if (older.trim()) {
         try {
+          log('summary.start', { sourceLength: older.length });
           summary = await summarizeConversation(apiKey, older);
+          log('summary.complete', { summaryLength: summary.length });
           convoNote = [convoNote, `대화가 길어 이전 내용은 ${SUMMARY_MAX.toLocaleString('ko-KR')}자 이내 요약으로, 최근 ${RECENT_CHARS.toLocaleString('ko-KR')}자는 원문으로 분석했습니다.`]
             .filter(Boolean).join(' ');
         } catch (e) {
+          log('summary.error', { name: e.name, message: e.message }, 'error');
           // 요약 실패 시 최근 원문만으로 진행 (전체 실패 방지)
           convoNote = [convoNote, '이전 대화 요약에 실패해 최근 대화 원문만으로 분석했습니다.'].filter(Boolean).join(' ');
         }
       }
     }
 
+    log('recommendation.start', { recentLength: recent.length, summaryLength: summary.length });
+    log('recommendation.openai.start', { model: MODEL });
     const content = await callOpenAI(apiKey, [
       { role: 'system', content: SYSTEM_PROMPT },
-      { role: 'user', content: buildUserPrompt({ recipientName, gender, budgetMin, budgetMax, summary, recent, note: convoNote }) },
+      { role: 'user', content: buildUserPrompt({ recipientName, gender, relationship, budgetMin, budgetMax, summary, recent, note: convoNote }) },
     ], { json: true, temperature: 0.7 });
 
     const result = JSON.parse(content);
+    log('recommendation.openai.complete', { contentLength: content.length });
+    log('recommendation.complete', { top3Count: Array.isArray(result.top3) ? result.top3.length : 0 });
 
     // 2차 패스: 각 추천을 구체적인 단일 상품으로 특정 (병렬, 실패 시 원본 유지)
     if (Array.isArray(result.top3)) {
+      log('product_refinement.start', { itemCount: Math.min(result.top3.length, 3) });
       result.top3 = await Promise.all(
-        result.top3.slice(0, 3).map((item) =>
-          refineToProduct(apiKey, item, { recipientName, gender, budgetMin, budgetMax }).catch(() => item)
-        )
+        result.top3.slice(0, 3).map((item, index) => {
+          const itemStartedAt = Date.now();
+          log('product_refinement.item.start', { index });
+          return refineToProduct(apiKey, item, { recipientName, gender, relationship, budgetMin, budgetMax })
+            .then((refined) => {
+              log('product_refinement.item.complete', { index, durationMs: Date.now() - itemStartedAt });
+              return refined;
+            })
+            .catch((error) => {
+              log('product_refinement.item.error', { index, name: error.name, message: error.message, durationMs: Date.now() - itemStartedAt }, 'error');
+              return item;
+            });
+        })
       );
+      log('product_refinement.complete', { itemCount: result.top3.length });
     }
 
+    log('request.complete', { durationMs: Date.now() - startedAt });
     res.status(200).json(result);
   } catch (err) {
+    log('request.error', { name: err.name, message: err.message, durationMs: Date.now() - startedAt }, 'error');
     console.error(err);
     const status = err.status && err.status >= 400 && err.status < 600 ? 502 : 500;
     res.status(status).json({ error: err.message || '서버 오류' });

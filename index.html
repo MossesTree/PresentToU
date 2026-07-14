@@ -560,6 +560,7 @@
     const MAX_AUDIO_BYTES = 4 * 1024 * 1024;
     const TRANSCRIBE_MODEL = 'whisper-large-v3';
     const RECOMMEND_TIMEOUT_MS = 55000;
+    const LOG_PREFIX = '[PresentToU]';
     const THUMBNAIL_BACKGROUNDS = [
       'oklch(0.93 0.03 20)',
       'oklch(0.9 0.07 65 / 0.45)',
@@ -593,9 +594,20 @@
       elapsed: document.getElementById('elapsed'),
       ingest: document.getElementById('ingest'),
       restartButton: document.getElementById('restartBtn'),
+      requestId: null,
     };
 
+    // 브라우저 콘솔에서 한 요청의 전체 처리 흐름을 묶어 볼 수 있게 로그를 남긴다
+    function logClientEvent(event, details = {}, level = 'info') {
+      const payload = { timestamp: new Date().toISOString(), event, ...details };
+      console[level]?.(LOG_PREFIX, payload);
+    }
     /* ===== 3. 순수 함수 (계산/변환) ===== */
+    // 한 번의 추천 흐름을 브라우저 콘솔에서 식별할 수 있는 ID를 만든다
+    function createRequestId() {
+      return crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    }
+
     // HTML에 넣을 외부 데이터를 이스케이프해 결과 카드의 마크업을 보호한다
     function escapeHtml(value) {
       return String(value ?? '').replace(/[&<>"']/g, (character) => ({
@@ -627,6 +639,8 @@
 
     // 대화 파일을 분석 API가 읽을 수 있는 텍스트로 합친다
     async function readConversationFiles(files, updateStatus) {
+      const startedAt = performance.now();
+      logClientEvent('conversation.read.start', { requestId: elements.requestId, fileCount: files.length });
       const parts = [];
       const skipped = [];
       let transcribedCount = 0;
@@ -635,6 +649,7 @@
       for (let index = 0; index < fileList.length; index += 1) {
         const file = fileList[index];
         const { isText, isAudio } = classifyFile(file);
+        logClientEvent('conversation.file.classified', { requestId: elements.requestId, index, size: file.size, type: file.type || 'unknown', isText, isAudio });
         if (isText) {
           parts.push(`===== ${file.name} =====\n${await file.text()}`);
           continue;
@@ -649,10 +664,13 @@
         }
         updateStatus(`음성 파일 전사 중 (${index + 1}/${fileList.length}: ${escapeHtml(file.name)})…`);
         try {
+          logClientEvent('transcription.start', { requestId: elements.requestId, index, size: file.size });
           const text = await transcribeAudioFile(file);
+          logClientEvent('transcription.complete', { requestId: elements.requestId, index, durationMs: Math.round(performance.now() - startedAt) });
           parts.push(`===== ${file.name} (음성 전사) =====\n${text}`);
           transcribedCount += 1;
         } catch (error) {
+          logClientEvent('transcription.error', { requestId: elements.requestId, index, name: error.name, message: error.message }, 'error');
           skipped.push(`${file.name} (전사 실패: ${error.message})`);
         }
       }
@@ -660,7 +678,9 @@
       const notes = [];
       if (transcribedCount) notes.push(`음성 ${transcribedCount}건을 전사해 함께 분석했습니다.`);
       if (skipped.length) notes.push(`제외/실패: ${skipped.join(', ')}`);
-      return { text: parts.join('\n\n'), note: notes.join(' ') };
+      const result = { text: parts.join('\n\n'), note: notes.join(' ') };
+      logClientEvent('conversation.read.complete', { requestId: elements.requestId, durationMs: Math.round(performance.now() - startedAt), textLength: result.text.length, skippedCount: skipped.length, transcribedCount });
+      return result;
     }
 
     /* ===== 4. DOM 조작 함수 ===== */
@@ -739,11 +759,16 @@
     /* ===== 5. 이벤트 핸들러 ===== */
     // 서버 응답을 텍스트로 먼저 읽어 JSON 오류가 HTML 문구로 노출되지 않게 한다
     async function requestJson(url, options, timeoutMs = 0) {
+      const startedAt = performance.now();
+      logClientEvent('request.start', { requestId: elements.requestId, url, timeoutMs });
       const controller = new AbortController();
       const timeout = timeoutMs ? setTimeout(() => controller.abort(), timeoutMs) : null;
       try {
-        const response = await fetch(url, { ...options, signal: controller.signal });
-        const body = await response.text();
+        const headers = new Headers(options.headers || {});
+        if (elements.requestId) headers.set('x-request-id', elements.requestId);
+        const response = await fetch(url, { ...options, headers, signal: controller.signal });
+        logClientEvent('request.response', { requestId: elements.requestId, url, status: response.status, durationMs: Math.round(performance.now() - startedAt) });
+       const body = await response.text();
         let data = null;
         try {
           data = body ? JSON.parse(body) : null;
@@ -754,10 +779,18 @@
           const error = new Error(data?.error || `HTTP ${response.status}`);
           error.status = response.status;
           error.rawBody = body;
+          logClientEvent('request.error', { requestId: elements.requestId, url, status: response.status, message: error.message }, 'error');
           throw error;
         }
-        if (!data) throw new Error('서버 응답을 읽을 수 없습니다.');
+        if (!data) {
+          logClientEvent('request.parse.error', { requestId: elements.requestId, url }, 'error');
+          throw new Error('서버 응답을 읽을 수 없습니다.');
+        }
+        logClientEvent('request.complete', { requestId: elements.requestId, url, durationMs: Math.round(performance.now() - startedAt) });
         return data;
+      } catch (error) {
+        logClientEvent(error.name === 'AbortError' ? 'request.timeout' : 'request.network.error', { requestId: elements.requestId, url, name: error.name, message: error.message }, 'error');
+        throw error;
       } finally {
         if (timeout) clearTimeout(timeout);
       }
@@ -788,6 +821,8 @@
     async function handleRecommend() {
       if (elements.recommendButton.disabled) return;
       const startedAt = performance.now();
+      elements.requestId = createRequestId();
+      logClientEvent('recommend.start', { requestId: elements.requestId, fileCount: elements.dataFile.files.length });
       elements.recommendButton.disabled = true;
       updateStatus('파일을 처리하는 중…');
       try {
@@ -812,7 +847,9 @@
         elements.inputPanel.style.display = 'none';
         elements.results.classList.add('show');
         elements.results.scrollIntoView({ behavior: 'smooth' });
+        logClientEvent('recommend.complete', { requestId: elements.requestId, durationMs: Math.round(performance.now() - startedAt) });
       } catch (error) {
+        logClientEvent('recommend.error', { requestId: elements.requestId, name: error.name, status: error.status, message: error.message, durationMs: Math.round(performance.now() - startedAt) }, 'error');
         if (error.name === 'AbortError' || error.status === 502 || error.status === 504 || error.rawBody?.includes('An error occurred')) {
           showRetryMessage();
         } else {
