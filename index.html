@@ -283,6 +283,19 @@
     .retry-button { margin-left: 8px; padding: 4px 10px; border: 1px solid currentColor; border-radius: 999px; color: inherit; background: transparent; cursor: pointer; font-size: 12px; font-weight: 700; }
     .retry-button:hover { background: oklch(0.45 0.18 25 / 0.08); }
     .timer { color: var(--primary); font-weight: 700; }
+    .analysis-progress { display: none; grid-template-columns: repeat(5, 1fr); gap: 8px; max-width: 620px; margin: 18px auto 0; padding: 0; list-style: none; text-align: center; }
+    .analysis-progress.is-visible { display: grid; }
+    .progress-step { position: relative; color: var(--muted-foreground); font-size: 11px; transition: color .25s, transform .25s; }
+    .progress-step:not(:last-child)::after { position: absolute; top: 13px; left: calc(50% + 16px); width: calc(100% - 32px); height: 1px; content: ""; background: var(--border); transition: background .25s; }
+    .progress-dot { position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border: 1px solid var(--border); border-radius: 50%; background: var(--card); font-size: 11px; font-weight: 700; }
+    .progress-label { display: block; margin-top: 6px; white-space: nowrap; }
+    .progress-step.is-complete { color: var(--primary); }
+    .progress-step.is-complete .progress-dot { border-color: var(--primary); color: var(--primary-foreground); background: var(--primary); }
+    .progress-step.is-complete:not(:last-child)::after { background: var(--primary); }
+    .progress-step.is-active { color: var(--primary); font-weight: 700; transform: translateY(-2px); }
+    .progress-step.is-active .progress-dot { border-color: var(--gold); color: var(--gold-foreground); background: var(--gold); animation: progress-pulse 1.4s ease-in-out infinite; }
+    @keyframes progress-pulse { 0%, 100% { box-shadow: 0 0 0 0 oklch(0.72 0.09 65 / 0); } 50% { box-shadow: 0 0 0 6px oklch(0.72 0.09 65 / .18); } }
+    @media (max-width: 640px) { .analysis-progress { gap: 2px; } .progress-label { font-size: 10px; } .progress-step:not(:last-child)::after { left: calc(50% + 14px); width: calc(100% - 28px); } }
 
     /* ── 결과 ───────────────────────────────────────────── */
     .results { display: none; }
@@ -515,8 +528,16 @@
             취향 저격 선물 추천받기
             <svg class="i" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
           </button>
+          <ol class="analysis-progress" id="analysisProgress" aria-label="선물 추천 진행 단계">
+            <li class="progress-step" data-stage="0"><span class="progress-dot">1</span><span class="progress-label">파일 확인</span></li>
+            <li class="progress-step" data-stage="1"><span class="progress-dot">2</span><span class="progress-label">음성 전사</span></li>
+            <li class="progress-step" data-stage="2"><span class="progress-dot">3</span><span class="progress-label">취향 분석</span></li>
+            <li class="progress-step" data-stage="3"><span class="progress-dot">4</span><span class="progress-label">상품 탐색</span></li>
+            <li class="progress-step" data-stage="4"><span class="progress-dot">5</span><span class="progress-label">추천 완료</span></li>
+          </ol>
           <p class="cta-cap">무료 서비스 · 회원가입 불필요</p>
           <p class="status" id="status"></p>
+
         </div>
       </section>
     </div>
@@ -573,6 +594,8 @@
       budget: { min: 80000, max: 150000 },
       relationship: '애인',
       gender: '여성',
+      progressStage: -1,
+      progressTimer: null,
     };
 
     const elements = {
@@ -595,6 +618,7 @@
       ingest: document.getElementById('ingest'),
       restartButton: document.getElementById('restartBtn'),
       requestId: null,
+      analysisProgress: document.getElementById('analysisProgress'),
     };
 
     // 브라우저 콘솔에서 한 요청의 전체 처리 흐름을 묶어 볼 수 있게 로그를 남긴다
@@ -662,6 +686,7 @@
           skipped.push(`${file.name} (음성 파일이 4MB를 초과)`);
           continue;
         }
+        setAnalysisStage(1);
         updateStatus(`음성 파일 전사 중 (${index + 1}/${fileList.length}: ${escapeHtml(file.name)})…`);
         try {
           logClientEvent('transcription.start', { requestId: elements.requestId, index, size: file.size });
@@ -724,6 +749,38 @@
       elements.status.innerHTML = isError ? message : `${message} <span class="timer">⏱</span>`;
     }
 
+
+    // 현재 분석 단계를 시각적으로 강조하고 완료된 단계에 체크 상태를 적용한다
+    function setAnalysisStage(stageIndex) {
+      state.progressStage = stageIndex;
+      elements.analysisProgress.querySelectorAll('.progress-step').forEach((step) => {
+        const stepIndex = Number(step.dataset.stage);
+        step.classList.toggle('is-complete', stepIndex < stageIndex);
+        step.classList.toggle('is-active', stepIndex === stageIndex);
+        if (stepIndex === stageIndex) step.setAttribute('aria-current', 'step');
+        else step.removeAttribute('aria-current');
+      });
+    }
+
+    // 서버 응답을 기다리는 동안 분석과 상품 탐색 단계를 자연스럽게 순환한다
+    function startAnalysisProgress() {
+      elements.analysisProgress.classList.add('is-visible');
+      setAnalysisStage(0);
+      clearInterval(state.progressTimer);
+      state.progressTimer = setInterval(() => {
+        if (state.progressStage >= 3) return;
+        setAnalysisStage(state.progressStage + 1);
+      }, 5500);
+    }
+
+    // 분석이 끝나거나 실패하면 진행 애니메이션을 정리한다
+    function stopAnalysisProgress(showCompleted = false) {
+      clearInterval(state.progressTimer);
+      state.progressTimer = null;
+      if (showCompleted) setAnalysisStage(4);
+      else elements.analysisProgress.classList.remove('is-visible');
+    }
+
     // 분석 결과를 카드·분석 요약·금지 선물 영역에 표시한다
     function renderResults(data) {
       elements.analysis.innerHTML = `<div class="tag">관계 · 취향 분석</div><p>${escapeHtml(data.analysis)}</p>`;
@@ -748,6 +805,7 @@
 
     // 결과 화면을 닫고 새 분석을 시작할 수 있는 상태로 되돌린다
     function resetResults() {
+      stopAnalysisProgress();
       elements.results.classList.remove('show');
       elements.inputPanel.style.display = '';
       elements.status.textContent = '';
@@ -807,6 +865,7 @@
 
     // 오래 걸린 분석을 사용자가 다시 시작할 수 있도록 안내한다
     function showRetryMessage() {
+      stopAnalysisProgress();
       elements.status.className = 'status err';
       elements.status.innerHTML = '분석 시간이 길어 완료하지 못했어요. 잠시 후 다시 시도해 주세요.';
       const retryButton = document.createElement('button');
@@ -824,9 +883,11 @@
       elements.requestId = createRequestId();
       logClientEvent('recommend.start', { requestId: elements.requestId, fileCount: elements.dataFile.files.length });
       elements.recommendButton.disabled = true;
-      updateStatus('파일을 처리하는 중…');
+      startAnalysisProgress();
+      updateStatus('파일을 확인하고 분석을 준비하는 중…');
       try {
         const conversation = await readConversationFiles(elements.dataFile.files, updateStatus);
+        setAnalysisStage(2);
         updateStatus('대화 내용을 AI가 분석하는 중…');
         const data = await requestJson('/api/recommend', {
           method: 'POST',
@@ -847,8 +908,10 @@
         elements.inputPanel.style.display = 'none';
         elements.results.classList.add('show');
         elements.results.scrollIntoView({ behavior: 'smooth' });
+        stopAnalysisProgress(true);
         logClientEvent('recommend.complete', { requestId: elements.requestId, durationMs: Math.round(performance.now() - startedAt) });
       } catch (error) {
+        stopAnalysisProgress();
         logClientEvent('recommend.error', { requestId: elements.requestId, name: error.name, status: error.status, message: error.message, durationMs: Math.round(performance.now() - startedAt) }, 'error');
         if (error.name === 'AbortError' || error.status === 502 || error.status === 504 || error.rawBody?.includes('An error occurred')) {
           showRetryMessage();
