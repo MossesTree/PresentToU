@@ -54,44 +54,55 @@ async function summarizeConversation(apiKey, text) {
   return summary.slice(0, SUMMARY_MAX);
 }
 
-const SYSTEM_PROMPT = `너는 선물 추천 전문가야. 사용자가 준 정보(받는 사람 이름, 예산 범위, 이전 대화 요약, 최근 대화 원문)를 종합 분석해서 세 가지를 만들어줘.
-1) 두 사람의 관계와 받는 사람의 취향을 짧게 분석한 글
-2) 예산 범위 안에서 실패하지 않을(무난하게 받아들여질) 선물 TOP 3
-3) 이 관계·취향에서 절대 피해야 할 선물 1개
-모든 결과는 한국어로 작성하고, 반드시 지정된 JSON 스키마만 출력해. 추측이 필요한 부분은 주어진 단서를 근거로 합리적으로 채워. 추천 선물의 가격대는 반드시 예산 범위 안에 들어와야 해.`;
+const SYSTEM_PROMPT = `너는 선물 추천 전문가야. 
+사용자가 제공한 정보(받는 사람 이름, 예산 범위, 이전 대화 요약, 최근 대화 원문)를 종합 분석해서 다음 세 가지 임무를 수행해.
 
-function buildUserPrompt({ recipientName, budgetMin, budgetMax, summary, recent, note }) {
-  return `[받는 사람] ${recipientName || '(미입력)'}
-[예산 범위] ${won(budgetMin)} ~ ${won(budgetMax)}
-[이전 대화 요약]
-"""
-${summary && summary.trim() ? summary : '(요약 없음 — 아래 최근 대화만 참고)'}
-"""
-[최근 대화 원문]
-"""
-${recent && recent.trim() ? recent : '(대화 텍스트 없음)'}
-"""
-${note ? `\n[참고] ${note}` : ''}
+1) 두 사람의 관계와 받는 사람의 취향을 짧게 분석해.
+2) 예산 범위 안에서 실패하지 않을 선물 TOP 3를 추천해. (반드시 3개)
+3) 이 관계와 취향에서 절대 피해야 할 선물 1개를 꼽아.
 
-반드시 아래 JSON 형식으로만 응답해(다른 텍스트 금지):
+[제약 조건]
+- 추측이 필요한 부분은 주어진 대화 단서를 근거로 합리적으로 채워라.
+- 추천 선물의 가격대는 반드시 입력된 '예산 범위' 내에 있어야 한다.
+- 모든 결과는 한국어로 작성하라.
+- 다른 텍스트나 설명 없이 오직 아래의 JSON 형식으로만 응답해라. (Markdown 코드 블록 없이 순수 JSON만 출력할 것)
+
+[JSON 스키마]
 {
   "analysis": "관계와 취향에 대한 2~3문장 분석",
   "top3": [
     {
-      "name": "선물 이름",
+      "name": "구체적인 선물 이름",
       "emoji": "대표 이모지 1개",
-      "reason": "왜 이 선물인지 한 줄 근거",
-      "price": "예상 가격대 (반드시 예산 범위 안, 예: 3~5만원)",
-      "detail": "상세 설명 2~3문장",
-      "signals": ["신호1", "신호2", "신호3"],
-      "query": "쿠팡 검색용 키워드"
+      "reason": "왜 이 선물인지 핵심 근거 한 줄",
+      "price": "예상 가격대 (예: 30,000원 ~ 45,000원, 반드시 예산 범위 내)",
+      "detail": "상세 설명 및 추천 이유 2~3문장",
+      "signals": ["대화에서 포착된 취향/니즈 키워드 3개"],
+      "query": "쿠팡 등 쇼핑몰 검색용 최적화 키워드"
     }
   ],
-  "forbidden": { "name": "절대 금지 선물 1개", "reason": "왜 피해야 하는지 한 줄" }
-}
-top3는 정확히 3개여야 해.`;
-}
+  "forbidden": { 
+    "name": "절대 금지 선물 1개", 
+    "reason": "왜 피해야 하는지 이유 한 줄" 
+  }
+}`;
 
+function buildUserPrompt({ recipientName, budgetMin, budgetMax, summary, recent, note }) {
+  // 예산 포맷팅 함수가 외부에 있다고 가정 (예: 10,000원)
+  const budgetStr = `${won(budgetMin)} ~ ${won(budgetMax)}`;
+
+  return `[입력 데이터]
+- 받는 사람: ${recipientName || '(미입력)'}
+- 예산 범위: ${budgetStr}
+
+[이전 대화 요약]
+${summary && summary.trim() ? summary : '(요약 없음 — 아래 최근 대화만 참고)'}
+
+[최근 대화 원문]
+${recent && recent.trim() ? recent : '(대화 텍스트 없음)'}
+
+${note ? `[참고 노트]\n${note}` : ''}`;
+}
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'POST만 지원합니다.' });
