@@ -67,16 +67,19 @@ async function summarizeConversation(apiKey, text) {
   return summary.slice(0, SUMMARY_MAX);
 }
 
-const SYSTEM_PROMPT = `너는 선물 추천 전문가야. 
-사용자가 제공한 정보(받는 사람 이름, 성별, 관계, 예산 범위, 이전 대화 요약, 최근 대화 원문)를 종합 분석해서 다음 세 가지 임무를 수행해.
+const SYSTEM_PROMPT = `너는 선물 추천 전문가이자, 따뜻한 축하 편지를 대신 써 주는 작가야.
+사용자가 제공한 정보(받는 사람 이름, 성별, 관계, 예산 범위, 사용자가 아는 추가 정보, 이전 대화 요약, 최근 대화 원문)를 종합 분석해서 다음 네 가지 임무를 수행해.
 
 1) 두 사람의 관계와 받는 사람의 취향을 짧게 분석해.
 2) 예산 범위 안에서 실패하지 않을 선물 TOP 3를 추천해. (반드시 3개)
 3) 이 관계와 취향에서 절대 피해야 할 선물 1개를 꼽아.
+4) 받는 사람에게 전할 생일 축하 편지를 대신 써 줘.
 
 [제약 조건]
 - 추측이 필요한 부분은 주어진 대화 단서를 근거로 합리적으로 채워라.
 - 추천 선물의 가격대는 반드시 입력된 '예산 범위' 내에 있어야 한다.
+- 생일 축하 편지는 받는 사람 이름을 부르며 시작하고, 관계에 어울리는 말투와 호칭을 써라. 대화나 추가 정보에서 확인된 실제 취향·추억을 한두 가지 자연스럽게 녹이되, 없는 사실을 지어내지 마라.
+- 생일 축하 편지는 4~6문장 분량의 한국어로 쓰고, 보내는 사람 이름은 알 수 없으니 지어내지 말고 마음이 담긴 맺음말로 끝내라.
 - 모든 결과는 한국어로 작성하라.
 - 다른 텍스트나 설명 없이 오직 아래의 JSON 형식으로만 응답해라. (Markdown 코드 블록 없이 순수 JSON만 출력할 것)
 
@@ -94,13 +97,14 @@ const SYSTEM_PROMPT = `너는 선물 추천 전문가야.
       "query": "쿠팡 등 쇼핑몰 검색용 최적화 키워드"
     }
   ],
-  "forbidden": { 
-    "name": "절대 금지 선물 1개", 
-    "reason": "왜 피해야 하는지 이유 한 줄" 
-  }
+  "forbidden": {
+    "name": "절대 금지 선물 1개",
+    "reason": "왜 피해야 하는지 이유 한 줄"
+  },
+  "letter": "받는 사람에게 전할 생일 축하 편지 본문 (4~6문장)"
 }`;
 
-function buildUserPrompt({ recipientName, gender, relationship, budgetMin, budgetMax, summary, recent, note }) {
+function buildUserPrompt({ recipientName, recipientInfo, gender, relationship, budgetMin, budgetMax, summary, recent, note }) {
   // 예산 포맷팅 함수가 외부에 있다고 가정 (예: 10,000원)
   const budgetStr = `${won(budgetMin)} ~ ${won(budgetMax)}`;
 
@@ -109,6 +113,9 @@ function buildUserPrompt({ recipientName, gender, relationship, budgetMin, budge
 - 성별: ${gender || '(미입력)'}
 - 관계: ${relationship || '(미입력)'}
 - 예산 범위: ${budgetStr}
+
+[사용자가 아는 추가 정보]
+${recipientInfo && recipientInfo.trim() ? recipientInfo : '(입력 없음)'}
 
 [이전 대화 요약]
 ${summary && summary.trim() ? summary : '(요약 없음 — 아래 최근 대화만 참고)'}
@@ -220,8 +227,8 @@ export default async function handler(req, res) {
   try {
     // Vercel은 JSON 본문을 자동 파싱하지만, 문자열로 올 경우도 방어
     const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
-    const { recipientName, gender, relationship, budgetMin, budgetMax, conversation, note } = body;
-    log('request.body.parsed', { conversationLength: (conversation || '').length, hasRecipientName: Boolean(recipientName), hasNote: Boolean(note), budgetMin, budgetMax });
+    const { recipientName, recipientInfo, gender, relationship, budgetMin, budgetMax, conversation, note } = body;
+    log('request.body.parsed', { conversationLength: (conversation || '').length, hasRecipientName: Boolean(recipientName), hasRecipientInfo: Boolean(recipientInfo && recipientInfo.trim()), hasNote: Boolean(note), budgetMin, budgetMax });
 
     // 이름 또는 대화 내용 중 하나는 있어야 추천 가능
     if ((!recipientName || !recipientName.trim()) && (!conversation || !conversation.trim())) {
@@ -258,7 +265,7 @@ export default async function handler(req, res) {
     log('recommendation.openai.start', { model: MODEL });
     const content = await callOpenAI(apiKey, [
       { role: 'system', content: SYSTEM_PROMPT },
-      { role: 'user', content: buildUserPrompt({ recipientName, gender, relationship, budgetMin, budgetMax, summary, recent, note: convoNote }) },
+      { role: 'user', content: buildUserPrompt({ recipientName, recipientInfo, gender, relationship, budgetMin, budgetMax, summary, recent, note: convoNote }) },
     ], { json: true, temperature: 0.7 });
 
     const result = JSON.parse(content);
