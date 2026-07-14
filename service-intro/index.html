@@ -58,33 +58,65 @@
     .primary-link { display: inline-flex; align-items: center; gap: 6px; padding: 10px 16px; border: 2px solid var(--ink-line); border-radius: 18px 14px 16px 20px; color: var(--primary-foreground) !important; background: var(--primary); font-size: 14px; font-weight: 700 !important; box-shadow: 0 1px 2px rgba(0, 0, 0, .05); transition: transform .15s ease; }
     .primary-link:hover { transform: translateY(-2px); }
 
-    .hero { position: relative; max-width: 860px; margin: 0 auto; padding: 42px 0 64px; text-align: center; }
+    .hero { position: relative; max-width: 860px; margin: 0 auto; padding: 42px 0 64px; text-align: center; animation: reveal-up 1.2s ease both; }
+    .hero::before, .hero::after { position: absolute; z-index: -1; color: var(--gold); content: "✦"; font-family: var(--font-serif); font-size: 26px; opacity: .7; animation: float-spark 3.6s ease-in-out infinite; }
+    .hero::before { top: 54px; left: 7%; }
+    .hero::after { right: 8%; bottom: 96px; font-size: 18px; animation-delay: -1.6s; }
     .eyebrow { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border: 1px solid var(--border); border-radius: 999px; color: var(--primary); background: rgba(255, 252, 245, .82); font-size: 14px; font-weight: 700; box-shadow: 0 4px 12px rgba(120, 90, 70, .08); }
     h1, h2 { font-family: var(--font-serif); }
     h1 { margin-top: 24px; color: var(--primary); font-family: var(--font-display); font-size: clamp(36px, 6vw, 58px); font-weight: 400; line-height: 1.3; letter-spacing: -.04em; }
     h1 span { display: block; }
     .hero-copy { max-width: 680px; margin: 24px auto 0; color: var(--muted); font-size: 17px; }
-    .gift-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; margin-top: 48px; }
-    .gift-card { position: relative; display: flex; align-items: center; justify-content: center; width: 84px; height: 84px; overflow: hidden; border: 1px solid var(--border); border-radius: 18px 14px 20px 15px; color: var(--foreground); background: var(--card); box-shadow: 0 8px 18px rgba(120, 90, 70, .12); font-size: 12px; font-weight: 700; transform: rotate(var(--tilt, 0deg)); }
-    .gift-card:nth-child(even) { --tilt: 2deg; background: var(--blue-soft); }
-    .gift-card:nth-child(3n) { --tilt: -2deg; background: var(--accent); }
-    .gift-card::before, .gift-card::after { position: absolute; content: ""; background: rgba(199, 165, 106, .6); }
-    .gift-card::before { top: 50%; right: 0; left: 0; height: 1px; }
-    .gift-card::after { top: 0; bottom: 0; left: 50%; width: 1px; }
-    .gift-card span { position: relative; z-index: 1; }
+    .chat-preview { max-width: 470px; margin: 48px auto 0; overflow: hidden; border: 2px solid var(--ink-line); border-radius: 24px 18px 22px 16px; background: var(--card); box-shadow: 6px 8px 0 rgba(75, 64, 56, .08); text-align: left; animation: chat-float 6s ease-in-out 1.6s infinite; }
+    .chat-head { display: flex; align-items: center; gap: 8px; padding: 13px 16px; border-bottom: 1px solid var(--border); color: var(--foreground); background: var(--accent); font-size: 12px; font-weight: 700; }
+    .chat-dot { width: 9px; height: 9px; border: 1px solid var(--foreground); border-radius: 50%; background: var(--pink-deep); animation: status-pulse 2s ease-in-out infinite; }
+    .chat-lock { margin-left: auto; color: var(--muted); font-size: 10px; font-weight: 400; }
+    .chat-body { display: flex; flex-direction: column; gap: 12px; padding: 18px 16px 16px; background: linear-gradient(135deg, rgba(255, 252, 245, .96), rgba(216, 228, 240, .22)); }
+    .chat-line { position: relative; display: flex; flex-direction: column; align-items: flex-start; max-width: 82%; opacity: 0; animation: bubble-in .9s cubic-bezier(.2,.8,.3,1) forwards; }
+    .chat-line:nth-child(1) { animation-delay: .7s; }
+    .chat-line:nth-child(2) { animation-delay: 1.35s; }
+    .chat-line:nth-child(3) { animation-delay: 2s; }
+    .chat-line.sent { align-self: flex-end; align-items: flex-end; }
+    .chat-name { margin: 0 0 4px 4px; color: var(--pink-deep); font-size: 11px; font-weight: 700; }
+    .chat-line p { margin: 0; padding: 9px 12px; border: 1px solid var(--border); border-radius: 4px 14px 14px 14px; color: var(--foreground); background: var(--card); font-size: 12px; line-height: 1.55; }
+    .chat-line.sent p { border-color: transparent; border-radius: 14px 4px 14px 14px; background: var(--blue-soft); }
+    .chat-line time { margin-top: 3px; color: var(--muted); font-size: 9px; }
+    .chat-insight { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; border-top: 1px dashed var(--border); color: var(--pink-deep); background: rgba(247, 222, 226, .45); font-size: 11px; animation: insight-in .9s ease 2.7s both; }
+    .chat-insight strong { color: var(--foreground); font-size: 11px; font-weight: 700; }
 
     .section { padding: 88px 0; }
     .section-label { color: var(--gold); font-size: 14px; font-weight: 700; letter-spacing: .25em; text-align: center; text-transform: uppercase; }
-    .section-title { margin-top: 12px; color: var(--foreground); text-align: center; font-size: 34px; line-height: 1.4; }
+    .section-title { position: relative; margin-top: 12px; padding-bottom: 14px; color: var(--foreground); text-align: center; font-size: 34px; line-height: 1.4; }
+    .section-title::after { display: block; width: 0; height: 2px; margin: 12px auto 0; border-radius: 999px; background: var(--gold); content: ""; transition: width .9s ease .35s; }
     .grid { display: grid; gap: 24px; margin-top: 48px; }
     .steps { grid-template-columns: repeat(3, 1fr); }
     .features { grid-template-columns: repeat(2, 1fr); }
     .reviews { grid-template-columns: repeat(3, 1fr); }
 
+    @keyframes reveal-up { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes bubble-in { from { opacity: 0; transform: translateY(14px) scale(.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    @keyframes insight-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes card-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes chat-float { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-6px) rotate(.25deg); } }
+    @keyframes float-spark { 0%, 100% { opacity: .45; transform: translateY(0) rotate(0deg) scale(.9); } 50% { opacity: .9; transform: translateY(-12px) rotate(12deg) scale(1.1); } }
+    @keyframes icon-float { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-3px) rotate(2deg); } }
+    @keyframes status-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(212, 138, 151, .25); } 50% { box-shadow: 0 0 0 5px rgba(212, 138, 151, 0); } }
+
     /* ===== 4. 컴포넌트 ===== */
-    .info-card { padding: 28px; border: 1px solid rgba(217, 191, 192, .9); border-radius: 22px 18px 24px 20px; background: var(--card); box-shadow: 0 8px 22px rgba(120, 90, 70, .08); }
+    .info-card { padding: 28px; border: 1px solid rgba(217, 191, 192, .9); border-radius: 22px 18px 24px 20px; background: var(--card); box-shadow: 0 8px 22px rgba(120, 90, 70, .08); transition: transform .25s ease, box-shadow .25s ease; }
+    .steps .info-card:nth-child(1) { animation-delay: .8s; }
+    .steps .info-card:nth-child(2) { animation-delay: 1.1s; }
+    .steps .info-card:nth-child(3) { animation-delay: 1.4s; }
+    .features .info-card:nth-child(1) { animation-delay: 1.1s; }
+    .features .info-card:nth-child(2) { animation-delay: 1.4s; }
+    .features .info-card:nth-child(3) { animation-delay: 1.7s; }
+    .features .info-card:nth-child(4) { animation-delay: 2s; }
+    .reviews .info-card:nth-child(1) { animation-delay: 1.3s; }
+    .reviews .info-card:nth-child(2) { animation-delay: 1.6s; }
+    .reviews .info-card:nth-child(3) { animation-delay: 1.9s; }
+    .info-card:hover { transform: translateY(-5px) rotate(.2deg); box-shadow: 0 13px 26px rgba(120, 90, 70, .13); }
     .step-top { display: flex; align-items: flex-start; justify-content: space-between; }
-    .feature-icon { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border: 1px solid var(--border); border-radius: 14px 10px 14px 12px; color: var(--blue-deep); background: var(--blue-soft); }
+    .feature-icon { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border: 1px solid var(--border); border-radius: 14px 10px 14px 12px; color: var(--blue-deep); background: var(--blue-soft); animation: icon-float 4s ease-in-out 2s infinite; }
     .step-active .feature-icon { color: var(--primary-foreground); background: var(--primary); }
     .step-number { color: rgba(131, 118, 106, .55); font-family: var(--font-serif); font-size: 32px; font-weight: 900; }
     .info-card h3 { margin-top: 24px; color: var(--foreground); font-size: 18px; }
@@ -99,12 +131,27 @@
     .author-name { font-size: 14px; font-weight: 700; }
     .author-tag { color: var(--muted); font-weight: 400; }
     .stars { color: var(--gold); letter-spacing: 2px; font-size: 12px; }
-    .cta { margin-bottom: 96px; padding: 64px 24px; border: 1px solid var(--foreground); border-radius: 28px 22px 30px 24px; color: var(--primary-foreground); background: var(--foreground); text-align: center; box-shadow: 0 20px 44px rgba(75, 64, 56, .2); }
+    .cta { margin-bottom: 96px; padding: 64px 24px; border: 1px solid var(--foreground); border-radius: 28px 22px 30px 24px; color: var(--primary-foreground); background: var(--foreground); text-align: center; box-shadow: 0 20px 44px rgba(75, 64, 56, .2); animation: reveal-up 1.1s ease 1.2s both; }
     .cta-badge { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border: 1px solid rgba(255, 252, 245, .28); border-radius: 999px; color: var(--card); background: rgba(255, 252, 245, .12); font-size: 12px; }
     .cta h2 { margin-top: 24px; font-size: clamp(28px, 5vw, 40px); }
     .cta p { margin-top: 16px; color: rgba(255, 252, 245, .8); }
     .cta-link { display: inline-flex; align-items: center; gap: 8px; min-height: 52px; margin-top: 32px; padding: 14px 32px; border: 1px solid var(--card); border-radius: 999px; color: var(--foreground); background: var(--card); font-size: 14px; font-weight: 700; text-decoration: none; box-shadow: 3px 3px 0 rgba(199, 165, 106, .5); transition: transform .2s ease, box-shadow .2s ease; }
     .cta-link:hover { transform: translateY(-2px); box-shadow: 3px 5px 0 rgba(199, 165, 106, .5); }
+    .js .section, .js .cta { opacity: 0; transform: translateY(26px); }
+    .js .section.is-visible, .js .cta.is-visible { opacity: 1; transform: translateY(0); transition: opacity .9s ease, transform .9s cubic-bezier(.2,.8,.3,1); }
+    .js .section.is-visible .section-title::after { width: 54px; }
+    .js .section .info-card { opacity: 0; transform: translateY(18px); }
+    .js .section.is-visible .info-card { animation: card-rise .8s ease both; }
+    .js .section.is-visible .steps .info-card:nth-child(1) { animation-delay: .2s; }
+    .js .section.is-visible .steps .info-card:nth-child(2) { animation-delay: .4s; }
+    .js .section.is-visible .steps .info-card:nth-child(3) { animation-delay: .6s; }
+    .js .section.is-visible .features .info-card:nth-child(1) { animation-delay: .2s; }
+    .js .section.is-visible .features .info-card:nth-child(2) { animation-delay: .35s; }
+    .js .section.is-visible .features .info-card:nth-child(3) { animation-delay: .5s; }
+    .js .section.is-visible .features .info-card:nth-child(4) { animation-delay: .65s; }
+    .js .section.is-visible .reviews .info-card:nth-child(1) { animation-delay: .2s; }
+    .js .section.is-visible .reviews .info-card:nth-child(2) { animation-delay: .4s; }
+    .js .section.is-visible .reviews .info-card:nth-child(3) { animation-delay: .6s; }
     footer { padding: 32px 0; border-top: 1px solid rgba(217, 191, 192, .7); color: var(--muted); font-size: 12px; }
     .footer-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 
@@ -115,15 +162,16 @@
       .footer-inner { flex-direction: column; text-align: center; }
       .hero { padding-top: 28px; }
       .hero-copy { font-size: 15px; }
-      .gift-row { gap: 10px; margin-top: 36px; }
-      .gift-card { width: 68px; height: 68px; }
+      .chat-preview { margin-top: 36px; }
+      .chat-insight { align-items: flex-start; flex-direction: column; gap: 4px; }
       .section-title { font-size: 28px; }
       .info-card { padding: 22px; }
       .cta { margin-bottom: 56px; padding: 48px 20px; }
     }
     @media (max-width: 640px) { .header-nav a:not(.primary-link) { display: none; } }
     @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+      *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition-duration: .01ms !important; transform: none !important; }
+      .js .section, .js .cta, .js .section .info-card { opacity: 1; }
     }
   </style>
 </head>
@@ -150,8 +198,14 @@
         <span class="eyebrow">✦ 서비스 소개</span>
         <h1 id="hero-title">연인의 대화 속에<span>선물 힌트가 숨어 있습니다.</span></h1>
         <p class="hero-copy">PresentToU는 카카오톡 대화나 통화 녹음을 AI로 분석해 상대방이 말하지 않은 진짜 취향을 찾아내고, 예산에 맞는 선물을 추천합니다.</p>
-        <div class="gift-row" aria-hidden="true">
-          <div class="gift-card"><span>D-7</span></div><div class="gift-card"><span>₩10만</span></div><div class="gift-card"><span>선물</span></div><div class="gift-card"><span>🎁</span></div><div class="gift-card"><span>취향</span></div>
+        <div class="chat-preview" aria-label="선물 힌트가 담긴 대화 예시">
+          <div class="chat-head"><span class="chat-dot"></span><span>카카오톡 대화 예시</span><span class="chat-lock">분석 후 삭제</span></div>
+          <div class="chat-body">
+            <div class="chat-line received"><span class="chat-name">지수</span><p>요즘 퇴근하고 향초 켜놓으면<br>마음이 좀 편해지더라</p><time>오후 8:41</time></div>
+            <div class="chat-line sent"><p>그 카페에서 봤던 향초 말하는 거야?</p><time>오후 8:42</time></div>
+            <div class="chat-line received"><span class="chat-name">현우</span><p>응! 우디한 향이 진짜 좋았어<br>내 방에도 그런 분위기 내고 싶다</p><time>오후 8:43</time></div>
+          </div>
+          <div class="chat-insight"><span>✦ 선물 힌트</span><strong>우디 향 · 휴식 · 공간 꾸미기</strong></div>
         </div>
       </section>
 
@@ -190,5 +244,39 @@
 
     <footer><div class="footer-inner"><a class="brand" href="../"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4" rx="1"></rect><path d="M12 8v13"></path><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"></path><path d="M7.5 8a2.5 2.5 0 1 0 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 1 0 0 5"></path></svg></span><span>PresentToU</span></a><span>© 2026 PresentToU · 대화 내용은 분석 즉시 삭제됩니다</span></div></footer>
   </div>
+  <script>
+    /* ===== 1. 상수/설정 ===== */
+    const revealOptions = { threshold: 0.16, rootMargin: "0px 0px -8%" };
+
+    /* ===== 2. 상태(state) ===== */
+    const revealTargets = document.querySelectorAll(".section, .cta");
+
+    /* ===== 3. 순수 함수 (계산/변환) ===== */
+    // 사용자의 모션 감소 설정을 존중해 애니메이션 대상을 즉시 표시할지 판단한다
+    function shouldReduceMotion() {
+      return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    }
+
+    /* ===== 4. DOM 조작 함수 ===== */
+    // 화면에 들어온 콘텐츠가 한 번만 자연스럽게 나타나도록 상태 클래스를 추가한다
+    function revealElement(entry) {
+      if (entry.isIntersecting) entry.target.classList.add("is-visible");
+    }
+
+    // 스크롤 위치에 맞춰 소개 페이지의 다음 콘텐츠를 표시한다
+    function initScrollReveal() {
+      document.documentElement.classList.add("js");
+      if (shouldReduceMotion() || !("IntersectionObserver" in window)) {
+        revealTargets.forEach((target) => target.classList.add("is-visible"));
+        return;
+      }
+      const observer = new IntersectionObserver((entries) => entries.forEach(revealElement), revealOptions);
+      revealTargets.forEach((target) => observer.observe(target));
+    }
+
+    /* ===== 5. 이벤트 핸들러 ===== */
+    /* ===== 6. 초기화(init) ===== */
+    initScrollReveal();
+  </script>
 </body>
 </html>
