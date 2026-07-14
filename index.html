@@ -280,6 +280,8 @@
     .cta-cap { margin-top: 16px; font-size: 12px; color: var(--muted-foreground); }
     .status { margin-top: 12px; text-align: center; font-size: 14px; color: var(--muted-foreground); min-height: 20px; }
     .status.err { color: oklch(0.45 0.18 25); }
+    .retry-button { margin-left: 8px; padding: 4px 10px; border: 1px solid currentColor; border-radius: 999px; color: inherit; background: transparent; cursor: pointer; font-size: 12px; font-weight: 700; }
+    .retry-button:hover { background: oklch(0.45 0.18 25 / 0.08); }
     .timer { color: var(--primary); font-weight: 700; }
 
     /* ── 결과 ───────────────────────────────────────────── */
@@ -557,6 +559,7 @@
     const AUDIO_EXTENSIONS = ['.wav', '.mp3', '.m4a', '.ogg', '.webm', '.mpga', '.mp4', '.mpeg'];
     const MAX_AUDIO_BYTES = 4 * 1024 * 1024;
     const TRANSCRIBE_MODEL = 'whisper-large-v3';
+    const RECOMMEND_TIMEOUT_MS = 55000;
     const THUMBNAIL_BACKGROUNDS = [
       'oklch(0.93 0.03 20)',
       'oklch(0.9 0.07 65 / 0.45)',
@@ -698,7 +701,7 @@
     // 진행 상태를 한 곳에서 갱신해 처리 단계별 문구를 일관되게 유지한다
     function updateStatus(message, isError = false) {
       elements.status.className = isError ? 'status err' : 'status';
-      elements.status.innerHTML = `${message} <span class="timer">⏱</span>`;
+      elements.status.innerHTML = isError ? message : `${message} <span class="timer">⏱</span>`;
     }
 
     // 분석 결과를 카드·분석 요약·금지 선물 영역에 표시한다
@@ -734,15 +737,51 @@
     }
 
     /* ===== 5. 이벤트 핸들러 ===== */
+    // 서버 응답을 텍스트로 먼저 읽어 JSON 오류가 HTML 문구로 노출되지 않게 한다
+    async function requestJson(url, options, timeoutMs = 0) {
+      const controller = new AbortController();
+      const timeout = timeoutMs ? setTimeout(() => controller.abort(), timeoutMs) : null;
+      try {
+        const response = await fetch(url, { ...options, signal: controller.signal });
+        const body = await response.text();
+        let data = null;
+        try {
+          data = body ? JSON.parse(body) : null;
+        } catch {
+          data = null;
+        }
+        if (!response.ok) {
+          const error = new Error(data?.error || `HTTP ${response.status}`);
+          error.status = response.status;
+          error.rawBody = body;
+          throw error;
+        }
+        if (!data) throw new Error('서버 응답을 읽을 수 없습니다.');
+        return data;
+      } finally {
+        if (timeout) clearTimeout(timeout);
+      }
+    }
+
     // 음성 파일을 서버 전사 API로 보내 텍스트를 반환한다
     async function transcribeAudioFile(file) {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('model', TRANSCRIBE_MODEL);
-      const response = await fetch('/api/transcribe', { method: 'POST', body: formData });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
+      const data = await requestJson('/api/transcribe', { method: 'POST', body: formData });
       return data.text || '';
+    }
+
+    // 오래 걸린 분석을 사용자가 다시 시작할 수 있도록 안내한다
+    function showRetryMessage() {
+      elements.status.className = 'status err';
+      elements.status.innerHTML = '분석 시간이 길어 완료하지 못했어요. 잠시 후 다시 시도해 주세요.';
+      const retryButton = document.createElement('button');
+      retryButton.type = 'button';
+      retryButton.className = 'retry-button';
+      retryButton.textContent = '다시 시도';
+      retryButton.addEventListener('click', handleRecommend);
+      elements.status.appendChild(retryButton);
     }
 
     // 조건과 파일을 서버에 전달해 선물 추천 결과를 받아 표시한다
@@ -754,7 +793,7 @@
       try {
         const conversation = await readConversationFiles(elements.dataFile.files, updateStatus);
         updateStatus('대화 내용을 AI가 분석하는 중…');
-        const response = await fetch('/api/recommend', {
+        const data = await requestJson('/api/recommend', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -766,9 +805,7 @@
             conversation: conversation.text,
             note: conversation.note,
           }),
-        });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
+        }, RECOMMEND_TIMEOUT_MS);
         elements.elapsed.textContent = `${((performance.now() - startedAt) / 1000).toFixed(1)}초 만에 분석 완료`;
         elements.ingest.textContent = conversation.note;
         renderResults(data);
@@ -776,7 +813,11 @@
         elements.results.classList.add('show');
         elements.results.scrollIntoView({ behavior: 'smooth' });
       } catch (error) {
-        updateStatus(`오류: ${error.message}`, true);
+        if (error.name === 'AbortError' || error.status === 502 || error.status === 504 || error.rawBody?.includes('An error occurred')) {
+          showRetryMessage();
+        } else {
+          updateStatus('문제가 발생했어요. 입력 파일을 확인하고 다시 시도해 주세요.', true);
+        }
         elements.recommendButton.disabled = false;
       }
     }
