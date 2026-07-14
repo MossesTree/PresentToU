@@ -326,6 +326,12 @@
         const q = encodeURIComponent(g.query || g.name || '');
         const naver = 'https://search.shopping.naver.com/search/all?query=' + q;
         const coupang = 'https://www.coupang.com/np/search?q=' + q;
+        // 2차 단계에서 받은 실제 구매 URL이 있으면 그 링크로, 없으면 검색으로 폴백
+        const buy = (typeof g.url === 'string' && /^https?:\/\//.test(g.url)) ? g.url : '';
+        const store = g.store ? esc(g.store) : '구매처';
+        const buyLinks = buy
+          ? [{ href: buy, label: `${store}에서 구매 →`, cls: 'link' }, { href: naver, label: '검색으로 확인', cls: 'link alt' }]
+          : [{ href: naver, label: '네이버쇼핑에서 구매 →', cls: 'link' }, { href: coupang, label: '쿠팡', cls: 'link alt' }];
         const signals = Array.isArray(g.signals) ? g.signals : [];
         return `
         <div class="card" tabindex="0">
@@ -343,8 +349,7 @@
               <div class="detail">${esc(g.detail)}</div>
               <div class="signals">${signals.map((s) => `<span># ${esc(s)}</span>`).join('')}</div>
               <div class="links">
-                <a class="link" href="${naver}" target="_blank" rel="noopener">네이버쇼핑</a>
-                <a class="link alt" href="${coupang}" target="_blank" rel="noopener">쿠팡</a>
+                ${buyLinks.map((l) => `<a class="${l.cls}" href="${esc(l.href)}" target="_blank" rel="noopener">${l.label}</a>`).join('')}
               </div>
             </div>
           </div>

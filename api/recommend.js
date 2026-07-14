@@ -109,9 +109,10 @@ async function refineToProduct(apiKey, item, ctx) {
   const sys = `너는 쇼핑 큐레이터야. 주어진 "선물 방향/카테고리"를 실제로 구매 가능한 '구체적인 상품 하나'로 특정해라.
 - 브랜드·모델·구성처럼 쇼핑몰에서 검색하면 바로 살 수 있는 수준으로 구체화해라. 카테고리·뭉뚱그린 표현(예: "커피 세트")은 금지, 하나의 실제 상품으로.
 - 가격대는 반드시 입력된 예산 범위 안이어야 한다.
+- 가능하면 그 상품을 실제로 구매할 수 있는 판매처(store)와 상품 페이지 URL(url)을 제공해라. 특정 쇼핑몰로 한정하지 말고 실제 존재하는 판매처면 된다. 정확한 상품 URL을 확신할 수 없으면 url은 빈 문자열("")로 두어라(없는 URL을 지어내지 마라).
 - 한국어로, 마크다운 없이 아래 JSON만 출력해라.
 [JSON]
-{"name":"구체적 상품명(브랜드/모델 포함)","emoji":"대표 이모지 1개","reason":"이 상품을 고른 핵심 근거 한 줄","price":"예상 가격대(예산 내)","detail":"상세 설명 2~3문장","signals":["취향/니즈 키워드 3개"],"query":"쿠팡 검색용 구체 키워드"}`;
+{"name":"구체적 상품명(브랜드/모델 포함)","emoji":"대표 이모지 1개","reason":"이 상품을 고른 핵심 근거 한 줄","price":"예상 가격대(예산 내)","detail":"상세 설명 2~3문장","signals":["취향/니즈 키워드 3개"],"store":"판매처 이름(모르면 빈 문자열)","url":"실제 상품 구매 페이지 URL(확신 없으면 빈 문자열)","query":"쇼핑몰 검색용 구체 키워드"}`;
   const user = `[받는 사람] ${ctx.recipientName || '(미입력)'}
 [예산 범위] ${won(ctx.budgetMin)} ~ ${won(ctx.budgetMax)}
 [추천 방향] ${item.name || ''}
@@ -130,6 +131,8 @@ async function refineToProduct(apiKey, item, ctx) {
     price: p.price || item.price || '',
     detail: p.detail || item.detail || '',
     signals: Array.isArray(p.signals) && p.signals.length ? p.signals : (item.signals || []),
+    store: typeof p.store === 'string' ? p.store : '',
+    url: (typeof p.url === 'string' && /^https?:\/\//.test(p.url)) ? p.url : '',
     query: p.query || p.name || item.query || item.name,
   };
 }
