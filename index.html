@@ -137,6 +137,9 @@
       border-radius: 12px; text-decoration: none; font-weight: 700; color: #fff;
       background: linear-gradient(90deg, var(--accent2), var(--accent));
     }
+    .links { display: flex; gap: 8px; margin-top: 12px; }
+    .links .link { flex: 1; margin-top: 0; padding: 10px; font-size: 13px; }
+    .link.alt { background: #2a2e52; }
 
     .forbidden { margin-top: 26px; border: 1px solid rgba(255,85,102,.5); background: linear-gradient(160deg, rgba(255,85,102,.10), rgba(255,85,102,.03)); border-radius: 16px; padding: 20px 22px; }
     .forbidden .tag { font-size: 12px; color: var(--danger); font-weight: 700; letter-spacing: .04em; }
@@ -320,7 +323,9 @@
 
       const top3 = Array.isArray(data.top3) ? data.top3.slice(0, 3) : [];
       cardsEl.innerHTML = top3.map((g, i) => {
-        const link = 'https://www.coupang.com/np/search?q=' + encodeURIComponent(g.query || g.name || '');
+        const q = encodeURIComponent(g.query || g.name || '');
+        const naver = 'https://search.shopping.naver.com/search/all?query=' + q;
+        const coupang = 'https://www.coupang.com/np/search?q=' + q;
         const signals = Array.isArray(g.signals) ? g.signals : [];
         return `
         <div class="card" tabindex="0">
@@ -337,7 +342,10 @@
               <h3>${esc(g.name)}</h3>
               <div class="detail">${esc(g.detail)}</div>
               <div class="signals">${signals.map((s) => `<span># ${esc(s)}</span>`).join('')}</div>
-              <a class="link" href="${link}" target="_blank" rel="noopener">상품 페이지로 이동 →</a>
+              <div class="links">
+                <a class="link" href="${naver}" target="_blank" rel="noopener">네이버쇼핑</a>
+                <a class="link alt" href="${coupang}" target="_blank" rel="noopener">쿠팡</a>
+              </div>
             </div>
           </div>
         </div>`;
