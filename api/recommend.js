@@ -21,8 +21,11 @@ function logEvent(requestId, event, details = {}, level = 'info') {
   else console.log(payload);
 }
 
-// 2차 웹검색(gpt-5.6-luna)은 응답이 오래 걸려 함수 실행 시간을 넉넉히 잡는다. Vercel Hobby 최대 60초.
-export const config = { maxDuration: 60 };
+// 2차 웹검색(gpt-5.6-luna)은 응답이 오래 걸려 함수 실행 시간을 넉넉히 잡는다.
+// 60초(Hobby 기본 상한)에서는 요약+1차 추천+웹검색 합계가 벽을 넘어 추천 전체가 강제 취소되는 일이 있었다.
+// Fluid Compute를 켜면 Hobby 플랜도 최대 300초까지 허용된다.
+// ⚠️ Vercel 대시보드 → Settings → Functions → Fluid Compute 활성화가 선행돼야 배포가 성공한다.
+export const config = { maxDuration: 300 };
 
 function won(n) {
   return Number(n || 0).toLocaleString('ko-KR') + '원';
