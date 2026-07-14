@@ -11,6 +11,9 @@ const RECENT_CHARS = 12000;   // 최근 대화 원문 유지 길이
 const SUMMARY_MAX = 4000;     // 요약문 최대 길이
 const SUMMARY_SRC_CAP = 40000; // 요약 대상으로 한 번에 넣는 최대 원문 길이(컨텍스트 보호)
 
+// 2차 웹검색(gpt-5.6-luna)은 응답이 오래 걸려 함수 실행 시간을 넉넉히 잡는다. Vercel Hobby 최대 60초.
+export const config = { maxDuration: 60 };
+
 function won(n) {
   return Number(n || 0).toLocaleString('ko-KR') + '원';
 }
@@ -104,25 +107,69 @@ ${recent && recent.trim() ? recent : '(대화 텍스트 없음)'}
 ${note ? `[참고 노트]\n${note}` : ''}`;
 }
 
-// 2차 패스: TOP 3의 각 "방향/카테고리"를 실제로 구매 가능한 구체적 상품 하나로 특정한다
+// 웹 검색이 가능한 모델. Responses API의 web_search 도구로 실제 판매 상품/링크를 찾는다.
+const SEARCH_MODEL = process.env.OPENAI_SEARCH_MODEL || 'gpt-5.6-luna';
+
+// Responses API + web_search 호출 → 최종 output_text(문자열) 반환
+async function webSearch(apiKey, prompt) {
+  // 검색이 지나치게 오래 걸리면 중단하고 상위에서 폴백(원본 항목)하도록 한다
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 50000);
+  let res;
+  try {
+    res = await fetch('https://api.openai.com/v1/responses', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+      body: JSON.stringify({ model: SEARCH_MODEL, tools: [{ type: 'web_search' }], input: prompt }),
+      signal: ctrl.signal,
+    });
+  } finally {
+    clearTimeout(timer);
+  }
+  if (!res.ok) {
+    const errText = await res.text();
+    const e = new Error(`웹검색 오류 (${res.status}): ${errText.slice(0, 200)}`);
+    e.status = res.status;
+    throw e;
+  }
+  const data = await res.json();
+  let text = '';
+  for (const o of (data.output || [])) {
+    if (o.type === 'message') {
+      for (const c of (o.content || [])) {
+        if (c.type === 'output_text') text += c.text;
+      }
+    }
+  }
+  return text;
+}
+
+// 코드블록/앞뒤 설명이 섞여도 첫 { ~ 마지막 } 를 잘라 JSON 파싱
+function parseJsonLoose(text) {
+  const s = text.indexOf('{');
+  const e = text.lastIndexOf('}');
+  if (s === -1 || e === -1) throw new Error('JSON 파싱 실패');
+  return JSON.parse(text.slice(s, e + 1));
+}
+
+// 2차 패스: 각 추천 방향을 웹에서 실제 판매 중인 구체적 상품 하나로 특정하고 구매 URL을 확보
 async function refineToProduct(apiKey, item, ctx) {
-  const sys = `너는 쇼핑 큐레이터야. 주어진 "선물 방향/카테고리"를 실제로 구매 가능한 '구체적인 상품 하나'로 특정해라.
-- 브랜드·모델·구성처럼 쇼핑몰에서 검색하면 바로 살 수 있는 수준으로 구체화해라. 카테고리·뭉뚱그린 표현(예: "커피 세트")은 금지, 하나의 실제 상품으로.
-- 가격대는 반드시 입력된 예산 범위 안이어야 한다.
-- 가능하면 그 상품을 실제로 구매할 수 있는 판매처(store)와 상품 페이지 URL(url)을 제공해라. 특정 쇼핑몰로 한정하지 말고 실제 존재하는 판매처면 된다. 정확한 상품 URL을 확신할 수 없으면 url은 빈 문자열("")로 두어라(없는 URL을 지어내지 마라).
-- 한국어로, 마크다운 없이 아래 JSON만 출력해라.
-[JSON]
-{"name":"구체적 상품명(브랜드/모델 포함)","emoji":"대표 이모지 1개","reason":"이 상품을 고른 핵심 근거 한 줄","price":"예상 가격대(예산 내)","detail":"상세 설명 2~3문장","signals":["취향/니즈 키워드 3개"],"store":"판매처 이름(모르면 빈 문자열)","url":"실제 상품 구매 페이지 URL(확신 없으면 빈 문자열)","query":"쇼핑몰 검색용 구체 키워드"}`;
-  const user = `[받는 사람] ${ctx.recipientName || '(미입력)'}
+  const prompt = `너는 쇼핑 큐레이터야. 아래 "추천 방향"에 맞는, 예산 범위 안에서 실제로 판매 중인 '구체적인 상품 하나'를 웹에서 찾아라.
+- 카테고리·뭉뚱그린 표현(예: "커피 세트") 금지. 브랜드·모델까지 특정된 실제 상품으로.
+- 반드시 웹 검색으로 실제 존재하는 상품 페이지 URL을 확인해서 url에 넣어라(네이버쇼핑/쿠팡 등 실제 판매처면 어디든). 실제 URL을 못 찾으면 url은 빈 문자열.
+- 가격대는 반드시 예산 범위 안.
+- 한국어로, 마크다운·설명 없이 아래 JSON만 출력해라.
+
+[받는 사람] ${ctx.recipientName || '(미입력)'}
 [예산 범위] ${won(ctx.budgetMin)} ~ ${won(ctx.budgetMax)}
 [추천 방향] ${item.name || ''}
 [추천 이유] ${item.reason || ''}
-[취향 신호] ${(Array.isArray(item.signals) ? item.signals : []).join(', ')}`;
-  const content = await callOpenAI(apiKey, [
-    { role: 'system', content: sys },
-    { role: 'user', content: user },
-  ], { json: true, temperature: 0.6 });
-  const p = JSON.parse(content);
+[취향 신호] ${(Array.isArray(item.signals) ? item.signals : []).join(', ')}
+
+[JSON]
+{"name":"구체적 상품명(브랜드/모델 포함)","emoji":"대표 이모지 1개","reason":"이 상품을 고른 핵심 근거 한 줄","price":"예상 가격대(예산 내)","detail":"상세 설명 2~3문장","signals":["취향/니즈 키워드 3개"],"store":"판매처 이름","url":"실제 상품 구매 페이지 URL(없으면 빈 문자열)","query":"쇼핑몰 검색용 구체 키워드"}`;
+  const text = await webSearch(apiKey, prompt);
+  const p = parseJsonLoose(text);
   // 모델이 일부 필드를 빠뜨리면 원래 항목 값으로 보완
   return {
     name: p.name || item.name,
