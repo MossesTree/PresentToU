@@ -3,584 +3,838 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PresentToU — 대화 기반 선물 TOP 3 추천</title>
+  <meta name="theme-color" content="#f6ece8" />
+  <title>PresentToU · 대화 분석 기반 AI 선물 저격기</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Noto+Serif+KR:wght@500;700;900&display=swap" rel="stylesheet" />
   <style>
-    /* Warm Concierge 디자인 시스템 (DESIGN.md) */
+    /* ===== 1. 전역 변수 (CSS 변수) ===== */
     :root {
-      --bg: #F6ECE8;              /* background-cream */
-      --surface: #FFFFFF;         /* surface-white */
-      --maroon: #5F1A1A;          /* deep-maroon (CTA·선택 상태) */
-      --maroon-deep: #420408;     /* primary (헤딩) */
-      --tan: #B88E6D;             /* earthy-tan (점선 업로드 존) */
-      --outline: #dac1bf;         /* outline-variant (카드 테두리) */
-      --text: #1a1b22;            /* on-surface */
-      --muted: #71717A;           /* subtle-gray */
-      --text-soft: #544241;       /* on-surface-variant */
-      --tint: #ffdad7;            /* primary-fixed (신뢰 배지/썸네일) */
-      --tint-2: #ffdcc2;          /* secondary-fixed */
-      --tint-3: #eae0dd;          /* tertiary-fixed */
-      --warm-panel: #FBF3EE;      /* 톤 레이어링용 웜 컨테이너 */
-      --error-bg: #ffdad6;        /* error-container */
-      --error-text: #93000a;      /* on-error-container */
-      --shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      color-scheme: light;
+      --background: oklch(0.97 0.008 30);
+      --foreground: oklch(0.28 0.06 20);
+      --card: oklch(0.995 0.004 40);
+      --primary: oklch(0.34 0.11 15);
+      --primary-foreground: oklch(0.98 0.01 40);
+      --secondary: oklch(0.93 0.02 25);
+      --muted: oklch(0.95 0.012 30);
+      --muted-foreground: oklch(0.52 0.05 20);
+      --accent: oklch(0.93 0.03 20);
+      --gold: oklch(0.72 0.09 65);
+      --gold-foreground: oklch(0.28 0.06 20);
+      --border: oklch(0.89 0.02 25);
+      --radius: 0.75rem;
+      --radius-xl: 1.05rem;
+      --radius-2xl: 1.35rem;
+      --radius-3xl: 1.65rem;
+      --font-sans: "Noto Sans KR", "Pretendard", system-ui, sans-serif;
+      --font-serif: "Noto Serif KR", "Noto Sans KR", serif;
     }
+    /* ===== 2. 기본/리셋 스타일 ===== */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: "Be Vietnam Pro", "Noto Sans KR", "Pretendard", "Segoe UI", system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
+      font-family: var(--font-sans);
+      background: var(--background);
+      color: var(--foreground);
       min-height: 100vh;
       line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
     }
-    .wrap { max-width: 800px; margin: 0 auto; padding: 24px 20px 80px; }
+    .i { flex-shrink: 0; }
 
-    /* 헤더 + 히어로 */
-    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 8px 0 40px; }
-    .logo { display: inline-flex; align-items: center; gap: 8px; font-weight: 800; font-size: 20px; color: var(--maroon-deep); letter-spacing: -0.01em; text-decoration: none; }
-    .nav { display: flex; gap: 20px; }
-    .nav a { font-size: 14px; font-weight: 500; color: var(--text-soft); text-decoration: none; transition: color .15s; }
-    .nav a:hover { color: var(--maroon); }
-    hero, .hero { display: block; position: relative; text-align: center; margin-bottom: 64px; }
-    /* 축하 무드의 컨페티 장식 (희소하게) */
-    .confetti { position: absolute; pointer-events: none; user-select: none; opacity: .55; font-size: 18px; }
-    .confetti.c1 { top: -4px; left: 10%; transform: rotate(-14deg); color: var(--tan); }
-    .confetti.c2 { top: 26px; right: 8%; transform: rotate(12deg); font-size: 22px; }
-    .confetti.c3 { bottom: -6px; left: 16%; transform: rotate(8deg); font-size: 15px; }
-    .confetti.c4 { bottom: 18px; right: 15%; transform: rotate(-10deg); color: var(--maroon); }
-    @media (max-width: 720px) { .confetti { display: none; } }
+    /* ===== 3. 레이아웃 ===== */
+    /* 컨페티 배경 + 히어로 영역 */
+    .hero-zone { position: relative; }
+    .confetti-bg { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+    .glow {
+      position: absolute; left: 50%; top: 0; height: 520px; width: 900px;
+      transform: translateX(-50%); border-radius: 9999px;
+      background: radial-gradient(closest-side, oklch(0.9 0.05 20 / 0.5), transparent);
+      filter: blur(40px);
+    }
+    .confetti-bg span { position: absolute; top: 0; display: block; }
+    @keyframes confetti-fall {
+      0%   { transform: translateY(-20vh) rotate(var(--rot)); opacity: 0; }
+      8%   { opacity: var(--o); }
+      90%  { opacity: var(--o); }
+      100% { transform: translateY(110vh) rotate(calc(var(--rot) + 220deg)); opacity: 0; }
+    }
+    .animate-confetti-fall { animation: confetti-fall var(--dur) linear infinite; animation-delay: var(--delay); }
+    @keyframes gift-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+    .animate-gift-float { animation: gift-float 3s ease-in-out infinite; }
+    @media (prefers-reduced-motion: reduce) {
+      .animate-confetti-fall, .animate-gift-float { animation: none; opacity: 1; }
+    }
+
+    /* ── 헤더 ───────────────────────────────────────────── */
+    .topbar { position: relative; z-index: 20; }
+    .topbar-in {
+      max-width: 72rem; margin: 0 auto; padding: 24px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-mark {
+      display: flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px; border-radius: 9999px;
+      background: var(--primary); color: var(--primary-foreground);
+    }
+    .logo-text { font-size: 18px; font-weight: 700; color: var(--primary); }
+    .nav { display: flex; align-items: center; gap: 24px; }
+    .nav-link { font-size: 14px; font-weight: 500; color: var(--muted-foreground); text-decoration: none; transition: color .15s; }
+    .nav-link:hover { color: var(--primary); }
+    @media (max-width: 640px) { .nav-link { display: none; } }
+    .nav-cta {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--primary); color: var(--primary-foreground);
+      border-radius: 9999px; padding: 10px 16px;
+      font-size: 14px; font-weight: 700; text-decoration: none;
+      box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
+      transition: transform .15s;
+    }
+    .nav-cta:hover { transform: translateY(-2px); }
+
+    /* ── 히어로 ─────────────────────────────────────────── */
+    .hero {
+      position: relative; z-index: 10;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 32px 24px 64px; text-align: center;
+    }
     .eyebrow {
       display: inline-flex; align-items: center; gap: 6px;
-      background: var(--tint); color: var(--maroon);
-      border-radius: 9999px; padding: 6px 14px;
-      font-size: 13px; font-weight: 700; letter-spacing: 0.03em;
-      margin-bottom: 20px;
+      border: 1px solid oklch(0.34 0.11 15 / 0.2);
+      background: oklch(0.995 0.004 40 / 0.7); backdrop-filter: blur(8px);
+      color: var(--primary);
+      border-radius: 9999px; padding: 8px 16px;
+      font-size: 14px; font-weight: 500;
     }
     .hero h1 {
-      font-size: 48px; font-weight: 800; line-height: 1.2; letter-spacing: -0.02em;
-      color: var(--maroon-deep);
+      margin-top: 16px;
+      font-family: var(--font-serif); font-weight: 900; letter-spacing: -0.025em;
+      font-size: 60px; line-height: 1; color: var(--primary);
     }
-    .hero p { font-size: 18px; line-height: 1.6; color: var(--text-soft); margin-top: 14px; }
-    @media (max-width: 720px) {
-      .hero { margin-bottom: 32px; }
-      .hero h1 { font-size: 28px; line-height: 1.3; }
-      .hero p { font-size: 16px; }
+    .hero .tagline {
+      margin-top: 16px;
+      font-family: var(--font-serif); font-weight: 500;
+      font-size: 24px; color: oklch(0.34 0.11 15 / 0.8);
+    }
+    .hero .lead { margin-top: 24px; font-size: 18px; color: var(--muted-foreground); }
+    .hero .lead b { color: var(--primary); font-weight: 700; }
+    @media (min-width: 640px) {
+      .hero h1 { font-size: 72px; }
+      .hero .tagline { font-size: 30px; }
     }
 
-    /* 메인 시트 (톤 레이어링: 크림 위 화이트 + 은은한 앰비언트 섀도) */
+    /* 기프트 박스 */
+    .giftbox { position: relative; width: 160px; height: 160px; margin-top: 24px; }
+    .giftbox .spark { position: absolute; color: var(--gold); }
+    .giftbox .spark.s1 { right: 4px; top: 32px; }
+    .giftbox .spark.s2 { left: 12px; top: 24px; color: oklch(0.8 0.08 5); }
+    .giftbox .spark.s3 { left: 4px; bottom: 24px; color: oklch(0.8 0.08 5); }
+    .gb { position: absolute; bottom: 8px; left: 50%; width: 112px; height: 112px; transform: translateX(-50%); }
+    .gb-bow {
+      position: absolute; top: -16px; left: 50%; width: 36px; height: 36px;
+      border-radius: 9999px; background: var(--gold);
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    }
+    .gb-bow.l { transform: translateX(-115%); }
+    .gb-bow.r { transform: translateX(15%); }
+    .gb-body {
+      position: absolute; inset: 8px 0 0 0; border-radius: 1rem;
+      background: var(--primary);
+      box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    }
+    .gb-ribbon-h { position: absolute; left: 0; right: 0; top: 50%; height: 20px; transform: translateY(-50%); background: var(--gold); }
+    .gb-ribbon-v { position: absolute; top: 8px; bottom: 0; left: 50%; width: 20px; transform: translateX(-50%); background: var(--gold); }
+
+    /* ── 본문 컨테이너 ──────────────────────────────────── */
+    .page { position: relative; z-index: 10; max-width: 64rem; margin: 0 auto; padding: 0 24px 96px; }
+
+    /* ===== 4. 컴포넌트 ===== */
+    /* 조건 카드 */
     .sheet {
-      background: var(--surface);
-      border-radius: 1.5rem;
-      box-shadow: var(--shadow);
-      padding: 32px 28px;
+      border-radius: var(--radius-3xl);
+      border: 1px solid oklch(0.89 0.02 25 / 0.7);
+      background: var(--card);
+      box-shadow: 0 20px 60px -30px oklch(0.34 0.11 15 / 0.4);
+      padding: 24px;
     }
-    @media (max-width: 720px) { .sheet { padding: 24px 18px; } }
+    @media (min-width: 640px) { .sheet { padding: 40px; } }
+    .sheet-title { text-align: center; font-size: 24px; font-weight: 700; }
+    @media (min-width: 640px) { .sheet-title { font-size: 30px; } }
 
-    .section { margin-bottom: 48px; }
-    .section:last-of-type { margin-bottom: 0; }
-    @media (max-width: 720px) { .section { margin-bottom: 32px; } }
-    .section-title { font-size: 24px; font-weight: 600; line-height: 1.4; }
-    .section-cap {
-      font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
-      color: var(--tan); margin-bottom: 6px;
-    }
-    .section-hint { font-size: 13px; color: var(--muted); margin-top: 4px; }
+    .group { margin-top: 32px; }
+    .group-label { margin-bottom: 12px; font-size: 14px; font-weight: 500; color: var(--muted-foreground); }
+    .group-label em { font-style: normal; letter-spacing: 0.1em; }
 
-    /* 받는 사람 입력 */
     .name-input {
-      display: block; width: 100%; margin-top: 14px; padding: 14px 16px;
-      font: inherit; font-size: 16px; color: var(--text);
-      background: var(--surface); border: 1px solid var(--outline); border-radius: 1rem;
+      display: block; width: 100%; padding: 14px 18px;
+      font: inherit; font-size: 15px; color: var(--foreground);
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-xl);
       outline: none; transition: border-color .15s, box-shadow .15s;
     }
-    .name-input::placeholder { color: var(--muted); }
-    .name-input:focus { border-color: var(--maroon); box-shadow: 0 0 0 3px rgba(95, 26, 26, 0.10); }
+    .name-input::placeholder { color: var(--muted-foreground); }
+    .name-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px oklch(0.34 0.11 15 / 0.12); }
 
-    /* 입력 칩 (성별) — 아이콘+텍스트 필 토글 */
-    .chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
-    .chip {
-      font: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
-      display: inline-flex; align-items: center; gap: 6px;
-      background: var(--surface); color: var(--text);
-      border: 1px solid var(--outline); border-radius: 9999px;
-      padding: 10px 18px; transition: border-color .15s, background .15s, color .15s;
-    }
-    .chip:hover { border-color: var(--tan); }
-    .chip[aria-pressed="true"] { background: var(--maroon); border-color: var(--maroon); color: #fff; }
-    .opt { font-size: 13px; font-weight: 400; color: var(--muted); }
-
-    /* 예산 선택 카드 */
-    .budget-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 14px; }
-    @media (max-width: 720px) { .budget-grid { grid-template-columns: 1fr; } }
+    /* 예산 카드 */
+    .budget-grid { display: grid; gap: 16px; }
+    @media (min-width: 768px) { .budget-grid { grid-template-columns: repeat(3, 1fr); } }
     .bcard {
-      font: inherit; cursor: pointer; text-align: center;
-      background: var(--surface); color: var(--text);
-      border: 1px solid var(--outline); border-radius: 1rem;
-      padding: 20px 14px; transition: border-color .15s, background .15s, color .15s;
+      position: relative; font: inherit; cursor: pointer; text-align: left;
+      border-radius: var(--radius-2xl); border: 1px solid var(--border);
+      background: oklch(0.93 0.03 20 / 0.4); color: var(--foreground);
+      padding: 20px; transition: border-color .15s, background .15s, color .15s, box-shadow .15s;
     }
-    .bcard:hover { border-color: var(--tan); }
-    .bcard .b-emoji { font-size: 26px; }
-    .bcard .b-name { font-weight: 700; font-size: 15px; margin-top: 8px; }
-    .bcard .b-range { font-size: 13px; color: var(--muted); margin-top: 4px; }
-    .bcard[aria-pressed="true"] { background: var(--maroon); border-color: var(--maroon); color: #fff; }
-    .bcard[aria-pressed="true"] .b-range { color: rgba(255, 255, 255, 0.75); }
-
-    /* 업로드 존 (점선 리셉터클) */
-    .uploads { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
-    @media (max-width: 720px) { .uploads { grid-template-columns: 1fr; } }
-    .drop {
-      border: 2px dashed rgba(184, 142, 109, 0.55); border-radius: 1rem;
-      background: #FDFAF7; padding: 26px 16px; text-align: center;
-      cursor: pointer; transition: border-color .15s, background .15s;
+    .bcard:hover { border-color: oklch(0.34 0.11 15 / 0.4); }
+    .bcard .b-emoji { font-size: 24px; }
+    .bcard .b-title { margin-top: 16px; font-weight: 700; }
+    .bcard .b-range { margin-top: 4px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 14px; color: var(--muted-foreground); }
+    .bcard .bcheck {
+      position: absolute; right: 16px; top: 16px; display: none;
+      width: 20px; height: 20px; align-items: center; justify-content: center;
+      border-radius: 9999px; background: oklch(0.98 0.01 40 / 0.2);
     }
-    .drop:hover { border-color: var(--tan); background: var(--warm-panel); }
-    .drop.filled { border: 2px solid var(--maroon); background: #FFF5F3; }
-    .drop .ico { font-size: 28px; }
-    .drop .label { font-weight: 700; font-size: 15px; margin-top: 10px; }
-    .drop .sub { color: var(--muted); font-size: 12px; line-height: 1.4; margin-top: 4px; word-break: break-all; }
-    .drop input { display: none; }
+    .bcard[aria-pressed="true"] {
+      border-color: var(--primary); background: var(--primary); color: var(--primary-foreground);
+      box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
+    .bcard[aria-pressed="true"] .b-range { color: oklch(0.98 0.01 40 / 0.8); }
+    .bcard[aria-pressed="true"] .bcheck { display: flex; }
 
-    /* 신뢰 배지 */
-    .trust { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 16px; }
+    /* 관계 칩 */
+    .chips { display: flex; flex-wrap: wrap; gap: 12px; }
+    .rchip {
+      display: inline-flex; align-items: center; gap: 8px;
+      font: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
+      border-radius: var(--radius-xl); border: 1px solid var(--border);
+      background: var(--card); color: var(--foreground);
+      padding: 14px 24px; transition: border-color .15s, background .15s, color .15s, box-shadow .15s;
+    }
+    .rchip:hover { border-color: oklch(0.34 0.11 15 / 0.4); }
+    .rchip[aria-pressed="true"] {
+      border-color: var(--primary); background: var(--primary); color: var(--primary-foreground);
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    }
+
+    /* 성별 칩 — 활성 시 골드 */
+    .gchip {
+      font: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
+      border-radius: 9999px; border: 1px solid var(--border);
+      background: var(--card); color: var(--foreground);
+      padding: 12px 32px; transition: border-color .15s, background .15s, color .15s, box-shadow .15s;
+    }
+    .gchip:hover { border-color: oklch(0.34 0.11 15 / 0.4); }
+    .gchip[aria-pressed="true"] {
+      border-color: var(--gold); background: var(--gold); color: var(--gold-foreground);
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    }
+
+    /* ── 업로드 섹션 ────────────────────────────────────── */
+    .upload-sec { margin-top: 64px; text-align: center; }
+    .upload-sec h2 { font-size: 24px; font-weight: 700; }
+    @media (min-width: 640px) { .upload-sec h2 { font-size: 30px; } }
+    .upload-sec .sub { margin-top: 12px; font-size: 14px; color: var(--muted-foreground); }
+    @media (min-width: 640px) { .upload-sec .sub { font-size: 16px; } }
+
+    .dropzone {
+      margin-top: 32px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      border-radius: var(--radius-3xl); border: 2px dashed oklch(0.34 0.11 15 / 0.3);
+      background: oklch(0.93 0.03 20 / 0.3);
+      padding: 64px 24px; cursor: pointer; transition: background .15s, border-color .15s;
+    }
+    .dropzone:hover { background: oklch(0.93 0.03 20 / 0.5); }
+    .dropzone.dragging, .dropzone.filled { border-color: var(--primary); background: oklch(0.93 0.03 20 / 0.6); }
+    .dropzone input { display: none; }
+    .up-icon {
+      position: relative; display: flex; align-items: center; justify-content: center;
+      width: 64px; height: 64px; border-radius: var(--radius-2xl);
+      background: var(--primary); color: var(--primary-foreground);
+      box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
+    .up-badge {
+      position: absolute; right: -8px; top: -8px;
+      display: flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border-radius: 9999px;
+      background: var(--gold); color: var(--gold-foreground);
+    }
+    .up-label { margin-top: 24px; font-weight: 700; word-break: break-all; }
+    .up-sub { margin-top: 8px; font-size: 14px; color: var(--muted-foreground); }
+    .trust { margin-top: 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; }
     .trust span {
-      display: inline-flex; align-items: center; gap: 5px;
-      background: var(--tint); color: var(--maroon);
-      border-radius: 9999px; padding: 5px 12px;
-      font-size: 12px; font-weight: 700;
+      border-radius: 9999px; border: 1px solid var(--border); background: var(--card);
+      padding: 6px 16px; font-size: 12px; font-weight: 500; color: var(--muted-foreground);
     }
 
-    /* CTA (필 버튼) */
+    /* ── CTA ────────────────────────────────────────────── */
+    .cta-wrap { margin-top: 48px; display: flex; flex-direction: column; align-items: center; }
     .cta {
-      display: block; width: 100%; margin-top: 36px; padding: 17px 24px;
-      font: inherit; font-size: 17px; font-weight: 700; color: #fff;
-      background: var(--maroon); border: none; border-radius: 9999px;
-      cursor: pointer; transition: background .15s, transform .1s;
+      display: inline-flex; align-items: center; gap: 8px;
+      font: inherit; font-size: 16px; font-weight: 700; cursor: pointer;
+      background: var(--primary); color: var(--primary-foreground);
+      border: none; border-radius: 9999px; padding: 20px 40px;
+      box-shadow: 0 16px 40px -16px oklch(0.34 0.11 15 / 0.7);
+      transition: transform .15s, opacity .2s;
     }
-    .cta:hover { background: var(--maroon-deep); transform: translateY(-1px); }
+    .cta:hover { transform: translateY(-2px); }
     .cta:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
-    .cta-cap { text-align: center; color: var(--muted); font-size: 13px; margin-top: 10px; }
+    .cta-cap { margin-top: 16px; font-size: 12px; color: var(--muted-foreground); }
+    .status { margin-top: 12px; text-align: center; font-size: 14px; color: var(--muted-foreground); min-height: 20px; }
+    .status.err { color: oklch(0.45 0.18 25); }
+    .timer { color: var(--primary); font-weight: 700; }
 
-    .status { text-align: center; color: var(--text-soft); font-size: 14px; margin-top: 12px; min-height: 20px; }
-    .status.err { color: var(--error-text); }
-    .timer { color: var(--maroon); font-weight: 700; }
-
-    /* 결과 */
+    /* ── 결과 ───────────────────────────────────────────── */
     .results { display: none; }
     .results.show { display: block; }
-    .results h2 { text-align: center; font-size: 24px; font-weight: 700; line-height: 1.4; color: var(--maroon-deep); }
-    .results .sub { text-align: center; color: var(--muted); font-size: 13px; margin: 8px 0 4px; }
-    .ingest { text-align: center; color: var(--maroon); font-size: 12px; font-weight: 500; margin-bottom: 24px; min-height: 16px; }
+    .slabel { text-align: center; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.25em; color: var(--gold); }
+    .results h2 {
+      margin-top: 12px; text-align: center;
+      font-family: var(--font-serif); font-size: 30px; font-weight: 700; color: var(--foreground);
+    }
+    .results .sub { text-align: center; color: var(--muted-foreground); font-size: 13px; margin: 10px 0 4px; }
+    .ingest { text-align: center; color: var(--primary); font-size: 12px; font-weight: 500; margin-bottom: 32px; min-height: 16px; }
 
     .analysis {
-      background: var(--warm-panel); border: 1px solid var(--outline);
-      border-radius: 1rem; padding: 20px 22px; margin-bottom: 28px;
+      border-radius: var(--radius-2xl); border: 1px solid oklch(0.89 0.02 25 / 0.7);
+      background: var(--card); box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
+      padding: 24px 28px; margin-bottom: 28px;
     }
-    .analysis .tag { font-size: 12px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--maroon); }
-    .analysis p { margin-top: 8px; font-size: 15px; line-height: 1.6; color: var(--text); }
+    .analysis .tag { font-size: 12px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); }
+    .analysis p { margin-top: 8px; font-size: 15px; line-height: 1.65; color: var(--foreground); }
 
-    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-    @media (max-width: 720px) { .cards { grid-template-columns: 1fr; } }
-
-    .card { perspective: 1200px; height: 350px; }
-    .card-inner {
-      position: relative; width: 100%; height: 100%;
-      transition: transform .6s; transform-style: preserve-3d;
-    }
+    .cards { display: grid; gap: 16px; }
+    @media (min-width: 768px) { .cards { grid-template-columns: repeat(3, 1fr); } }
+    .card { perspective: 1200px; height: 355px; }
+    .card-inner { position: relative; width: 100%; height: 100%; transition: transform .6s; transform-style: preserve-3d; }
     .card:hover .card-inner, .card:focus-within .card-inner { transform: rotateY(180deg); }
     .face {
       position: absolute; inset: 0; backface-visibility: hidden;
-      border-radius: 1rem; border: 1px solid var(--outline);
+      border-radius: var(--radius-2xl); border: 1px solid oklch(0.89 0.02 25 / 0.7);
+      background: var(--card); box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
       padding: 18px; display: flex; flex-direction: column;
-      background: var(--surface);
     }
-    .thumb {
-      height: 120px; border-radius: 0.75rem; display: flex; align-items: center; justify-content: center;
-      font-size: 52px; margin-bottom: 14px;
-    }
+    .thumb { height: 118px; border-radius: var(--radius-xl); display: flex; align-items: center; justify-content: center; font-size: 50px; margin-bottom: 14px; }
     .rank {
       position: absolute; top: 12px; left: 12px;
-      background: var(--maroon); color: #fff;
+      background: var(--primary); color: var(--primary-foreground);
       border-radius: 9999px; padding: 3px 11px; font-size: 12px; font-weight: 700;
     }
-    .name { font-weight: 800; font-size: 16px; line-height: 1.35; }
-    .reason { color: var(--muted); font-size: 13px; line-height: 1.5; margin-top: 6px; flex: 1; }
-    .price { font-weight: 700; color: var(--maroon); margin-top: 8px; font-size: 15px; }
-    .flip-hint { color: var(--muted); font-size: 11px; margin-top: 10px; }
-
-    .back { background: var(--warm-panel); transform: rotateY(180deg); }
+    .name { font-weight: 900; font-size: 16px; line-height: 1.35; }
+    .reason { color: var(--muted-foreground); font-size: 13px; line-height: 1.5; margin-top: 6px; flex: 1; }
+    .price { font-weight: 700; color: var(--primary); margin-top: 8px; font-size: 15px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .flip-hint { color: var(--muted-foreground); font-size: 11px; margin-top: 10px; }
+    .back { background: oklch(0.93 0.03 20 / 0.35); transform: rotateY(180deg); }
     .back h3 { font-size: 15px; font-weight: 700; line-height: 1.35; margin-bottom: 8px; }
-    .back .detail { color: var(--text-soft); font-size: 13px; line-height: 1.5; flex: 1; overflow: hidden; }
+    .back .detail { color: var(--muted-foreground); font-size: 13px; line-height: 1.5; flex: 1; overflow: hidden; }
     .back .signals { margin-top: 10px; font-size: 12px; }
     .back .signals span {
-      display: inline-block; background: #F1E4DB; color: var(--text-soft);
-      border-radius: 9999px; padding: 3px 10px; margin: 3px 3px 0 0;
+      display: inline-block; background: oklch(0.93 0.03 20 / 0.7); color: var(--primary);
+      border-radius: 9999px; padding: 3px 10px; margin: 3px 3px 0 0; font-weight: 500;
     }
     .links { display: flex; gap: 8px; margin-top: 12px; }
     .link {
       flex: 1; display: block; text-align: center; padding: 11px 8px;
       border-radius: 9999px; text-decoration: none; font-weight: 700; font-size: 13px;
-      color: #fff; background: var(--maroon); transition: background .15s;
+      color: var(--primary-foreground); background: var(--primary); transition: transform .15s;
     }
-    .link:hover { background: var(--maroon-deep); }
-    .link.alt { background: transparent; color: var(--maroon); border: 1px solid var(--maroon); }
-    .link.alt:hover { background: rgba(95, 26, 26, 0.06); }
+    .link:hover { transform: translateY(-1px); }
+    .link.alt { background: var(--card); color: var(--primary); border: 1px solid var(--border); }
+    .link.alt:hover { border-color: oklch(0.34 0.11 15 / 0.4); }
 
     .forbidden {
-      margin-top: 28px; background: var(--error-bg);
-      border-radius: 1rem; padding: 20px 22px;
+      margin-top: 28px; border-radius: var(--radius-2xl);
+      background: oklch(0.93 0.05 25); border: 1px solid oklch(0.85 0.08 25);
+      padding: 22px 26px;
     }
-    .forbidden .tag { font-size: 12px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--error-text); }
-    .forbidden .fname { font-weight: 800; font-size: 17px; margin-top: 6px; color: var(--error-text); }
-    .forbidden .freason { color: #6e4a47; font-size: 14px; margin-top: 4px; line-height: 1.5; }
+    .forbidden .tag { font-size: 12px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: oklch(0.45 0.18 25); }
+    .forbidden .fname { font-weight: 900; font-size: 17px; margin-top: 6px; color: oklch(0.45 0.18 25); }
+    .forbidden .freason { color: oklch(0.42 0.08 25); font-size: 14px; margin-top: 4px; line-height: 1.5; }
 
     .restart {
-      display: block; margin: 28px auto 0; font: inherit;
-      background: none; border: 1px solid var(--outline); color: var(--text-soft);
-      padding: 11px 24px; border-radius: 1rem; cursor: pointer;
-      transition: background .15s, border-color .15s;
+      display: flex; align-items: center; gap: 6px; margin: 32px auto 0;
+      font: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
+      background: var(--card); border: 1px solid var(--border); color: var(--primary);
+      padding: 12px 28px; border-radius: 9999px;
+      transition: border-color .15s, transform .15s;
     }
-    .restart:hover { background: var(--bg); border-color: var(--tan); }
+    .restart:hover { border-color: oklch(0.34 0.11 15 / 0.4); transform: translateY(-1px); }
 
-    footer {
-      text-align: center; color: var(--muted); font-size: 13px;
-      margin-top: 64px; padding-top: 24px; line-height: 1.6;
-      border-top: 1px solid var(--outline);
+    /* 푸터 */
+    footer { border-top: 1px solid oklch(0.89 0.02 25 / 0.6); background: var(--background); }
+    .footer-in {
+      max-width: 72rem; margin: 0 auto; padding: 32px 24px;
+      display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center;
     }
-    .foot-links { margin-top: 6px; }
-    .foot-links a { color: var(--muted); text-decoration: none; margin: 0 6px; transition: color .15s; }
-    .foot-links a:hover { color: var(--maroon); }
-    .copy { margin-top: 6px; color: var(--muted); }
+    @media (min-width: 768px) { .footer-in { flex-direction: row; justify-content: space-between; text-align: left; } }
+    .footer-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+    .footer-logo .logo-mark { width: 28px; height: 28px; }
+    .footer-logo .logo-text { font-size: 14px; }
+    .footer-copy { font-size: 12px; color: var(--muted-foreground); }
+    .footer-nav { display: flex; align-items: center; gap: 20px; font-size: 12px; }
+    .footer-nav a { color: var(--muted-foreground); text-decoration: none; transition: color .15s; }
+    .footer-nav a:hover { color: var(--primary); }
+    /* ===== 5. 반응형 (미디어 쿼리) ===== */
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="topbar">
-      <a class="logo" href="/"><span>🎁</span><span>PresentToU</span></a>
-      <nav class="nav">
-        <a href="#about">서비스 소개</a>
-        <a href="#inputPanel">지금 분석하기</a>
-      </nav>
-    </div>
+  <!-- 컨페티가 내리는 히어로 존 -->
+  <div class="hero-zone">
+    <div class="confetti-bg" id="confettiBg" aria-hidden="true"><div class="glow"></div></div>
 
-    <div class="hero" id="about">
-      <span class="confetti c1">✦</span>
-      <span class="confetti c2">🎉</span>
-      <span class="confetti c3">💝</span>
-      <span class="confetti c4">✦</span>
-      <span class="eyebrow">🎁 기념일 구출 · 대화 분석 기반 AI 선물 저격기</span>
-      <h1>AI 대화 분석으로<br />완벽한 선물을 찾아드립니다</h1>
-      <p>"아무거나 괜찮아"에 숨겨진 진짜 취향을 찾아드립니다.</p>
-    </div>
-
-    <!-- 입력 시트 -->
-    <section class="sheet" id="inputPanel">
-      <div class="section">
-        <div class="section-cap">Recipient</div>
-        <div class="section-title">👤 누구에게 선물하나요?</div>
-        <input type="text" id="recipientName" class="name-input" placeholder="받는 사람 이름 입력" />
+    <header class="topbar">
+      <div class="topbar-in">
+        <a class="logo" href="/">
+          <span class="logo-mark">
+            <svg class="i" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/></svg>
+          </span>
+          <span class="logo-text">PresentToU</span>
+        </a>
+        <nav class="nav">
+          <a class="nav-link" href="service-intro/">서비스 소개</a>
+          <a class="nav-cta" href="#conditions">
+            <svg class="i" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></svg>
+            지금 분석하기
+          </a>
+        </nav>
       </div>
+    </header>
 
-      <div class="section">
-        <div class="section-cap">Budget</div>
-        <div class="section-title">💰 예산을 선택해주세요</div>
-        <div class="budget-grid" id="budgetGrid">
-          <button type="button" class="bcard" data-min="25000" data-max="39000" aria-pressed="false">
-            <div class="b-emoji">💝</div>
-            <div class="b-name">3만원대 실속형</div>
-            <div class="b-range">₩25,000 ~ ₩39,000</div>
-          </button>
-          <button type="button" class="bcard" data-min="80000" data-max="150000" aria-pressed="false">
-            <div class="b-emoji">🎀</div>
-            <div class="b-name">10만원대 기념일용</div>
-            <div class="b-range">₩80,000 ~ ₩150,000</div>
-          </button>
-          <button type="button" class="bcard" data-min="200000" data-max="400000" aria-pressed="false">
-            <div class="b-emoji">👑</div>
-            <div class="b-name">20만원 이상 프리미엄</div>
-            <div class="b-range">₩200,000+</div>
-          </button>
+    <section class="hero">
+      <span class="eyebrow">
+        <svg class="i" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></svg>
+        AI 대화 분석으로 완벽한 선물을 찾아드립니다
+      </span>
+
+      <div class="giftbox animate-gift-float" aria-hidden="true">
+        <svg class="i spark s1" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+        <svg class="i spark s2" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+        <svg class="i spark s3" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+        <div class="gb">
+          <div class="gb-bow l"></div>
+          <div class="gb-bow r"></div>
+          <div class="gb-body"></div>
+          <div class="gb-ribbon-h"></div>
+          <div class="gb-ribbon-v"></div>
         </div>
       </div>
 
-      <div class="section">
-        <div class="section-cap">Gender</div>
-        <div class="section-title">🌸 성별을 선택해주세요 <span class="opt">(선택)</span></div>
-        <div class="chips" id="genderChips">
-          <button type="button" class="chip" data-gender="남성" aria-pressed="false">👨 남성</button>
-          <button type="button" class="chip" data-gender="여성" aria-pressed="false">👩 여성</button>
-        </div>
-      </div>
-
-      <div class="section">
-        <div class="section-cap">Conversation</div>
-        <div class="section-title">💬 대화 데이터를 올려주세요</div>
-        <p class="section-hint">카카오톡 대화 내보내기(.txt)와 통화 녹음(음성 자동 전사)을 함께 분석합니다.</p>
-        <div class="uploads">
-          <label class="drop" id="dropData">
-            <div class="ico">💬</div>
-            <div class="label">대화 텍스트 업로드</div>
-            <div class="sub">.txt / .csv · 여러 개</div>
-            <input type="file" id="dataFile" accept=".txt,.csv,text/plain" multiple />
-          </label>
-          <label class="drop" id="dropVoice">
-            <div class="ico">🎙️</div>
-            <div class="label">음성 인식 (통화 녹음)</div>
-            <div class="sub">.wav / .mp3 / .m4a · 자동 전사 · 여러 개</div>
-            <input type="file" id="voiceFile" accept=".wav,.mp3,.m4a,.ogg,.webm,audio/*" multiple />
-          </label>
-        </div>
-        <div class="trust">
-          <span>🔒 대화 내용은 분석 후 저장하지 않아요</span>
-          <span>🎙️ 음성 파일 최대 4MB</span>
-          <span>⚡ 평균 분석 20~40초</span>
-        </div>
-      </div>
-
-      <button class="cta" id="recommendBtn" disabled>취향 저격 선물 추천받기 →</button>
-      <p class="cta-cap">무료 · 회원가입 불필요</p>
-      <p class="status" id="status"></p>
+      <h1>기념일 구출</h1>
+      <p class="tagline">연인 대화 분석 기반 AI 선물 저격기</p>
+      <p class="lead">"아무거나 괜찮아"에 숨겨진 <b>진짜 취향</b>을 찾아 드립니다.</p>
     </section>
+  </div>
 
-    <!-- 결과 시트 -->
-    <section class="sheet results" id="results">
+  <div class="page">
+    <!-- 입력 -->
+    <div id="inputPanel">
+      <section class="sheet" id="conditions">
+        <h2 class="sheet-title">선물 조건을 선택해 주세요</h2>
+
+        <div class="group">
+          <p class="group-label">👤 받는 사람 <em>(RECIPIENT)</em></p>
+          <input type="text" id="recipientName" class="name-input" placeholder="받는 사람 이름 입력" />
+        </div>
+
+        <div class="group">
+          <p class="group-label">💰 예산 선택 <em>(BUDGET)</em></p>
+          <div class="budget-grid" id="budgetGrid">
+            <button type="button" class="bcard" data-min="25000" data-max="39000" aria-pressed="false">
+              <span class="bcheck"><svg class="i" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+              <span class="b-emoji">🎁</span>
+              <p class="b-title">3만 원대 실속형</p>
+              <p class="b-range">₩25,000 - ₩39,000</p>
+            </button>
+            <button type="button" class="bcard" data-min="80000" data-max="150000" aria-pressed="true">
+              <span class="bcheck"><svg class="i" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+              <span class="b-emoji">💐</span>
+              <p class="b-title">10만 원대 기념일용</p>
+              <p class="b-range">₩80,000 - ₩150,000</p>
+            </button>
+            <button type="button" class="bcard" data-min="200000" data-max="400000" aria-pressed="false">
+              <span class="bcheck"><svg class="i" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+              <span class="b-emoji">👑</span>
+              <p class="b-title">20만 원 이상 프리미엄</p>
+              <p class="b-range">₩200,000+</p>
+            </button>
+          </div>
+        </div>
+
+        <div class="group">
+          <p class="group-label">👩‍❤️‍👨 관계 선택 <em>(RELATIONSHIP)</em></p>
+          <div class="chips" id="relationChips">
+            <button type="button" class="rchip" data-relation="애인" aria-pressed="true">
+              <svg class="i" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+              애인
+            </button>
+            <button type="button" class="rchip" data-relation="친구" aria-pressed="false">
+              <svg class="i" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              친구
+            </button>
+            <button type="button" class="rchip" data-relation="배우자" aria-pressed="false">
+              <svg class="i" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              배우자
+            </button>
+          </div>
+        </div>
+
+        <div class="group">
+          <p class="group-label">🌸 성별 선택 <em>(GENDER)</em></p>
+          <div class="chips" id="genderChips">
+            <button type="button" class="gchip" data-gender="남성" aria-pressed="false">남성</button>
+            <button type="button" class="gchip" data-gender="여성" aria-pressed="true">여성</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 업로드 -->
+      <section class="upload-sec">
+        <h2>대화 파일을 업로드해 주세요</h2>
+        <p class="sub">카카오톡 대화 내보내기(.txt) 또는 통화 녹음 파일(.mp3, .m4a)을 업로드하면 AI가 취향을 분석합니다</p>
+
+        <label class="dropzone" id="dropZone">
+          <input type="file" id="dataFile" accept=".txt,.csv,.mp3,.m4a,.wav,.ogg,.webm,text/plain,audio/*" multiple />
+          <span class="up-icon">
+            <svg class="i" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <span class="up-badge">
+              <svg class="i" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/></svg>
+            </span>
+          </span>
+          <p class="up-label" id="fileLabel">파일을 여기에 드래그하거나 클릭하여 업로드</p>
+          <p class="up-sub">지원 형식 · KakaoTalk .txt · 음성 .mp3 .m4a .wav</p>
+          <div class="trust">
+            <span>🔒 대화 내용은 분석 후 즉시 삭제됩니다</span>
+            <span>✦ 음성 파일 최대 4 MB</span>
+            <span>⚡ 평균 분석 20~40초</span>
+          </div>
+        </label>
+
+        <div class="cta-wrap">
+          <button class="cta" id="recommendBtn" disabled>
+            <svg class="i" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></svg>
+            취향 저격 선물 추천받기
+            <svg class="i" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+          <p class="cta-cap">무료 서비스 · 회원가입 불필요</p>
+          <p class="status" id="status"></p>
+        </div>
+      </section>
+    </div>
+
+    <!-- 결과 -->
+    <section class="results" id="results">
+      <p class="slabel">Top 3 Picks</p>
       <h2>이 사람에게 무난한 선물 TOP 3</h2>
       <p class="sub"><span class="timer" id="elapsed"></span> · 카드에 커서를 올리면 상세와 구매 링크가 보여요</p>
       <p class="ingest" id="ingest"></p>
       <div class="analysis" id="analysis"></div>
       <div class="cards" id="cards"></div>
       <div class="forbidden" id="forbidden"></div>
-      <button class="restart" id="restartBtn">다시 추천받기</button>
+      <button class="restart" id="restartBtn">
+        <svg class="i" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+        다시 추천받기
+      </button>
     </section>
-
-    <footer>
-      <p>데모 프로토타입 · 업로드 데이터는 저장하지 않습니다 · 회원가입/결제 없음</p>
-      <p class="foot-links"><a href="#">개인정보 처리방침</a>·<a href="#">이용약관</a>·<a href="#">문의하기</a></p>
-      <p class="copy">© 2026 PresentToU</p>
-    </footer>
   </div>
 
-  <script>
-    const dataFile = document.getElementById('dataFile');
-    const recipientName = document.getElementById('recipientName');
-    const budgetGrid = document.getElementById('budgetGrid');
-    const dropData = document.getElementById('dropData');
-    const voiceFile = document.getElementById('voiceFile');
-    const dropVoice = document.getElementById('dropVoice');
-    const btn = document.getElementById('recommendBtn');
-    const statusEl = document.getElementById('status');
-    const results = document.getElementById('results');
-    const inputPanel = document.getElementById('inputPanel');
-    const cardsEl = document.getElementById('cards');
-    const analysisEl = document.getElementById('analysis');
-    const forbiddenEl = document.getElementById('forbidden');
-    const elapsedEl = document.getElementById('elapsed');
-    const ingestEl = document.getElementById('ingest');
+  <footer>
+    <div class="footer-in">
+      <a class="footer-logo" href="/">
+        <span class="logo-mark">
+          <svg class="i" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/></svg>
+        </span>
+        <span class="logo-text">PresentToU</span>
+      </a>
+      <p class="footer-copy">© 2026 PresentToU · 대화 내용은 분석 즉시 삭제되며 외부에 저장되지 않습니다</p>
+      <nav class="footer-nav">
+        <a href="#">개인정보 처리방침</a>
+        <a href="#">이용약관</a>
+        <a href="#">문의하기</a>
+      </nav>
+    </div>
+  </footer>
 
-    // 결과 카드 썸네일 톤 (DESIGN.md fixed 팔레트)
-    const THUMB_BG = ['#ffdad7', '#ffdcc2', '#eae0dd'];
-
-    // 예산: 선택 카드에서 min/max를 받는다 (미선택 시 추천 불가)
-    let budget = null;
-    // 성별: 선택 사항 — 고르면 프롬프트에 반영, 다시 누르면 해제
-    let gender = null;
-    const genderChips = document.getElementById('genderChips');
-
-    function refresh() {
-      btn.disabled = !recipientName.value.trim() || !budget || (!dataFile.files.length && !voiceFile.files.length);
-    }
-
-    budgetGrid.addEventListener('click', (e) => {
-      const card = e.target.closest('.bcard');
-      if (!card) return;
-      budgetGrid.querySelectorAll('.bcard').forEach((b) => b.setAttribute('aria-pressed', 'false'));
-      card.setAttribute('aria-pressed', 'true');
-      budget = { min: Number(card.dataset.min), max: Number(card.dataset.max) };
-      refresh();
-    });
-
-    genderChips.addEventListener('click', (e) => {
-      const chip = e.target.closest('.chip');
-      if (!chip) return;
-      const wasPressed = chip.getAttribute('aria-pressed') === 'true';
-      genderChips.querySelectorAll('.chip').forEach((c) => c.setAttribute('aria-pressed', 'false'));
-      if (wasPressed) {
-        gender = null;
-      } else {
-        chip.setAttribute('aria-pressed', 'true');
-        gender = chip.dataset.gender;
-      }
-    });
-
-    // 파일 선택 시 드롭 영역에 파일명/개수 표시
-    function bindDrop(input, drop, placeholder) {
-      input.addEventListener('change', () => {
-        if (input.files.length) {
-          drop.classList.add('filled');
-          const names = Array.from(input.files).map((f) => f.name);
-          drop.querySelector('.sub').textContent =
-            names.length === 1 ? names[0] : `${names.length}개 파일: ${names.join(', ')}`;
-        } else {
-          drop.classList.remove('filled');
-          drop.querySelector('.sub').textContent = placeholder;
-        }
-        refresh();
-      });
-    }
-    bindDrop(dataFile, dropData, '.txt / .csv · 여러 개');
-    bindDrop(voiceFile, dropVoice, '.wav / .mp3 / .m4a · 자동 전사 · 여러 개');
-    recipientName.addEventListener('input', refresh);
-
-    function esc(s) {
-      return String(s == null ? '' : s).replace(/[&<>"']/g, (c) =>
-        ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-    }
-
-    // 오디오로 인식할 확장자 (whisper 지원 포맷)
-    const AUDIO_EXT = ['.wav', '.mp3', '.m4a', '.ogg', '.webm', '.mpga', '.mp4', '.mpeg'];
-    const MAX_AUDIO_BYTES = 4 * 1024 * 1024; // Vercel 서버리스 요청 본문 한도(~4.5MB) 보호
-    // Groq 전사 모델. 더 빠른 'whisper-large-v3-turbo'로 바꿔도 됩니다.
+    <script>
+    /* ===== 1. 상수/설정 ===== */
+    const AUDIO_EXTENSIONS = ['.wav', '.mp3', '.m4a', '.ogg', '.webm', '.mpga', '.mp4', '.mpeg'];
+    const MAX_AUDIO_BYTES = 4 * 1024 * 1024;
     const TRANSCRIBE_MODEL = 'whisper-large-v3';
+    const THUMBNAIL_BACKGROUNDS = [
+      'oklch(0.93 0.03 20)',
+      'oklch(0.9 0.07 65 / 0.45)',
+      'oklch(0.95 0.012 30)',
+    ];
+    const CONFETTI_COLORS = ['var(--gold)', 'oklch(0.62 0.14 15)', 'oklch(0.85 0.06 25)', 'var(--primary)'];
 
-    // 음성 파일을 서버(/api/transcribe)로 보내 전사 텍스트를 받는다 (키는 서버에만 존재)
-    async function transcribe(file) {
-      const fd = new FormData();
-      fd.append('file', file);
-      fd.append('model', TRANSCRIBE_MODEL);
-      const res = await fetch('/api/transcribe', { method: 'POST', body: fd });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
-      return data.text || '';
+    /* ===== 2. 상태(state) ===== */
+    const state = {
+      budget: { min: 80000, max: 150000 },
+      relationship: '애인',
+      gender: '여성',
+    };
+
+    const elements = {
+      confettiBackground: document.getElementById('confettiBg'),
+      dataFile: document.getElementById('dataFile'),
+      dropZone: document.getElementById('dropZone'),
+      fileLabel: document.getElementById('fileLabel'),
+      recipientName: document.getElementById('recipientName'),
+      budgetGrid: document.getElementById('budgetGrid'),
+      relationChips: document.getElementById('relationChips'),
+      genderChips: document.getElementById('genderChips'),
+      recommendButton: document.getElementById('recommendBtn'),
+      status: document.getElementById('status'),
+      results: document.getElementById('results'),
+      inputPanel: document.getElementById('inputPanel'),
+      cards: document.getElementById('cards'),
+      analysis: document.getElementById('analysis'),
+      forbidden: document.getElementById('forbidden'),
+      elapsed: document.getElementById('elapsed'),
+      ingest: document.getElementById('ingest'),
+      restartButton: document.getElementById('restartBtn'),
+    };
+
+    /* ===== 3. 순수 함수 (계산/변환) ===== */
+    // HTML에 넣을 외부 데이터를 이스케이프해 결과 카드의 마크업을 보호한다
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, (character) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+      })[character]);
     }
 
-    // 여러 파일 지원: 텍스트는 원문, 음성은 전사해서 파일명 헤더와 함께 이어붙인다
-    async function readConversations(files) {
+    // 파일 확장자와 MIME 타입을 기준으로 텍스트·음성 파일을 판별한다
+    function classifyFile(file) {
+      const name = (file.name || '').toLowerCase();
+      const type = file.type || '';
+      return {
+        isText: name.endsWith('.txt') || name.endsWith('.csv') || type.startsWith('text'),
+        isAudio: AUDIO_EXTENSIONS.some((extension) => name.endsWith(extension)) || type.startsWith('audio'),
+      };
+    }
+
+    // 추천 항목의 구매 링크를 실제 URL 또는 검색 URL로 변환한다
+    function createPurchaseLinks(gift) {
+      const query = encodeURIComponent(gift.query || gift.name || '');
+      const naverUrl = `https://search.shopping.naver.com/search/all?query=${query}`;
+      const coupangUrl = `https://www.coupang.com/np/search?q=${query}`;
+      const purchaseUrl = typeof gift.url === 'string' && /^https?:\/\//.test(gift.url) ? gift.url : '';
+      const store = gift.store ? escapeHtml(gift.store) : '구매처';
+      return purchaseUrl
+        ? [{ href: purchaseUrl, label: `${store}에서 구매 →`, className: 'link' }, { href: naverUrl, label: '검색으로 확인', className: 'link alt' }]
+        : [{ href: naverUrl, label: '네이버쇼핑에서 구매 →', className: 'link' }, { href: coupangUrl, label: '쿠팡', className: 'link alt' }];
+    }
+
+    // 대화 파일을 분석 API가 읽을 수 있는 텍스트로 합친다
+    async function readConversationFiles(files, updateStatus) {
       const parts = [];
       const skipped = [];
-      let voiceOk = 0;
-      const list = Array.from(files);
-      for (let i = 0; i < list.length; i++) {
-        const file = list[i];
-        const name = (file.name || '').toLowerCase();
-        const isText = name.endsWith('.txt') || name.endsWith('.csv') || (file.type || '').startsWith('text');
-        const isAudio = AUDIO_EXT.some((e) => name.endsWith(e)) || (file.type || '').startsWith('audio');
+      let transcribedCount = 0;
+      const fileList = Array.from(files);
+
+      for (let index = 0; index < fileList.length; index += 1) {
+        const file = fileList[index];
+        const { isText, isAudio } = classifyFile(file);
         if (isText) {
-          const content = await file.text();
-          parts.push(`===== ${file.name} =====\n${content}`);
-        } else if (isAudio) {
-          if (file.size > MAX_AUDIO_BYTES) {
-            skipped.push(`${file.name} (음성 파일이 4MB를 초과)`);
-            continue;
-          }
-          statusEl.innerHTML = `음성 파일 전사 중 (${i + 1}/${list.length}: ${esc(file.name)})… <span class="timer">⏱</span>`;
-          try {
-            const text = await transcribe(file);
-            parts.push(`===== ${file.name} (음성 전사) =====\n${text}`);
-            voiceOk++;
-          } catch (e) {
-            skipped.push(`${file.name} (전사 실패: ${e.message})`);
-          }
-        } else {
+          parts.push(`===== ${file.name} =====\n${await file.text()}`);
+          continue;
+        }
+        if (!isAudio) {
           skipped.push(file.name);
+          continue;
+        }
+        if (file.size > MAX_AUDIO_BYTES) {
+          skipped.push(`${file.name} (음성 파일이 4MB를 초과)`);
+          continue;
+        }
+        updateStatus(`음성 파일 전사 중 (${index + 1}/${fileList.length}: ${escapeHtml(file.name)})…`);
+        try {
+          const text = await transcribeAudioFile(file);
+          parts.push(`===== ${file.name} (음성 전사) =====\n${text}`);
+          transcribedCount += 1;
+        } catch (error) {
+          skipped.push(`${file.name} (전사 실패: ${error.message})`);
         }
       }
+
       const notes = [];
-      if (voiceOk) notes.push(`음성 ${voiceOk}건을 전사해 함께 분석했습니다.`);
+      if (transcribedCount) notes.push(`음성 ${transcribedCount}건을 전사해 함께 분석했습니다.`);
       if (skipped.length) notes.push(`제외/실패: ${skipped.join(', ')}`);
       return { text: parts.join('\n\n'), note: notes.join(' ') };
     }
 
-    function render(data) {
-      analysisEl.innerHTML = `<div class="tag">관계 · 취향 분석</div><p>${esc(data.analysis)}</p>`;
-
-      const top3 = Array.isArray(data.top3) ? data.top3.slice(0, 3) : [];
-      cardsEl.innerHTML = top3.map((g, i) => {
-        const q = encodeURIComponent(g.query || g.name || '');
-        const naver = 'https://search.shopping.naver.com/search/all?query=' + q;
-        const coupang = 'https://www.coupang.com/np/search?q=' + q;
-        // 2차 단계에서 받은 실제 구매 URL이 있으면 그 링크로, 없으면 검색으로 폴백
-        const buy = (typeof g.url === 'string' && /^https?:\/\//.test(g.url)) ? g.url : '';
-        const store = g.store ? esc(g.store) : '구매처';
-        const buyLinks = buy
-          ? [{ href: buy, label: `${store}에서 구매 →`, cls: 'link' }, { href: naver, label: '검색으로 확인', cls: 'link alt' }]
-          : [{ href: naver, label: '네이버쇼핑에서 구매 →', cls: 'link' }, { href: coupang, label: '쿠팡', cls: 'link alt' }];
-        const signals = Array.isArray(g.signals) ? g.signals : [];
-        return `
-        <div class="card" tabindex="0">
-          <div class="card-inner">
-            <div class="face front">
-              <div class="rank">TOP ${i + 1}</div>
-              <div class="thumb" style="background:${THUMB_BG[i % THUMB_BG.length]}">${esc(g.emoji || '🎁')}</div>
-              <div class="name">${esc(g.name)}</div>
-              <div class="reason">${esc(g.reason)}</div>
-              <div class="price">예상 ${esc(g.price)}</div>
-              <div class="flip-hint">↺ 커서를 올리면 상세 보기</div>
-            </div>
-            <div class="face back">
-              <h3>${esc(g.name)}</h3>
-              <div class="detail">${esc(g.detail)}</div>
-              <div class="signals">${signals.map((s) => `<span># ${esc(s)}</span>`).join('')}</div>
-              <div class="links">
-                ${buyLinks.map((l) => `<a class="${l.cls}" href="${esc(l.href)}" target="_blank" rel="noopener">${l.label}</a>`).join('')}
-              </div>
-            </div>
-          </div>
-        </div>`;
-      }).join('');
-
-      const f = data.forbidden || {};
-      forbiddenEl.innerHTML =
-        `<div class="tag">🚫 절대 금지 선물</div>
-         <div class="fname">${esc(f.name)}</div>
-         <div class="freason">${esc(f.reason)}</div>`;
+    /* ===== 4. DOM 조작 함수 ===== */
+    // 컨페티를 한 번 생성해 히어로 영역의 시각적 분위기를 만든다
+    function renderConfetti() {
+      for (let index = 0; index < 40; index += 1) {
+        const isStrip = Math.random() > 0.45;
+        const confetti = document.createElement('span');
+        confetti.className = 'animate-confetti-fall';
+        confetti.style.left = `${(Math.random() * 100).toFixed(2)}%`;
+        confetti.style.width = `${isStrip ? 6 + Math.round(Math.random() * 6) : 8 + Math.round(Math.random() * 6)}px`;
+        confetti.style.height = `${isStrip ? 12 + Math.round(Math.random() * 10) : 8 + Math.round(Math.random() * 6)}px`;
+        confetti.style.backgroundColor = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
+        confetti.style.borderRadius = `${isStrip ? 2 : 999}px`;
+        confetti.style.setProperty('--rot', `${Math.round(Math.random() * 360) - 180}deg`);
+        confetti.style.setProperty('--o', (0.4 + Math.random() * 0.4).toFixed(2));
+        confetti.style.setProperty('--dur', `${(6 + Math.random() * 7).toFixed(2)}s`);
+        confetti.style.setProperty('--delay', `${(-Math.random() * 12).toFixed(2)}s`);
+        elements.confettiBackground.appendChild(confetti);
+      }
     }
 
-    btn.addEventListener('click', async () => {
-      if (!recipientName.value.trim() || !budget || (!dataFile.files.length && !voiceFile.files.length)) return;
-      statusEl.className = 'status';
-      statusEl.innerHTML = '파일을 처리하는 중… <span class="timer">⏱</span>';
-      btn.disabled = true;
-      const start = performance.now();
+    // 선택 상태에 따라 추천 버튼을 활성화한다
+    function updateRecommendButton() {
+      elements.recommendButton.disabled = !elements.recipientName.value.trim() || !elements.dataFile.files.length;
+    }
+
+    // 업로드된 파일명을 보여주고 버튼 상태를 갱신한다
+    function updateFileDisplay() {
+      const files = Array.from(elements.dataFile.files);
+      elements.dropZone.classList.toggle('filled', files.length > 0);
+      elements.fileLabel.textContent = files.length
+        ? files.length === 1 ? files[0].name : `${files.length}개 파일: ${files.map((file) => file.name).join(', ')}`
+        : '파일을 여기에 드래그하거나 클릭하여 업로드';
+      updateRecommendButton();
+    }
+
+    // 진행 상태를 한 곳에서 갱신해 처리 단계별 문구를 일관되게 유지한다
+    function updateStatus(message, isError = false) {
+      elements.status.className = isError ? 'status err' : 'status';
+      elements.status.innerHTML = `${message} <span class="timer">⏱</span>`;
+    }
+
+    // 분석 결과를 카드·분석 요약·금지 선물 영역에 표시한다
+    function renderResults(data) {
+      elements.analysis.innerHTML = `<div class="tag">관계 · 취향 분석</div><p>${escapeHtml(data.analysis)}</p>`;
+      const gifts = Array.isArray(data.top3) ? data.top3.slice(0, 3) : [];
+      elements.cards.innerHTML = gifts.map((gift, index) => {
+        const links = createPurchaseLinks(gift);
+        const signals = Array.isArray(gift.signals) ? gift.signals : [];
+        return `<div class="card" tabindex="0"><div class="card-inner">
+          <div class="face front"><div class="rank">TOP ${index + 1}</div>
+            <div class="thumb" style="background:${THUMBNAIL_BACKGROUNDS[index % THUMBNAIL_BACKGROUNDS.length]}">${escapeHtml(gift.emoji || '🎁')}</div>
+            <div class="name">${escapeHtml(gift.name)}</div><div class="reason">${escapeHtml(gift.reason)}</div>
+            <div class="price">예상 ${escapeHtml(gift.price)}</div><div class="flip-hint">↺ 커서를 올리면 상세 보기</div>
+          </div><div class="face back"><h3>${escapeHtml(gift.name)}</h3>
+            <div class="detail">${escapeHtml(gift.detail)}</div>
+            <div class="signals">${signals.map((signal) => `<span># ${escapeHtml(signal)}</span>`).join('')}</div>
+            <div class="links">${links.map((link) => `<a class="${link.className}" href="${escapeHtml(link.href)}" target="_blank" rel="noopener">${link.label}</a>`).join('')}</div>
+          </div></div></div>`;
+      }).join('');
+      const forbidden = data.forbidden || {};
+      elements.forbidden.innerHTML = `<div class="tag">🚫 절대 금지 선물</div><div class="fname">${escapeHtml(forbidden.name)}</div><div class="freason">${escapeHtml(forbidden.reason)}</div>`;
+    }
+
+    // 결과 화면을 닫고 새 분석을 시작할 수 있는 상태로 되돌린다
+    function resetResults() {
+      elements.results.classList.remove('show');
+      elements.inputPanel.style.display = '';
+      elements.status.textContent = '';
+      elements.status.className = 'status';
+      elements.inputPanel.scrollIntoView({ behavior: 'smooth' });
+      updateRecommendButton();
+    }
+
+    /* ===== 5. 이벤트 핸들러 ===== */
+    // 음성 파일을 서버 전사 API로 보내 텍스트를 반환한다
+    async function transcribeAudioFile(file) {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('model', TRANSCRIBE_MODEL);
+      const response = await fetch('/api/transcribe', { method: 'POST', body: formData });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
+      return data.text || '';
+    }
+
+    // 조건과 파일을 서버에 전달해 선물 추천 결과를 받아 표시한다
+    async function handleRecommend() {
+      if (elements.recommendButton.disabled) return;
+      const startedAt = performance.now();
+      elements.recommendButton.disabled = true;
+      updateStatus('파일을 처리하는 중…');
       try {
-        const { text, note } = await readConversations([...dataFile.files, ...voiceFile.files]);
-        statusEl.innerHTML = '대화 내용을 AI가 분석하는 중… <span class="timer">⏱</span>';
-        const res = await fetch('/api/recommend', {
+        const conversation = await readConversationFiles(elements.dataFile.files, updateStatus);
+        updateStatus('대화 내용을 AI가 분석하는 중…');
+        const response = await fetch('/api/recommend', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            recipientName: recipientName.value.trim(),
-            gender,
-            budgetMin: budget.min,
-            budgetMax: budget.max,
-            conversation: text,
-            note,
+            recipientName: elements.recipientName.value.trim(),
+            gender: state.gender,
+            relationship: state.relationship,
+            budgetMin: state.budget.min,
+            budgetMax: state.budget.max,
+            conversation: conversation.text,
+            note: conversation.note,
           }),
         });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
-
-        const sec = ((performance.now() - start) / 1000).toFixed(1);
-        elapsedEl.textContent = `${sec}초 만에 분석 완료`;
-        ingestEl.textContent = note || '';
-        render(data);
-        inputPanel.style.display = 'none';
-        results.classList.add('show');
-        results.scrollIntoView({ behavior: 'smooth' });
-      } catch (err) {
-        statusEl.className = 'status err';
-        statusEl.textContent = '오류: ' + err.message;
-        btn.disabled = false;
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
+        elements.elapsed.textContent = `${((performance.now() - startedAt) / 1000).toFixed(1)}초 만에 분석 완료`;
+        elements.ingest.textContent = conversation.note;
+        renderResults(data);
+        elements.inputPanel.style.display = 'none';
+        elements.results.classList.add('show');
+        elements.results.scrollIntoView({ behavior: 'smooth' });
+      } catch (error) {
+        updateStatus(`오류: ${error.message}`, true);
+        elements.recommendButton.disabled = false;
       }
-    });
+    }
 
-    document.getElementById('restartBtn').addEventListener('click', () => {
-      results.classList.remove('show');
-      inputPanel.style.display = '';
-      statusEl.textContent = '';
-      statusEl.className = 'status';
-      inputPanel.scrollIntoView({ behavior: 'smooth' });
-    });
+    // 예산·관계·성별 칩 중 사용자가 선택한 항목을 상태에 반영한다
+    function handleOptionSelection(event) {
+      const budgetCard = event.target.closest('.bcard');
+      if (budgetCard) {
+        elements.budgetGrid.querySelectorAll('.bcard').forEach((card) => card.setAttribute('aria-pressed', 'false'));
+        budgetCard.setAttribute('aria-pressed', 'true');
+        state.budget = { min: Number(budgetCard.dataset.min), max: Number(budgetCard.dataset.max) };
+      }
+    }
+
+    // 관계와 성별 선택을 각각 한 항목만 활성화한다
+    function handleChipSelection(event) {
+      const relationChip = event.target.closest('.rchip');
+      const genderChip = event.target.closest('.gchip');
+      if (relationChip) {
+        elements.relationChips.querySelectorAll('.rchip').forEach((chip) => chip.setAttribute('aria-pressed', 'false'));
+        relationChip.setAttribute('aria-pressed', 'true');
+        state.relationship = relationChip.dataset.relation;
+      }
+      if (genderChip) {
+        elements.genderChips.querySelectorAll('.gchip').forEach((chip) => chip.setAttribute('aria-pressed', 'false'));
+        genderChip.setAttribute('aria-pressed', 'true');
+        state.gender = genderChip.dataset.gender;
+      }
+    }
+
+    // 드래그한 파일을 브라우저의 파일 입력값으로 연결한다
+    function handleFileDrop(event) {
+      event.preventDefault();
+      elements.dropZone.classList.remove('dragging');
+      if (event.dataTransfer.files.length) {
+        elements.dataFile.files = event.dataTransfer.files;
+        updateFileDisplay();
+      }
+    }
+
+    /* ===== 6. 초기화(init) ===== */
+    // 화면이 준비되면 초기 장식과 입력 이벤트를 한 번만 연결한다
+    function initialize() {
+      renderConfetti();
+      elements.budgetGrid.addEventListener('click', handleOptionSelection);
+      elements.relationChips.addEventListener('click', handleChipSelection);
+      elements.genderChips.addEventListener('click', handleChipSelection);
+      elements.dataFile.addEventListener('change', updateFileDisplay);
+      elements.dropZone.addEventListener('dragover', (event) => { event.preventDefault(); elements.dropZone.classList.add('dragging'); });
+      elements.dropZone.addEventListener('dragleave', () => elements.dropZone.classList.remove('dragging'));
+      elements.dropZone.addEventListener('drop', handleFileDrop);
+      elements.recipientName.addEventListener('input', updateRecommendButton);
+      elements.recommendButton.addEventListener('click', handleRecommend);
+      elements.restartButton.addEventListener('click', resetResults);
+      updateRecommendButton();
+    }
+
+    initialize();
   </script>
 </body>
 </html>

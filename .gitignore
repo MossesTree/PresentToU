@@ -9,3 +9,6 @@
 # OS/에디터 부산물
 .DS_Store
 Thumbs.db
+
+# 참고용 클론 프로젝트 (최종 배포에서 제외)
+website-clone-for-ai/
