@@ -176,6 +176,81 @@ async function webSearch(apiKey, prompt) {
   return text;
 }
 
+// 결과 화면에 성·정치·종교·혐오 등 민감 내용이 노출되지 않도록 표시 직전에 검증한다
+const SAFETY_PROMPT = `너는 선물 추천 서비스의 콘텐츠 검수 담당자야. 사용자 화면에 그대로 표시될 텍스트에
+성적(선정적), 정치적(정당·정치인·이념 옹호/비방), 종교적(특정 종교 권유·찬양·비하), 폭력·혐오·차별 내용이 포함됐는지 판정해.
+
+- 일상적인 선물·감사·축하·취향 표현은 민감하지 않다. 확실히 민감한 경우에만 true로 판정해 과잉 차단을 피해라.
+- 입력 JSON: { "analysis": "...", "letter": "...", "forbidden": "...", "top3": ["항목별 텍스트", ...] }
+- 다른 설명 없이 아래 형식의 JSON만 출력해라. (true = 민감 내용 포함)
+{ "analysis": false, "letter": false, "forbidden": false, "top3": [false, false, false] }`;
+
+// 민감 판정된 추천 카드를 대신할 무난한 선물 (누구에게나 부담 없는 범용 구성 — 카드 3개 유지)
+const SAFE_GIFT = {
+  name: '프리미엄 꽃다발 & 감사 카드 세트',
+  emoji: '💐',
+  reason: '취향을 크게 타지 않으면서도 정성이 잘 전해지는 선물이라 추천해 드립니다.',
+  price: '',
+  detail: '계절 꽃으로 구성한 꽃다발과 짧은 손글씨 카드를 함께 전하는 구성입니다. 어떤 관계에서도 부담 없이 마음을 표현할 수 있습니다.',
+  evidence: '제공된 대화에서 관련 단서를 확인하지 못했습니다.',
+  signals: ['정성', '무난함', '마음 전달'],
+  store: '',
+  url: '',
+  query: '꽃다발 감사 카드 선물 세트',
+};
+
+// 결과 JSON에서 화면에 표시되는 텍스트만 모아 민감 여부를 판정한다
+// result → { analysis, letter, forbidden, top3: boolean[] } (true = 민감 내용 포함)
+async function checkSensitiveContent(apiKey, result) {
+  const top3 = Array.isArray(result.top3) ? result.top3 : [];
+  const payload = {
+    analysis: result.analysis || '',
+    letter: result.letter || '',
+    forbidden: result.forbidden ? `${result.forbidden.name || ''}: ${result.forbidden.reason || ''}` : '',
+    top3: top3.map((gift) => [gift.name, gift.reason, gift.detail, gift.evidence, (Array.isArray(gift.signals) ? gift.signals : []).join(', ')]
+      .filter(Boolean).join(' / ')),
+  };
+  const content = await callOpenAI(apiKey, [
+    { role: 'system', content: SAFETY_PROMPT },
+    { role: 'user', content: JSON.stringify(payload) },
+  ], { json: true, temperature: 0 });
+  const verdict = JSON.parse(content);
+  return {
+    analysis: Boolean(verdict.analysis),
+    letter: Boolean(verdict.letter),
+    forbidden: Boolean(verdict.forbidden),
+    top3: top3.map((_, index) => Boolean(Array.isArray(verdict.top3) && verdict.top3[index])),
+  };
+}
+
+// 민감 판정된 필드를 안전한 기본 문구·선물로 교체한다 → 교체한 필드 이름 목록 반환
+function sanitizeResult(result, verdict, recipientName) {
+  const replaced = [];
+  if (verdict.analysis) {
+    result.analysis = '대화 내용을 바탕으로 받는 분께 어울리는 선물을 준비했습니다.';
+    replaced.push('analysis');
+  }
+  if (verdict.forbidden && result.forbidden) {
+    result.forbidden = { name: '받는 분의 취향과 어긋나는 선물', reason: '대화에서 확인된 취향과 맞지 않는 선물은 피하시는 편이 좋습니다.' };
+    replaced.push('forbidden');
+  }
+  if (verdict.letter) {
+    const opening = recipientName && recipientName.trim() ? `${recipientName.trim()}님께. ` : '';
+    result.letter = `${opening}늘 고마운 마음을 담아 작은 선물을 준비했습니다. 소중한 하루하루가 따뜻한 일들로 가득하길 바랍니다. 앞으로도 좋은 순간을 함께 나눌 수 있으면 좋겠습니다. 마음을 담아 이 편지를 전합니다.`;
+    replaced.push('letter');
+  }
+  if (Array.isArray(result.top3)) {
+    verdict.top3.forEach((flagged, index) => {
+      if (flagged && result.top3[index]) {
+        // 가격대는 예산 검증을 이미 통과한 값이라 유지한다
+        result.top3[index] = { ...SAFE_GIFT, price: result.top3[index].price || '' };
+        replaced.push(`top3[${index}]`);
+      }
+    });
+  }
+  return replaced;
+}
+
 // 코드블록/앞뒤 설명이 섞여도 첫 { ~ 마지막 } 를 잘라 JSON 파싱
 function parseJsonLoose(text) {
   const s = text.indexOf('{');
@@ -309,6 +384,17 @@ export default async function handler(req, res) {
         })
       );
       log('product_refinement.complete', { itemCount: result.top3.length });
+    }
+
+    // 화면에 표시되기 전 마지막 관문: 민감 내용(성·정치·종교·혐오 등) 검증 후 안전한 내용으로 교체
+    try {
+      log('safety.check.start', {});
+      const verdict = await checkSensitiveContent(apiKey, result);
+      const replaced = sanitizeResult(result, verdict, recipientName);
+      log('safety.check.complete', { replacedCount: replaced.length, replaced });
+    } catch (safetyError) {
+      // 검증 호출 실패가 추천 전체를 막지 않도록 결과는 내보내되 기록을 남긴다
+      log('safety.check.error', { name: safetyError.name, message: safetyError.message }, 'error');
     }
 
     log('request.complete', { durationMs: Date.now() - startedAt });
