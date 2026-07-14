@@ -174,7 +174,7 @@
       .info-card { padding: 22px; }
       .cta { margin-bottom: 56px; padding: 48px 20px; }
     }
-    @media (max-width: 640px) { .header-nav a:not(.primary-link) { display: none; } }
+    @media (max-width: 640px) { .header-nav a:not(.primary-link) { display: none; } .header-nav a.guide-link { display: inline-flex; } }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition-duration: .01ms !important; transform: none !important; }
       .js .section, .js .cta, .js .section .info-card { opacity: 1; }
@@ -193,6 +193,7 @@
       </a>
       <nav class="header-nav" aria-label="주요 메뉴">
         <a href="#how-it-works">서비스 소개</a>
+        <a class="guide-link" href="../guide/">이용 가이드</a>
         <a class="primary-link" href="../">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"></path><path d="M20 3v4"></path><path d="M22 5h-4"></path><path d="M4 17v2"></path><path d="M5 18H3"></path></svg>
           지금 분석하기
