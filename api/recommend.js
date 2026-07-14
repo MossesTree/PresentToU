@@ -58,7 +58,7 @@ async function summarizeConversation(apiKey, text) {
 }
 
 const SYSTEM_PROMPT = `너는 선물 추천 전문가야. 
-사용자가 제공한 정보(받는 사람 이름, 예산 범위, 이전 대화 요약, 최근 대화 원문)를 종합 분석해서 다음 세 가지 임무를 수행해.
+사용자가 제공한 정보(받는 사람 이름, 성별, 예산 범위, 이전 대화 요약, 최근 대화 원문)를 종합 분석해서 다음 세 가지 임무를 수행해.
 
 1) 두 사람의 관계와 받는 사람의 취향을 짧게 분석해.
 2) 예산 범위 안에서 실패하지 않을 선물 TOP 3를 추천해. (반드시 3개)
@@ -90,12 +90,13 @@ const SYSTEM_PROMPT = `너는 선물 추천 전문가야.
   }
 }`;
 
-function buildUserPrompt({ recipientName, budgetMin, budgetMax, summary, recent, note }) {
+function buildUserPrompt({ recipientName, gender, budgetMin, budgetMax, summary, recent, note }) {
   // 예산 포맷팅 함수가 외부에 있다고 가정 (예: 10,000원)
   const budgetStr = `${won(budgetMin)} ~ ${won(budgetMax)}`;
 
   return `[입력 데이터]
 - 받는 사람: ${recipientName || '(미입력)'}
+- 성별: ${gender || '(미입력)'}
 - 예산 범위: ${budgetStr}
 
 [이전 대화 요약]
@@ -161,6 +162,7 @@ async function refineToProduct(apiKey, item, ctx) {
 - 한국어로, 마크다운·설명 없이 아래 JSON만 출력해라.
 
 [받는 사람] ${ctx.recipientName || '(미입력)'}
+[성별] ${ctx.gender || '(미입력)'}
 [예산 범위] ${won(ctx.budgetMin)} ~ ${won(ctx.budgetMax)}
 [추천 방향] ${item.name || ''}
 [추천 이유] ${item.reason || ''}
@@ -199,7 +201,7 @@ export default async function handler(req, res) {
   try {
     // Vercel은 JSON 본문을 자동 파싱하지만, 문자열로 올 경우도 방어
     const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
-    const { recipientName, budgetMin, budgetMax, conversation, note } = body;
+    const { recipientName, gender, budgetMin, budgetMax, conversation, note } = body;
 
     // 이름 또는 대화 내용 중 하나는 있어야 추천 가능
     if ((!recipientName || !recipientName.trim()) && (!conversation || !conversation.trim())) {
@@ -230,7 +232,7 @@ export default async function handler(req, res) {
 
     const content = await callOpenAI(apiKey, [
       { role: 'system', content: SYSTEM_PROMPT },
-      { role: 'user', content: buildUserPrompt({ recipientName, budgetMin, budgetMax, summary, recent, note: convoNote }) },
+      { role: 'user', content: buildUserPrompt({ recipientName, gender, budgetMin, budgetMax, summary, recent, note: convoNote }) },
     ], { json: true, temperature: 0.7 });
 
     const result = JSON.parse(content);
@@ -239,7 +241,7 @@ export default async function handler(req, res) {
     if (Array.isArray(result.top3)) {
       result.top3 = await Promise.all(
         result.top3.slice(0, 3).map((item) =>
-          refineToProduct(apiKey, item, { recipientName, budgetMin, budgetMax }).catch(() => item)
+          refineToProduct(apiKey, item, { recipientName, gender, budgetMin, budgetMax }).catch(() => item)
         )
       );
     }
