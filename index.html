@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#f6ece8" />
   <title>PresentToU · 대화 분석 기반 AI 선물 저격기</title>
+  <script>
+    // 사용자가 처음 방문했을 때 서비스 가치를 먼저 이해할 수 있도록 소개 페이지를 우선 노출한다
+    const isAnalysisRequest = new URLSearchParams(window.location.search).has("app");
+    if (!isAnalysisRequest) {
+      window.location.replace("service-intro/");
+    }
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Noto+Serif+KR:wght@500;700;900&display=swap" rel="stylesheet" />
