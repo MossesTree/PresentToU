@@ -9,6 +9,7 @@
 // 통과 기준: 4점 이상
 
 import { writeFileSync, mkdirSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
 import handler from '../api/recommend.js';
 import { judgeWithRubric } from './judge.js';
 
@@ -167,7 +168,7 @@ const BASE = {
   note: '',
 };
 
-const CASES = [
+export const CASES = [
   // ── F1. 대화 기반 TOP 3 추천 ──
   {
     id: 'F1-Q1', title: 'F1-Q1 단일 관심사(축구) 반영',
@@ -424,7 +425,7 @@ function createMockRes() {
 }
 
 // 케이스 1건: 추천 생성 → 루브릭 심사
-async function runCase(apiKey, testCase) {
+export async function runCase(apiKey, testCase) {
   const startedAt = Date.now();
   const res = createMockRes();
   try {
@@ -530,7 +531,10 @@ async function main() {
   console.log(`결과 저장: ${RESULT_PATH}`);
 }
 
-main().catch((error) => {
-  console.error(`실행 실패: ${error.message}`);
-  process.exit(1);
-});
+// node로 직접 실행했을 때만 전체 실행 (repeat.js 등에서 import 할 때는 실행하지 않는다)
+if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) {
+  main().catch((error) => {
+    console.error(`실행 실패: ${error.message}`);
+    process.exit(1);
+  });
+}
