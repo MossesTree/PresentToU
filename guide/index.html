@@ -19,10 +19,36 @@
     .page-shell { max-width:1152px; margin:0 auto; padding:0 24px; } .topbar { position:relative; z-index:20; } .topbar-in { max-width:72rem; margin:0 auto; padding:24px 0; display:flex; align-items:center; justify-content:space-between; gap:24px; } .logo { display:flex; align-items:center; gap:10px; text-decoration:none; } .logo-mark { display:flex; align-items:center; justify-content:center; width:36px; height:36px; border:1.5px solid rgba(75,64,56,.55); border-radius:9999px; color:var(--primary-foreground); background:var(--primary); } .logo-text { color:var(--primary); font-size:18px; font-weight:700; } .nav { display:flex; align-items:center; gap:24px; } .nav-link { position:relative; color:var(--muted); font-size:14px; font-weight:500; text-decoration:none; transition:color .15s; } .nav-link:hover,.nav-link[aria-current="page"] { color:var(--primary); } .nav-link[aria-current="page"] { font-weight:700; } .nav-link[aria-current="page"]::after { position:absolute; right:0; bottom:-7px; left:0; height:2px; border-radius:999px; background:var(--primary); content:""; } .nav-cta { display:inline-flex; align-items:center; gap:6px; padding:10px 16px; border:2px solid rgba(75,64,56,.55); border-radius:18px 14px 16px 20px; color:var(--primary-foreground); background:var(--primary); font-size:14px; font-weight:700; text-decoration:none; box-shadow:0 1px 2px rgb(0 0 0 / 0.05); transition:transform .15s; } .nav-cta:hover { transform:translateY(-2px); } .hero { max-width:760px; margin:0 auto; padding:52px 0 32px; text-align:center; } .eyebrow { display:inline-flex; padding:8px 16px; border:1px solid var(--border); border-radius:999px; color:var(--primary); background:rgba(255,252,245,.82); font-size:14px; font-weight:700; } h1,h2,h3 { font-family:var(--font-serif); } h1 { margin-top:22px; color:var(--primary); font-family:var(--font-display); font-size:clamp(38px,6vw,58px); font-weight:400; line-height:1.25; } .hero-copy { margin-top:18px; color:var(--muted); font-size:17px; } .section { padding:40px 0; } .section-label { color:var(--gold); font-size:13px; font-weight:700; letter-spacing:.2em; text-align:center; } .section-title { margin-top:10px; color:var(--foreground); font-size:clamp(28px,4vw,36px); text-align:center; } .section-title::after { display:block; width:54px; height:2px; margin:14px auto 0; border-radius:999px; background:var(--gold); content:""; } .grid { display:grid; gap:14px; margin-top:28px; } .process-grid { grid-template-columns:repeat(4,1fr); } .export-grid { grid-template-columns:repeat(6,minmax(0,1fr)); max-width:1080px; margin-right:auto; margin-left:auto; }
 
     /* ===== 4. 컴포넌트 ===== */
-    .guide-card { position:relative; padding:20px 18px; border:1px solid rgba(217,191,192,.9); border-radius:22px 18px 24px 20px; background:var(--card); box-shadow:0 8px 22px rgba(120,90,70,.08); transition:transform .2s ease,box-shadow .2s ease; } .guide-card:hover { transform:translateY(-4px) rotate(.15deg); box-shadow:0 13px 26px rgba(120,90,70,.13); } .card-number { display:inline-flex; align-items:center; justify-content:center; width:38px; height:38px; border:1px solid var(--border); border-radius:14px 10px 14px 12px; color:var(--blue-deep); background:var(--blue-soft); font-family:var(--font-serif); font-size:18px; font-weight:700; } .guide-card h3 { margin-top:14px; font-size:17px; } .guide-card p { margin-top:6px; color:var(--muted); font-size:13px; } .export-card { display:grid; grid-column:span 2; grid-template-columns:minmax(0,1fr) 92px; align-items:center; gap:12px; min-height:188px; padding:18px 16px; } .export-card:nth-child(4) { grid-column:2 / span 2; } .export-card:nth-child(5) { grid-column:4 / span 2; } .export-card .step-copy { min-width:0; } .export-card .step-copy h3 { margin-top:12px; } .phone-frame { display:flex; align-items:center; justify-content:center; width:82px; aspect-ratio:9 / 16; margin:0 auto; padding:4px; border:2px solid rgba(75,64,56,.55); border-radius:18px; background:var(--foreground); box-shadow:3px 4px 0 rgba(75,64,56,.1); } .phone-screen { display:flex; align-items:center; justify-content:center; width:100%; height:100%; padding:7px; border-radius:12px; color:var(--muted); background:var(--card); text-align:center; font-size:10px; line-height:1.35; } .tip { max-width:760px; margin:24px auto 0; padding:14px 18px; border:1px solid var(--border); border-radius:18px 14px 20px 16px; color:var(--muted); background:rgba(247,222,226,.48); text-align:center; font-size:13px; } footer { margin-top:28px; padding:24px 0; border-top:1px solid rgba(217,191,192,.7); color:var(--muted); font-size:12px; text-align:center; }
+    .guide-card { position:relative; padding:20px 18px; border:1px solid rgba(217,191,192,.9); border-radius:22px 18px 24px 20px; background:var(--card); box-shadow:0 8px 22px rgba(120,90,70,.08); transition:transform .2s ease,box-shadow .2s ease; } .guide-card:hover { transform:translateY(-4px) rotate(.15deg); box-shadow:0 13px 26px rgba(120,90,70,.13); } .card-number { display:inline-flex; align-items:center; justify-content:center; width:38px; height:38px; border:1px solid var(--border); border-radius:14px 10px 14px 12px; color:var(--blue-deep); background:var(--blue-soft); font-family:var(--font-serif); font-size:18px; font-weight:700; } .guide-card h3 { margin-top:14px; font-size:17px; } .guide-card p { margin-top:6px; color:var(--muted); font-size:13px; } .format-badges { display:flex; flex-wrap:wrap; gap:6px; margin-top:14px; } .format-badge { display:inline-flex; align-items:center; min-height:26px; padding:3px 9px; border:1px solid var(--primary); border-radius:999px; color:var(--primary); background:var(--accent); font-size:12px; font-weight:700; line-height:1.2; } .export-card { display:grid; grid-column:span 2; grid-template-columns:minmax(0,1fr) 92px; align-items:center; gap:12px; min-height:188px; padding:18px 16px; } .export-card:nth-child(4) { grid-column:2 / span 2; } .export-card:nth-child(5) { grid-column:4 / span 2; } .export-card .step-copy { min-width:0; } .export-card .step-copy h3 { margin-top:12px; } .phone-frame { display:flex; align-items:center; justify-content:center; width:82px; aspect-ratio:9 / 16; margin:0 auto; padding:4px; border:2px solid rgba(75,64,56,.55); border-radius:18px; background:var(--foreground); box-shadow:3px 4px 0 rgba(75,64,56,.1); } .phone-screen { display:flex; align-items:center; justify-content:center; width:100%; height:100%; padding:7px; border-radius:12px; color:var(--muted); background:var(--card); text-align:center; font-size:10px; line-height:1.35; } .tip { max-width:760px; margin:24px auto 0; padding:14px 18px; border:1px solid var(--border); border-radius:18px 14px 20px 16px; color:var(--muted); background:rgba(247,222,226,.48); text-align:center; font-size:13px; } footer { margin-top:28px; padding:24px 0; border-top:1px solid rgba(217,191,192,.7); color:var(--muted); font-size:12px; text-align:center; }
 
     /* ===== 5. 반응형 (미디어 쿼리) ===== */
     @media (max-width:900px) { .process-grid { grid-template-columns:repeat(2,1fr); } .export-card { grid-template-columns:minmax(0,1fr) 78px; } } @media (max-width:640px) { .page-shell { padding:0 20px; } .topbar-in { align-items:flex-start; } .nav { gap:12px; } .nav-link { display:none; } .nav-link[aria-current="page"] { display:inline-flex; } .nav-cta { padding:9px 12px; font-size:12px; } .hero { padding:44px 0 28px; } .hero-copy { font-size:15px; } .section { padding:42px 0; } .process-grid,.export-grid { grid-template-columns:1fr; } .export-card,.export-card:nth-child(4),.export-card:nth-child(5) { display:grid; grid-column:auto; grid-template-columns:1fr; gap:16px; min-height:0; padding:22px; } .phone-frame { width:144px; } } @media (prefers-reduced-motion:reduce) { * { transition-duration:.01ms !important; } }
+    /* ===== 이용 가이드 아이콘 ===== */
+    .guide-icon { display:flex; align-items:center; justify-content:center; align-self:start; justify-self:end; width:42px; height:42px; border:1px solid var(--border); border-radius:14px 10px 14px 12px; color:var(--primary); background:var(--accent); }
+    .guide-icon svg { width:23px; height:23px; fill:none; stroke:currentColor; stroke-linecap:round; stroke-linejoin:round; stroke-width:1.8; }
+    .voice-card { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:start; gap:16px; max-width:520px; margin:24px auto 0; }
+    .voice-icons { display:flex; align-items:center; gap:6px; }
+    @media (max-width:640px) { .voice-card { grid-template-columns:1fr auto; } }
+    .export-grid .export-card { grid-column:span 2; }
+    @media (max-width:640px) { .export-grid .export-card { grid-column:auto; } }
+    .voice-export-grid .export-card { grid-column:3 / span 2; }
+    @media (max-width:640px) { .voice-export-grid .export-card { grid-column:auto; } }
+    /* ===== 서비스 이용 순서 ===== */
+    .process-grid { grid-template-columns:repeat(3,1fr); }
+    .process-card { min-height:260px; }
+    .process-card h3 { margin-top:14px; }
+    .process-list { display:grid; gap:5px; margin-top:14px; padding-left:18px; color:var(--muted); font-size:13px; }
+    .process-choice { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:14px; }
+    .process-choice .format-badge { min-height:30px; }
+    .process-note { margin-top:12px !important; color:var(--primary) !important; font-size:12px !important; font-weight:700; }
+    .step-heading { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .step-heading h3 { margin-top:0; }
+    .game-bubble { position:relative; display:inline-flex; align-items:center; gap:5px; max-width:155px; padding:7px 10px; border:1px solid rgba(193,126,138,.35); border-radius:16px 16px 16px 5px; color:var(--primary); background:#F7DEE2; font-size:11px; font-weight:700; line-height:1.35; }
+    .game-bubble::after { position:absolute; bottom:-5px; left:14px; width:8px; height:8px; border-right:1px solid rgba(193,126,138,.35); border-bottom:1px solid rgba(193,126,138,.35); background:#F7DEE2; content:""; transform:skewY(-35deg); }
+    .game-bubble svg { flex:none; width:18px; height:18px; fill:none; stroke:currentColor; stroke-linecap:round; stroke-linejoin:round; stroke-width:1.7; }
+    .letter-tip { margin-top:16px !important; padding:9px 12px; border-radius:14px 14px 14px 5px; color:var(--primary) !important; background:rgba(247,222,226,.58); font-size:12px !important; }
+    @media (max-width:900px) { .process-grid { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:640px) { .process-grid { grid-template-columns:1fr; } .process-card { min-height:0; } .step-heading { align-items:flex-start; } .game-bubble { max-width:145px; } }
   </style>
 </head>
 <body>
@@ -63,5 +89,139 @@
     </main>
     <footer>PresentToU · 마음을 담은 선물 추천</footer>
   </div>
+  <script>
+    /* 이용 가이드의 입력 형식을 실제 지원 범위와 일치시킨다 */
+    const guideCopy = [
+      {
+        title: "카카오톡 대화 또는 음성 파일 준비",
+        description: "카카오톡 대화는 TXT 파일로 내보내거나, 음성 파일(mp3, m4a, wav)을 준비해 주세요.",
+        badges: ["mp3 · m4a · wav"],
+      },
+      {
+        title: "TXT 또는 음성 파일 업로드",
+        description: "TXT 또는 음성 파일(mp3, m4a, wav)을 업로드해 주세요. 최대 파일 크기는 4MB입니다.",
+        badges: ["mp3 · m4a · wav", "최대 4MB"],
+      },
+    ];
+    const processCards = document.querySelectorAll(".process-grid .guide-card");
+    guideCopy.forEach((item, index) => {
+      const card = processCards[index];
+      if (!card) return;
+      card.querySelector("h3").textContent = item.title;
+      card.querySelector("p").textContent = item.description;
+      const badges = document.createElement("div");
+      badges.className = "format-badges";
+      badges.setAttribute("aria-label", "지원 형식 및 용량");
+      item.badges.forEach((label) => {
+        const badge = document.createElement("span");
+        badge.className = "format-badge";
+        badge.textContent = label;
+        badges.appendChild(badge);
+      });
+      card.appendChild(badges);
+    });
+    document.querySelector(".hero-copy").textContent = "카카오톡 대화(TXT) 또는 음성 파일(mp3, m4a, wav)만 준비하면, AI가 취향을 분석해 맞춤 선물을 추천해드려요.";
+  </script>
+  <script>
+    /* 카카오톡 단계의 핵심 동작을 작은 선 아이콘으로 보여준다 */
+    const iconSvgs = [
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6.5A3.5 3.5 0 0 1 8.5 3h7A3.5 3.5 0 0 1 19 6.5v5a3.5 3.5 0 0 1-3.5 3.5h-5L6 18v-3.8a3.5 3.5 0 0 1-1-2.7z"/><path d="M8 8.5h8M8 11.5h5"/></svg>',
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>',
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>',
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v5h5M9.5 13h5M9.5 16h5"/></svg>',
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>',
+    ];
+    document.querySelectorAll(".export-card").forEach((card, index) => {
+      const mockup = card.querySelector(".phone-frame");
+      if (!mockup) return;
+      const icon = document.createElement("span");
+      icon.className = "guide-icon";
+      icon.innerHTML = iconSvgs[index];
+      icon.setAttribute("aria-label", ["채팅방 열기", "메뉴 선택", "대화 내용 내보내기", "텍스트만 내보내기", "TXT 업로드"][index]);
+      mockup.replaceWith(icon);
+    });
+
+    const tip = document.querySelector(".tip");
+    if (tip) {
+      const voiceCard = document.createElement("article");
+      voiceCard.className = "guide-card voice-card";
+      voiceCard.innerHTML = '<div><h3>음성 파일 업로드</h3><p>음성 파일(mp3, m4a, wav)은 별도의 변환 없이 그대로 업로드하면 됩니다.<br>최대 파일 크기: 4MB</p><div class="format-badges"><span class="format-badge">mp3 · m4a · wav</span><span class="format-badge">최대 4MB</span></div></div><div class="voice-icons"><span class="guide-icon" aria-label="업로드"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg></span><span class="guide-icon" aria-label="마이크"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M9 21h6"/></svg></span></div>';
+      tip.before(voiceCard);
+    }
+  </script>
+  <script>
+    /* 메뉴 선택과 대화 내보내기 사이에서 설정 단계를 안내한다 */
+    const exportGrid = document.querySelector(".export-grid");
+    const exportCards = exportGrid ? exportGrid.querySelectorAll(".export-card") : [];
+    if (exportGrid && exportCards.length >= 3) {
+      const settingsCard = document.createElement("article");
+      settingsCard.className = "guide-card export-card";
+      settingsCard.innerHTML = '<div class="step-copy"><span class="card-number">03</span><h3>설정</h3><p>메뉴에서 \'설정\'을 눌러 주세요.</p></div><span class="guide-icon" aria-label="설정"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z"/><path d="M19 13.5v-3l-2-.6a6 6 0 0 0-.7-1.6l.9-1.9-2.1-2.1-1.9.9a6 6 0 0 0-1.6-.7L11 2.5H8l-.6 2a6 6 0 0 0-1.6.7l-1.9-.9-2.1 2.1.9 1.9a6 6 0 0 0-.7 1.6l-2 .6v3l2 .6a6 6 0 0 0 .7 1.6l-.9 1.9 2.1 2.1 1.9-.9a6 6 0 0 0 1.6.7l.6 2h3l.6-2a6 6 0 0 0 1.6-.7l1.9.9 2.1-2.1-.9-1.9a6 6 0 0 0 .7-1.6z"/></svg></span>';
+      exportCards[2].before(settingsCard);
+      exportGrid.querySelectorAll(".export-card .card-number").forEach((number, index) => {
+        number.textContent = String(index + 1).padStart(2, "0");
+      });
+    }
+  </script>
+  <script>
+    /* 음성 파일 안내를 카카오톡 내보내기와 같은 섹션 구조로 맞춘다 */
+    const existingVoiceCard = document.querySelector(".voice-card");
+    const kakaoSection = document.querySelector(".export-grid")?.closest(".section");
+    if (existingVoiceCard && kakaoSection) {
+      const voiceSection = document.createElement("section");
+      voiceSection.className = "section voice-upload-section";
+      voiceSection.setAttribute("aria-labelledby", "voice-upload-title");
+      voiceSection.innerHTML = '<p class="section-label">VOICE UPLOAD</p><h2 class="section-title" id="voice-upload-title">음성 파일 업로드 방법</h2><div class="grid export-grid voice-export-grid"></div>';
+
+      existingVoiceCard.className = "guide-card export-card";
+      existingVoiceCard.innerHTML = '<div class="step-copy"><span class="card-number">01</span><h3>음성 파일 선택</h3><p>mp3, m4a, wav 파일은 별도의 변환 없이 그대로 업로드하면 됩니다.<br>최대 파일 크기는 4MB입니다.</p><div class="format-badges"><span class="format-badge">mp3 · m4a · wav</span><span class="format-badge">최대 4MB</span></div></div><div class="voice-icons"><span class="guide-icon" aria-label="마이크"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M9 21h6"/></svg></span><span class="guide-icon" aria-label="업로드"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg></span></div>';
+      voiceSection.querySelector(".voice-export-grid").appendChild(existingVoiceCard);
+      kakaoSection.after(voiceSection);
+    }
+  </script>
+  <script>
+    /* 기존 안내 카드와 충돌하지 않도록 서비스 이용 순서만 최종 내용으로 다시 그린다 */
+    const processGrid = document.querySelector(".process-grid");
+    if (processGrid) {
+      processGrid.innerHTML = `
+        <article class="guide-card process-card">
+          <span class="card-number">01</span>
+          <h3>선물 받을 분의 정보 입력</h3>
+          <p>AI가 더욱 정확한 선물을 추천할 수 있도록 선물 받을 분의 정보를 입력해 주세요.</p>
+          <ul class="process-list">
+            <li>이름 또는 닉네임</li><li>관계</li><li>선물 목적</li><li>예산</li><li>추가 정보(선택)</li>
+          </ul>
+        </article>
+        <article class="guide-card process-card">
+          <span class="card-number">02</span>
+          <h3>분석 자료 준비</h3>
+          <p>아래 두 가지 방법 중 하나를 선택해 주세요.</p>
+          <div class="process-choice"><span class="format-badge">카카오톡 대화(TXT)</span><span>또는</span><span class="format-badge">음성 파일(mp3, m4a, wav)</span></div>
+          <p class="process-note">별도의 변환 없이 그대로 업로드 가능<br>최대 4MB</p>
+        </article>
+        <article class="guide-card process-card">
+          <span class="card-number">03</span>
+          <h3>파일 업로드</h3>
+          <p>준비한 TXT 또는 음성 파일을 업로드하면 AI가 분석을 시작합니다.</p>
+        </article>
+        <article class="guide-card process-card">
+          <div class="step-heading"><span class="card-number">04</span><span class="game-bubble"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9h10a4 4 0 0 1 3.7 5.5l-1.1 2.7a2.5 2.5 0 0 1-4.3.5L14 16H10l-1.3 1.7a2.5 2.5 0 0 1-4.3-.5l-1.1-2.7A4 4 0 0 1 7 9Z"/><path d="M7 12v3M5.5 13.5h3M16.5 13h.01M18.5 14.5h.01"/></svg>기다리는 동안<br>미니게임도 즐겨보세요!</span></div>
+          <h3>AI 분석 진행</h3>
+          <p>AI가 대화와 음성을 분석하여 관심사, 취향, 자주 사용하는 키워드, 감정 표현 등을 종합적으로 분석합니다.</p>
+        </article>
+        <article class="guide-card process-card">
+          <span class="card-number">05</span>
+          <h3>AI 맞춤 선물 추천</h3>
+          <p>분석 결과를 바탕으로 받는 사람의 취향에 맞는 선물을 추천해 드립니다.</p>
+          <ul class="process-list"><li>추천 선물</li><li>추천 이유</li><li>가격대</li><li>취향과의 연관성</li></ul>
+        </article>
+        <article class="guide-card process-card">
+          <span class="card-number">06</span>
+          <h3>AI 편지 생성</h3>
+          <p>추천된 선물에 어울리는 진심 어린 편지를 AI가 함께 작성해 드립니다.</p>
+          <p class="letter-tip">편지는 이미지로 저장도 가능해요.<br>추천 선물과 함께 편지를 전달하면 더욱 특별한 선물이 됩니다.</p>
+        </article>`;
+    }
+  </script>
 </body>
 </html>
