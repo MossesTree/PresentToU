@@ -12,12 +12,6 @@
     "eval:repeat": "node eval/repeat.js"
   },
   "engines": {
-    "node": ">=20"
-  },
-  "dependencies": {
-    "@langfuse/client": "^5.9.1",
-    "@langfuse/otel": "^5.9.1",
-    "@langfuse/tracing": "^5.9.1",
-    "@opentelemetry/sdk-node": "^0.203.0"
+    "node": ">=18"
   }
 }
