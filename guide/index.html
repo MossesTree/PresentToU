@@ -117,7 +117,7 @@
     /* ===== 카카오톡 인터랙티브 안내 ===== */
     /* 설명과 목업이 한 덩어리로 읽히도록 데스크톱 간격을 조정한다 */
     .kakao-walkthrough { display:grid; grid-template-columns:minmax(0,1fr) 420px; align-items:start; gap:28px; max-width:1120px; margin:42px auto 0; }
-    .guide-page footer { position:relative; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:16px; margin-top:28px; padding:24px 24px; border-top:0; color:var(--muted); font-size:12px; text-align:initial; }
+    .guide-page footer { position:relative; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:16px; max-width:64rem; margin:28px auto 0; padding:24px 24px; border-top:0; color:var(--muted); font-size:12px; text-align:initial; }
     .guide-page footer::before { position:absolute; top:0; left:50%; width:100vw; border-top:1px solid rgba(217,191,192,.7); content:""; transform:translateX(-50%); }
     .guide-footer-brand { display:inline-flex; align-items:center; gap:10px; color:var(--primary); font-size:18px; font-weight:700; }
     .guide-footer-mark { display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; border:1.5px solid rgba(75,64,56,.55); border-radius:999px; color:var(--primary-foreground); background:var(--primary); }
