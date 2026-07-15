@@ -5,7 +5,12 @@
 // 긴 대화 처리: 최근 12,000자는 원문 그대로, 그 이전 내용은 4,000자 이내 요약으로 압축해
 // 컨텍스트 길이 초과(context_length_exceeded)를 방지한다.
 
-const MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+// 추천·요약·민감 검증에 쓰는 기본 모델. 접근 권한이 열린 gpt-5.6-sol을 사용한다.
+// (Vercel에 OPENAI_MODEL 환경변수가 설정돼 있으면 그 값이 우선한다)
+const MODEL = process.env.OPENAI_MODEL || 'gpt-5.6-sol';
+
+// gpt-5 계열은 temperature 조정을 지원하지 않아(기본값 고정) 요청에서 파라미터를 생략한다
+const SUPPORTS_TEMPERATURE = !MODEL.startsWith('gpt-5');
 
 const RECENT_CHARS = 12000;   // 최근 대화 원문 유지 길이
 const SUMMARY_MAX = 4000;     // 요약문 최대 길이
@@ -41,7 +46,7 @@ async function callOpenAI(apiKey, messages, { json = false, temperature = 0.7 } 
     body: JSON.stringify({
       model: MODEL,
       messages,
-      temperature,
+      ...(SUPPORTS_TEMPERATURE ? { temperature } : {}),
       ...(json ? { response_format: { type: 'json_object' } } : {}),
     }),
   });
