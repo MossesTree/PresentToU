@@ -197,10 +197,9 @@
             <p class="kakao-demo-caption">휴대폰 안의 버튼을 직접 눌러 실제 순서를 따라가 보세요</p>
           </div>
         </div>
-        <p class="privacy-bar">대화 내용은 분석 즉시 삭제되며 외부에 저장되지 않습니다</p>
       </section>
     </main>
-    <footer>presen2U · 마음을 담은 선물 추천</footer>
+    <footer>presen2U · 대화 내용은 분석 즉시 삭제되며 외부에 저장되지 않습니다</footer>
   </div>
   <script>
     /* 이용 가이드의 입력 형식을 실제 지원 범위와 일치시킨다 */
@@ -255,7 +254,7 @@
       mockup.replaceWith(icon);
     });
 
-    const tip = document.querySelector(".privacy-bar");
+    const tip = document.querySelector("footer");
     if (tip) {
       const voiceCard = document.createElement("article");
       voiceCard.className = "guide-card voice-card";
