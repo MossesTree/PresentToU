@@ -32,7 +32,7 @@
     .chat-header .center-title { position: absolute; left: 50%; transform: translateX(-50%); font-size: 15px; font-weight: 600; color: #111; background: none; border: none; font-family: inherit; }
     .chat-header .right { display: flex; align-items: center; gap: 12px; margin-left: auto; color: #555; }
 
-    .messages { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 14px 16px 80px; display: flex; flex-direction: column; gap: 14px; }
+    .messages { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 14px 16px 80px; display: flex; flex-direction: column; gap: 20px; }
 
     .msg-row { display: flex; align-items: flex-end; gap: 8px; }
     .msg-row.me { justify-content: flex-end; }
@@ -40,11 +40,12 @@
     .profile-icon { width: 72%; height: 72%; display: block; overflow: visible; }
     .msg-col { display: flex; flex-direction: column; min-width: 0; gap: 2px; }
     .sender-name { font-size: 11px; color: #555; margin-left: 2px; margin-bottom: 2px; }
-    .bubble-row { display: flex; align-items: flex-end; gap: 6px; }
+    .bubble-row { display: flex; align-items: flex-end; gap: 8px; }
     .bubble-row.me { justify-content: flex-end; }
-    .bubble { padding: 9px 13px; font-size: 13.5px; line-height: 1.45; color: #111; word-break: break-word; box-shadow: 0 1px 2px rgba(0,0,0,0.08); }
-    .bubble.other { background: #FFFCF5; border-radius: 18px 18px 18px 4px; max-width: 52%; }
-    .bubble.me { background: #efbcc7; border-radius: 18px 18px 4px 18px; max-width: 56%; }
+    /* 대화 예시를 빠르게 훑을 수 있도록 각 문장을 한 줄 말풍선으로 보여준다 */
+    .bubble { flex-shrink:1; min-width:0; padding:10px 13px; color:#111; font-size:12.5px; line-height:1.5; white-space:nowrap; box-shadow:0 1px 2px rgba(0,0,0,0.08); }
+    .bubble.other { max-width:none; background:#FFFCF5; border-radius:18px 18px 18px 4px; }
+    .bubble.me { max-width:none; background:#efbcc7; border-radius:18px 18px 4px 18px; }
     .msg-time { font-size: 10px; color: #666; white-space: nowrap; padding-bottom: 2px; flex-shrink: 0; }
 
     /* Floating input bar */
@@ -181,7 +182,7 @@
   <!-- ══ CHAT ══ -->
   <div class="screen active" id="chat">
     <div class="status-bar" style="background:rgba(255,248,239,0.96)">
-      <span class="time">1:26</span>
+      <span class="time">9:12</span>
       <div class="island"></div>
       <div class="status-icons">
         <svg width="17" height="12" viewBox="0 0 17 12" fill="none"><rect x="0" y="5" width="3" height="7" rx="0.6" fill="#111"/><rect x="4.5" y="3.5" width="3" height="8.5" rx="0.6" fill="#111"/><rect x="9" y="1.5" width="3" height="10.5" rx="0.6" fill="#111"/><rect x="13.5" y="0" width="3" height="12" rx="0.6" fill="#111" opacity="0.3"/></svg>
@@ -221,7 +222,7 @@
   <!-- ══ INFO ══ -->
   <div class="screen" id="info">
     <div class="status-bar white-status">
-      <span class="time">1:26</span><div class="island"></div>
+      <span class="time">9:12</span><div class="island"></div>
       <div class="status-icons"><svg width="17" height="12" viewBox="0 0 17 12" fill="none"><rect x="0" y="5" width="3" height="7" rx="0.6" fill="#111"/><rect x="4.5" y="3.5" width="3" height="8.5" rx="0.6" fill="#111"/><rect x="9" y="1.5" width="3" height="10.5" rx="0.6" fill="#111"/><rect x="13.5" y="0" width="3" height="12" rx="0.6" fill="#111" opacity="0.3"/></svg><svg width="16" height="12" viewBox="0 0 16 12" fill="#111"><path d="M8 9a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z"/><path d="M3.5 5.8A6.5 6.5 0 0 1 8 4a6.5 6.5 0 0 1 4.5 1.8l-1.1 1.3A4.8 4.8 0 0 0 8 5.7a4.8 4.8 0 0 0-3.4 1.4L3.5 5.8z"/><path d="M0.8 3A10.2 10.2 0 0 1 8 0c2.8 0 5.4 1.1 7.2 3L14 4.3A8.5 8.5 0 0 0 8 1.7 8.5 8.5 0 0 0 2 4.3L0.8 3z"/></svg><div class="battery-icon"><div class="battery-body"><div class="battery-fill"></div></div><div class="battery-tip"></div></div></div>
     </div>
     <div class="white-header">
@@ -264,7 +265,7 @@
   <!-- ══ SETTINGS ══ -->
   <div class="screen" id="settings">
     <div class="status-bar white-status">
-      <span class="time">1:26</span><div class="island"></div>
+      <span class="time">9:12</span><div class="island"></div>
       <div class="status-icons"><svg width="17" height="12" viewBox="0 0 17 12" fill="none"><rect x="0" y="5" width="3" height="7" rx="0.6" fill="#111"/><rect x="4.5" y="3.5" width="3" height="8.5" rx="0.6" fill="#111"/><rect x="9" y="1.5" width="3" height="10.5" rx="0.6" fill="#111"/><rect x="13.5" y="0" width="3" height="12" rx="0.6" fill="#111" opacity="0.3"/></svg><svg width="16" height="12" viewBox="0 0 16 12" fill="#111"><path d="M8 9a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z"/><path d="M3.5 5.8A6.5 6.5 0 0 1 8 4a6.5 6.5 0 0 1 4.5 1.8l-1.1 1.3A4.8 4.8 0 0 0 8 5.7a4.8 4.8 0 0 0-3.4 1.4L3.5 5.8z"/><path d="M0.8 3A10.2 10.2 0 0 1 8 0c2.8 0 5.4 1.1 7.2 3L14 4.3A8.5 8.5 0 0 0 8 1.7 8.5 8.5 0 0 0 2 4.3L0.8 3z"/></svg><div class="battery-icon"><div class="battery-body"><div class="battery-fill"></div></div><div class="battery-tip"></div></div></div>
     </div>
     <div class="white-header">
@@ -310,14 +311,14 @@
 </div>
 <script>
 const MESSAGES = [
-  { sender:'other', name:'은서', text:'요즘 집에서 쓸 수 있는 선물이 좋아.', time:'오후 12:41' },
-  { sender:'me', text:'향 좋은 캔들이나 차 세트도 괜찮겠다.', time:'오후 12:41' },
-  { sender:'other', name:'은서', text:'맞아! 다이어리 꾸미기도 좋아해.', time:'오후 12:42' },
-  { sender:'me', text:'그럼 예쁘면서 실용적인 게 잘 어울리겠다.', time:'오후 12:42' },
-  { sender:'other', name:'은서', text:'너무 화려하거나 큰 건 부담스러워해.', time:'오후 12:43' },
-  { sender:'me', text:'작고 오래 쓸 수 있는 선물로 찾아볼게.', time:'오후 12:43' },
-  { sender:'other', name:'은서', text:'예산은 3만 원에서 5만 원 정도면 좋아!', time:'오후 12:44' },
-  { sender:'me', text:'취향에 꼭 맞는 걸 골라볼게 :)', time:'오후 12:44' },
+  { sender:'other', name:'은서', text:'요즘 집에서 쓸 수 있는 선물이 좋아.', time:'오후 9:12' },
+  { sender:'me', text:'향 좋은 캔들이나 차 세트도 괜찮겠다.', time:'오후 9:12' },
+  { sender:'other', name:'은서', text:'맞아! 다이어리 꾸미기도 좋아해.', time:'오후 9:12' },
+  { sender:'me', text:'그럼 예쁘면서 실용적인 게 잘 어울리겠다.', time:'오후 9:12' },
+  { sender:'other', name:'은서', text:'너무 화려하거나 큰 건 부담스러워해.', time:'오후 9:12' },
+  { sender:'me', text:'작고 오래 쓸 수 있는 선물로 찾아볼게.', time:'오후 9:12' },
+  { sender:'other', name:'은서', text:'예산은 3만 원에서 5만 원 정도면 좋아!', time:'오후 9:12' },
+  { sender:'me', text:'취향에 꼭 맞는 걸 골라볼게 :)', time:'오후 9:12' },
 ];
 
 function buildMessages() {
