@@ -58,7 +58,8 @@
     .game-bubble { position:relative; display:inline-flex; align-items:center; gap:5px; max-width:155px; padding:7px 10px; border:1px solid rgba(193,126,138,.35); border-radius:16px 16px 16px 5px; color:var(--primary); background:#F7DEE2; font-size:11px; font-weight:700; line-height:1.35; }
     .game-bubble::after { position:absolute; bottom:-5px; left:14px; width:8px; height:8px; border-right:1px solid rgba(193,126,138,.35); border-bottom:1px solid rgba(193,126,138,.35); background:#F7DEE2; content:""; transform:skewY(-35deg); }
     .game-bubble svg { flex:none; width:18px; height:18px; fill:none; stroke:currentColor; stroke-linecap:round; stroke-linejoin:round; stroke-width:1.7; }
-    .letter-tip { margin-top:16px !important; padding:9px 12px; border-radius:14px 14px 14px 5px; color:var(--primary) !important; background:rgba(247,222,226,.58); font-size:12px !important; }
+    /* 앞 단계의 강조 배지와 같은 시각 언어를 사용해 보조 안내의 위계를 일정하게 유지한다 */
+    .letter-tip { margin-top:16px !important; padding:9px 12px; border:1px solid rgba(193,126,138,.35); border-radius:16px 16px 16px 5px; color:var(--primary) !important; background:#F7DEE2; font-size:12px !important; font-weight:700; line-height:1.5; }
     @media (max-width:900px) { .process-grid { grid-template-columns:repeat(2,1fr); } }
     @media (max-width:640px) { .process-grid { grid-template-columns:1fr; } .process-card { min-height:0; } .step-heading { align-items:flex-start; } .game-bubble { max-width:145px; } }
     /* ===== 서비스 소개 페이지와 통일한 애니메이션 ===== */
