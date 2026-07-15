@@ -105,6 +105,34 @@
     @keyframes guide-status-pulse { 0%,100% { box-shadow:0 0 0 0 rgba(212,138,151,.25); } 50% { box-shadow:0 0 0 5px rgba(212,138,151,0); } }
     @media (max-width:640px) { .guide-page .hero { padding-top:28px; } .guide-page .hero-copy { font-size:15px; } .guide-page .hero-copy-line { display:inline; } .guide-hero-panel { margin-top:36px; } .guide-panel-body { grid-template-columns:1fr; gap:8px; } .guide-panel-arrow { transform:rotate(90deg); } .guide-page .section { padding:56px 0; } }
     @media (prefers-reduced-motion:reduce) { .guide-page *, .guide-page *::before, .guide-page *::after { animation:none !important; transition-duration:.01ms !important; } .guide-page .guide-card, .guide-page .section { opacity:1; transform:none; } }
+
+    /* ===== 카카오톡 인터랙티브 안내 ===== */
+    .kakao-walkthrough { display:grid; grid-template-columns:minmax(0,1fr) 420px; align-items:start; gap:96px; max-width:1120px; margin:42px auto 0; }
+    .kakao-walkthrough-copy { min-width:0; padding:0 0 24px; }
+    .kakao-walkthrough-kicker { display:inline-flex; align-items:center; gap:7px; color:var(--primary); font-size:13px; font-weight:700; }
+    .kakao-walkthrough-kicker::before { width:8px; height:8px; border-radius:50%; background:#F5E642; box-shadow:0 0 0 4px rgba(245,230,66,.24); content:""; }
+    .kakao-walkthrough h3 { margin-top:12px; color:var(--foreground); font-size:32px; line-height:1.4; letter-spacing:-.02em; }
+    .kakao-walkthrough-lead { max-width:430px; margin-top:14px; color:var(--muted); font-size:14px; line-height:1.75; }
+    .kakao-steps { display:grid; gap:12px; margin-top:28px; list-style:none; }
+    .kakao-step { display:grid; grid-template-columns:34px 1fr; align-items:center; gap:11px; width:100%; padding:11px 12px; border:1px solid transparent; border-radius:14px; color:var(--muted); background:transparent; text-align:left; cursor:pointer; font:inherit; transition:background .2s ease,border-color .2s ease,transform .2s ease; }
+    .kakao-step:hover,.kakao-step:focus-visible { border-color:var(--border); background:rgba(255,252,245,.76); transform:translateX(3px); outline:none; }
+    .kakao-step.is-selected { border-color:rgba(193,126,138,.55); color:var(--foreground); background:var(--accent); }
+    .kakao-step-number { display:flex; align-items:center; justify-content:center; width:30px; height:30px; border:1px solid var(--border); border-radius:11px 8px 10px 9px; color:var(--primary); background:var(--card); font-family:var(--font-serif); font-size:15px; font-weight:700; }
+    .kakao-step strong { display:block; color:inherit; font-size:14px; }
+    .kakao-step small { display:flex; align-items:center; gap:5px; margin-top:2px; color:var(--muted); font-size:11px; }
+    .kakao-step small svg { flex:none; width:14px; height:14px; fill:none; stroke:var(--primary); stroke-linecap:round; stroke-linejoin:round; stroke-width:1.8; }
+    .kakao-step[data-screen="chat"] { display:none; }
+    .kakao-demo { position:relative; display:flex; justify-content:center; height:740px; padding:14px 14px 42px; overflow:visible; }
+    .kakao-demo::before, .kakao-demo::after { display:none; }
+    .kakao-demo-label { display:none; }
+    .kakao-frame-shell { position:relative; z-index:1; isolation:isolate; flex:none; width:320px; height:692px; }
+    .kakao-frame-shell::before { position:absolute; z-index:-1; inset:-6px; border:1px solid rgba(255,255,255,.55); border-radius:42px; background:linear-gradient(145deg,#A79C94,#756B64 52%,#958A82); box-shadow:0 20px 36px rgba(75,64,56,.17),inset 1px 1px 2px rgba(255,255,255,.42),inset -2px -2px 4px rgba(75,64,56,.16); content:""; }
+    .kakao-frame-shell::after { position:absolute; z-index:2; top:126px; right:-9px; width:3px; height:52px; border-radius:0 3px 3px 0; background:#82766E; box-shadow:0 70px 0 #82766E,0 104px 0 #82766E; content:""; }
+    .kakao-iframe { position:absolute; top:0; left:0; width:390px; height:844px; border:0; border-radius:44px; background:transparent; box-shadow:0 20px 38px rgba(75,64,56,.22); transform:scale(.82); transform-origin:top left; }
+    .kakao-demo-caption { position:absolute; z-index:2; right:0; bottom:18px; left:0; color:var(--muted); font-size:11px; text-align:center; }
+    @media (max-width:900px) { .kakao-walkthrough { grid-template-columns:1fr 340px; gap:32px; padding:22px; } .kakao-demo { height:650px; } .kakao-frame-shell { width:273px; height:591px; } .kakao-frame-shell::before { border-radius:38px; } .kakao-iframe { transform:scale(.7); } }
+    @media (max-width:640px) { .kakao-walkthrough { grid-template-columns:1fr; padding:18px; } .kakao-demo { height:700px; } .kakao-frame-shell { width:293px; height:633px; } .kakao-frame-shell::before { border-radius:39px; } .kakao-iframe { transform:scale(.75); } }
+    @media (prefers-reduced-motion:reduce) { .kakao-step { transition:none; } }
   </style>
 </head>
 <body class="guide-page">
@@ -148,13 +176,29 @@
         <article class="guide-card"><span class="card-number">03</span><h3>AI 분석</h3><p>대화 속 취향과 관심사를 AI가 꼼꼼하게 살펴봐요.</p></article>
         <article class="guide-card"><span class="card-number">04</span><h3>선물 추천 결과 확인</h3><p>예산과 관계에 맞는 선물 TOP 3와 추천 이유를 확인하세요.</p></article>
       </div></section>
-      <section class="section" aria-labelledby="export-title"><p class="section-label">KAKAOTALK EXPORT</p><h2 class="section-title" id="export-title">카카오톡 대화 내보내기 방법</h2><div class="grid export-grid">
-        <article class="guide-card export-card"><div class="step-copy"><span class="card-number">01</span><h3>채팅방 열기</h3><p>대화를 분석할 카카오톡 채팅방을 열어 주세요.</p></div><figure class="phone-frame" aria-label="채팅방 열기 캡처 이미지 영역"><div class="phone-screen">카카오톡<br>채팅방 캡처</div></figure></article>
-        <article class="guide-card export-card"><div class="step-copy"><span class="card-number">02</span><h3>메뉴 선택</h3><p>채팅방 오른쪽 위 메뉴 버튼을 눌러 주세요.</p></div><figure class="phone-frame" aria-label="메뉴 선택 캡처 이미지 영역"><div class="phone-screen">카카오톡<br>메뉴 캡처</div></figure></article>
-        <article class="guide-card export-card"><div class="step-copy"><span class="card-number">03</span><h3>대화 내용 내보내기</h3><p>메뉴에서 대화 내용 내보내기를 선택하세요.</p></div><figure class="phone-frame" aria-label="대화 내용 내보내기 캡처 이미지 영역"><div class="phone-screen">대화 내용<br>내보내기 캡처</div></figure></article>
-        <article class="guide-card export-card"><div class="step-copy"><span class="card-number">04</span><h3>텍스트만 내보내기</h3><p>파일 형식에서 텍스트만 내보내기를 선택하세요.</p></div><figure class="phone-frame" aria-label="텍스트만 내보내기 캡처 이미지 영역"><div class="phone-screen">텍스트만<br>내보내기 캡처</div></figure></article>
-        <article class="guide-card export-card"><div class="step-copy"><span class="card-number">05</span><h3>TXT 업로드</h3><p>저장된 TXT 파일을 presen2U에 업로드하면 끝이에요.</p></div><figure class="phone-frame" aria-label="TXT 업로드 캡처 이미지 영역"><div class="phone-screen">presen2U<br>업로드 캡처</div></figure></article>
-      </div><p class="tip">개인정보가 포함된 파일은 업로드 전에 확인해 주세요.</p></section>
+      <section class="section" aria-labelledby="export-title"><p class="section-label">KAKAOTALK EXPORT</p><h2 class="section-title" id="export-title">카카오톡 대화 내보내기 방법</h2>
+        <div class="kakao-walkthrough">
+          <div class="kakao-walkthrough-copy">
+            <span class="kakao-walkthrough-kicker">직접 눌러보는 안내</span>
+            <h3>카카오톡 화면을 따라가며<br>TXT 파일을 준비해 보세요</h3>
+            <p class="kakao-walkthrough-lead">오른쪽 휴대폰 모형을 직접 눌러보세요. 왼쪽 단계 버튼을 누르면 지금 확인할 화면으로 이동합니다.</p>
+            <ol class="kakao-steps" aria-label="카카오톡 대화 내보내기 단계">
+              <li><button class="kakao-step is-selected" type="button" data-screen="chat"><span class="kakao-step-number">01</span><span><strong>채팅방 열기</strong><small><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6.5A3.5 3.5 0 0 1 8.5 3h7A3.5 3.5 0 0 1 19 6.5v5a3.5 3.5 0 0 1-3.5 3.5h-5L6 18v-3.8a3.5 3.5 0 0 1-1-2.7z"/></svg>분석할 대화방을 선택해요</small></span></button></li>
+              <li><button class="kakao-step" type="button" data-screen="info"><span class="kakao-step-number">02</span><span><strong>채팅방 정보 열기</strong><small><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>상단의 삼선 메뉴를 눌러요</small></span></button></li>
+              <li><button class="kakao-step" type="button" data-screen="settings"><span class="kakao-step-number">03</span><span><strong>설정 선택</strong><small><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09A1.65 1.65 0 0 0 15 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09A1.65 1.65 0 0 0 19.4 15z"/></svg>채팅방 정보에서 설정을 눌러요</small></span></button></li>
+              <li><button class="kakao-step" type="button" data-screen="export"><span class="kakao-step-number">04</span><span><strong>대화 내용 내보내기</strong><small><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>텍스트 메시지만 보내기를 선택해요</small></span></button></li>
+            </ol>
+          </div>
+          <div class="kakao-demo">
+            <span class="kakao-demo-label">LIVE MOCKUP</span>
+            <div class="kakao-frame-shell">
+              <iframe class="kakao-iframe" src="../kakao.html?embed=1" title="카카오톡 대화 내보내기 인터랙티브 모형"></iframe>
+            </div>
+            <p class="kakao-demo-caption">휴대폰 안의 버튼을 직접 눌러 실제 순서를 따라가 보세요</p>
+          </div>
+        </div>
+        <p class="tip">개인정보가 포함된 파일은 업로드 전에 확인해 주세요.</p>
+      </section>
     </main>
     <footer>presen2U · 마음을 담은 선물 추천</footer>
   </div>
@@ -193,6 +237,7 @@
   </script>
   <script>
     /* 카카오톡 단계의 핵심 동작을 작은 선 아이콘으로 보여준다 */
+    if (false) {
     const iconSvgs = [
       '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6.5A3.5 3.5 0 0 1 8.5 3h7A3.5 3.5 0 0 1 19 6.5v5a3.5 3.5 0 0 1-3.5 3.5h-5L6 18v-3.8a3.5 3.5 0 0 1-1-2.7z"/><path d="M8 8.5h8M8 11.5h5"/></svg>',
       '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>',
@@ -217,6 +262,7 @@
       voiceCard.innerHTML = '<div><h3>음성 파일 업로드</h3><p>음성 파일(mp3, m4a, wav)은 별도의 변환 없이 그대로 업로드하면 됩니다.<br>최대 파일 크기: 4MB</p><div class="format-badges"><span class="format-badge">mp3 · m4a · wav</span><span class="format-badge">최대 4MB</span></div></div><div class="voice-icons"><span class="guide-icon" aria-label="업로드"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg></span><span class="guide-icon" aria-label="마이크"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M9 21h6"/></svg></span></div>';
       tip.before(voiceCard);
     }
+    }
   </script>
   <script>
     /* 메뉴 선택과 대화 내보내기 사이에서 설정 단계를 안내한다 */
@@ -231,6 +277,30 @@
         number.textContent = String(index + 1).padStart(2, "0");
       });
     }
+  </script>
+  <script>
+    /* 단계 버튼과 카카오톡 모형을 연결해 사용자가 순서를 눈으로 따라가게 한다 */
+    const kakaoFrame = document.querySelector(".kakao-iframe");
+    const kakaoSteps = document.querySelectorAll(".kakao-step");
+    kakaoSteps.forEach((step) => {
+      step.addEventListener("click", () => {
+        kakaoSteps.forEach((item) => item.classList.remove("is-selected"));
+        step.classList.add("is-selected");
+        kakaoFrame?.contentWindow.postMessage({ type: "kakao-guide-screen", screen: step.dataset.screen }, "*");
+      });
+    });
+    // 휴대폰 모형 안에서 직접 화면을 넘겨도 왼쪽 단계 선택 상태를 맞춘다
+    window.addEventListener('message', (event) => {
+      if (event.data?.type !== 'kakao-screen-changed') return;
+      const targetStep = document.querySelector(`.kakao-step[data-screen="${event.data.screen}"]`);
+      kakaoSteps.forEach((item) => item.classList.remove('is-selected'));
+      targetStep?.classList.add('is-selected');
+    });
+    // 이미 채팅방이 열린 상태에서 시작하므로 실제 조작 단계만 01부터 다시 표시한다
+    const visibleKakaoSteps = document.querySelectorAll('.kakao-step:not([data-screen="chat"])');
+    visibleKakaoSteps.forEach((step, index) => {
+      step.querySelector('.kakao-step-number').textContent = String(index + 1).padStart(2, '0');
+    });
   </script>
   <script>
     /* 음성 파일 안내를 카카오톡 내보내기와 같은 섹션 구조로 맞춘다 */
