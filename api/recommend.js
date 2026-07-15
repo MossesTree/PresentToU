@@ -1,4 +1,4 @@
-// PresentToU — Vercel 서버리스 함수
+// presen2U — Vercel 서버리스 함수
 // 환경변수 OPENAI_API_KEY로 실제 추천을 생성한다. (키는 서버 측에만 존재 — 브라우저 비노출)
 // Vercel 대시보드 → Settings → Environment Variables 에 OPENAI_API_KEY 등록
 //
@@ -64,7 +64,7 @@ async function callOpenAI(apiKey, messages, { json = false, temperature = 0.7 } 
   return content;
 }
 
-const observedCallOpenAI = observeAiRequest(callOpenAI, 'present-to-u.openai');
+const observedCallOpenAI = observeAiRequest(callOpenAI, 'presen2u.openai');
 
 // 이전 대화(older)를 선물 추천에 도움이 되도록 4,000자 이내로 요약
 async function summarizeConversation(apiKey, text) {
@@ -273,7 +273,7 @@ async function webSearch(apiKey, prompt) {
   return text;
 }
 
-const observedWebSearch = observeAiRequest(webSearch, 'present-to-u.web-search');
+const observedWebSearch = observeAiRequest(webSearch, 'presen2u.web-search');
 
 // 결과 화면에 성·정치·종교·혐오 등 민감 내용이 노출되지 않도록 표시 직전에 검증한다
 const SAFETY_PROMPT = `너는 선물 추천 서비스의 콘텐츠 검수 담당자야. 사용자 화면에 그대로 표시될 텍스트에
@@ -531,4 +531,4 @@ async function handler(req, res) {
   }
 }
 
-export default observeAiRequest(handler, 'present-to-u.recommend');
+export default observeAiRequest(handler, 'presen2u.recommend');
