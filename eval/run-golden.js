@@ -438,6 +438,8 @@ export async function runCase(apiKey, testCase) {
       input: testCase.input,
       criteria: testCase.criteria,
       output: res.body,
+      // 심사자가 인용·환각을 실제 대화와 대조할 수 있게 요청 본문을 함께 준다
+      body: testCase.body,
     });
     return { ...testCase, output: res.body, verdict, ms: Date.now() - startedAt };
   } catch (error) {

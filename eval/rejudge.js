@@ -7,6 +7,7 @@
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { judgeWithRubric } from './judge.js';
+import { CASES } from './run-golden.js';
 
 const PASS_SCORE = 4;
 const OUTPUT_DIR = 'eval/outputs';
@@ -23,7 +24,9 @@ async function main() {
   for (const file of files) {
     const saved = JSON.parse(readFileSync(join(OUTPUT_DIR, file), 'utf8'));
     if (!saved.output) { results.push({ id: saved.id, error: saved.error }); continue; }
-    const verdict = await judgeWithRubric(apiKey, saved);
+    // 저장 파일에는 요청 본문이 없으므로 케이스 정의에서 대화 원문을 찾아 심사자에게 준다
+    const definition = CASES.find((c) => c.id === saved.id);
+    const verdict = await judgeWithRubric(apiKey, { ...saved, body: definition?.body });
     results.push({ id: saved.id, title: saved.title, verdict });
     console.log(`${saved.id} — ${verdict.score}점${verdict.unmet.length ? ' | 미충족: ' + verdict.unmet.join(' / ') : ''}`);
     // 재심사 결과를 원본 파일에 함께 남긴다
