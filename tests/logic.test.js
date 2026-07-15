@@ -160,10 +160,10 @@ test('judgeLetterMood: 목적 유형별 감정 결 매핑', () => {
   assert.match(judgeLetterMood('미안해서'), /사과/);
 });
 
-test('judgeLetterMood: 미입력·공백은 생일 축하 기본값', () => {
-  assert.match(judgeLetterMood(''), /생일 축하 편지로 쓴다/);
-  assert.match(judgeLetterMood('   '), /생일 축하 편지로 쓴다/);
-  assert.match(judgeLetterMood(null), /생일 축하 편지로 쓴다/);
+test('judgeLetterMood: 미입력·공백은 특정한 날을 가정하지 않는 기본값', () => {
+  assert.match(judgeLetterMood(''), /특정한 날을 가정하지 않는다/);
+  assert.match(judgeLetterMood('   '), /특정한 날을 가정하지 않는다/);
+  assert.match(judgeLetterMood(null), /특정한 날을 가정하지 않는다/);
 });
 
 test('judgeLetterMood: 미매칭 목적은 원문을 담아 해석 위임', () => {
