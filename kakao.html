@@ -105,7 +105,7 @@
     .edit-btn { border: 1px solid #ccc; border-radius: 20px; padding: 4px 14px; font-size: 12px; color: #555; background: none; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; }
     .section-card { background: white; padding: 12px 16px; }
     .section-label { font-size: 11px; color: #aaa; margin-bottom: 10px; }
-    .settings-row { display: flex; align-items: center; justify-content: space-between; padding: 13px 0; border-bottom: 1px solid #f0f0f0; font-size: 13.5px; color: #111; cursor: pointer; }
+    .settings-row { display: flex; align-items: center; justify-content: space-between; padding: 13px 0; border-bottom: 1px solid #f0f0f0; font-size: 13.5px; color: #111; cursor: default; }
     .settings-row:last-child { border-bottom: none; }
     .row-val { font-size: 13px; color: #aaa; }
     .bg-thumb { width: 48px; height: 30px; border-radius: 6px; background: #bfdbfe; }
@@ -153,6 +153,9 @@
     #settings .section-card { margin:10px 12px 0; border:1px solid rgba(217,191,192,.78); border-radius:18px 14px 16px 12px; background:rgba(255,252,245,.92); box-shadow:0 5px 14px rgba(120,90,70,.06); }
     #settings .section-label { color:var(--ptu-primary); font-family:'Gowun Batang',serif; font-size:12px; }
     #settings .settings-row { border-bottom-color:rgba(217,191,192,.5); }
+    /* 안내 단계에서 실제 다음 화면으로 이어지는 항목만 클릭 대상으로 인식시킨다 */
+    #settings .edit-btn, #settings .toggle, #settings .leave-btn { pointer-events:none; cursor:default; }
+    #settings .export-trigger { cursor:pointer; }
     #settings .leave-wrap { background:#F6EEE8; }
     #settings .leave-btn { box-shadow:0 5px 12px rgba(193,126,138,.22); }
     #settings svg { stroke:var(--ptu-primary) !important; }
@@ -285,7 +288,7 @@
       <div class="section-card">
         <div class="section-label">채팅방 데이터</div>
         <div class="settings-row"><span>채팅방 데이터 관리</span><span class="row-val">12.31MB</span></div>
-        <div class="settings-row" style="border:none;cursor:pointer" onclick="go('export')"><span>대화 내용 내보내기</span></div>
+        <div class="settings-row export-trigger" style="border:none" onclick="go('export')"><span>대화 내용 내보내기</span></div>
       </div>
     </div>
     <div class="leave-wrap"><button class="leave-btn">채팅방 나가기</button></div>
