@@ -5,6 +5,12 @@
   "type": "module",
   "description": "대화 데이터 기반 선물 TOP 3 추천 데모 (Vercel + OpenAI)",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@langfuse/client": "^5.9.1",
+    "@langfuse/otel": "^5.9.1",
+    "@langfuse/tracing": "^5.9.1",
+    "@opentelemetry/sdk-node": "^0.203.0"
   }
 }

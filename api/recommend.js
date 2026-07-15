@@ -5,6 +5,8 @@
 // 긴 대화 처리: 최근 12,000자는 원문 그대로, 그 이전 내용은 4,000자 이내 요약으로 압축해
 // 컨텍스트 길이 초과(context_length_exceeded)를 방지한다.
 
+import { observeAiRequest, recordSlo } from './langfuse.js';
+
 // 추천·요약·민감 검증에 쓰는 기본 모델.
 // (Vercel에 OPENAI_MODEL 환경변수가 설정돼 있으면 그 값이 우선한다)
 const MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini';
@@ -62,10 +64,12 @@ async function callOpenAI(apiKey, messages, { json = false, temperature = 0.7 } 
   return content;
 }
 
+const observedCallOpenAI = observeAiRequest(callOpenAI, 'present-to-u.openai');
+
 // 이전 대화(older)를 선물 추천에 도움이 되도록 4,000자 이내로 요약
 async function summarizeConversation(apiKey, text) {
   const src = text.slice(-SUMMARY_SRC_CAP); // 요약 대상은 최근 쪽 위주로 컷(컨텍스트 보호)
-  const summary = await callOpenAI(apiKey, [
+  const summary = await observedCallOpenAI(apiKey, [
     {
       role: 'system',
       content: `너는 대화 로그를 요약하는 도우미야. 선물 추천에 도움이 되도록 "받는 사람"의 관심사·취향·자주 언급한 것·관계·예산 관련 단서를 중심으로 ${SUMMARY_MAX}자 이내 한국어로 간결하게 요약해. 불필요한 인사말·잡담은 빼고 핵심 단서만 정리해.`,
@@ -269,6 +273,8 @@ async function webSearch(apiKey, prompt) {
   return text;
 }
 
+const observedWebSearch = observeAiRequest(webSearch, 'present-to-u.web-search');
+
 // 결과 화면에 성·정치·종교·혐오 등 민감 내용이 노출되지 않도록 표시 직전에 검증한다
 const SAFETY_PROMPT = `너는 선물 추천 서비스의 콘텐츠 검수 담당자야. 사용자 화면에 그대로 표시될 텍스트에
 성적(선정적), 정치적(정당·정치인·이념 옹호/비방), 종교적(특정 종교 권유·찬양·비하), 폭력·혐오·차별 내용이 포함됐는지 판정해.
@@ -313,7 +319,7 @@ async function checkSensitiveContent(apiKey, result) {
     top3: top3.map((gift) => [gift.name, gift.reason, gift.detail, gift.evidence, (Array.isArray(gift.signals) ? gift.signals : []).join(', ')]
       .filter(Boolean).join(' / ')),
   };
-  const content = await callOpenAI(apiKey, [
+  const content = await observedCallOpenAI(apiKey, [
     { role: 'system', content: SAFETY_PROMPT },
     { role: 'user', content: JSON.stringify(payload) },
   ], { json: true, temperature: 0 });
@@ -388,7 +394,7 @@ async function refineToProduct(apiKey, item, ctx) {
 
 [JSON]
 {"name":"구체적 상품명(브랜드/모델 포함)","emoji":"대표 이모지 1개","reason":"실제 대화 단서와 상품 추천 결론을 연결한 존댓말 2문장","fitScore":85,"price":"예상 가격대(예산 내)","detail":"상세 설명 2~3문장","evidence":"기존 대화 근거를 그대로 유지한 1~2문장","signals":["취향/니즈 키워드 3개"],"store":"판매처 이름","url":"실제 상품 구매 페이지 URL(없으면 빈 문자열)","query":"쇼핑몰 검색용 구체 키워드"}`;
-  const text = await webSearch(apiKey, prompt);
+  const text = await observedWebSearch(apiKey, prompt);
   const p = parseJsonLoose(text);
   // 모델이 일부 필드를 빠뜨리면 원래 항목 값으로 보완
   return {
@@ -406,7 +412,7 @@ async function refineToProduct(apiKey, item, ctx) {
   };
 }
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   const requestId = createRequestId(req);
   const startedAt = Date.now();
   const log = (event, details = {}, level = 'info') => logEvent(requestId, event, details, level);
@@ -468,7 +474,7 @@ export default async function handler(req, res) {
 
     log('recommendation.start', { recentLength: recent.length, summaryLength: summary.length });
     log('recommendation.openai.start', { model: MODEL });
-    const content = await callOpenAI(apiKey, [
+    const content = await observedCallOpenAI(apiKey, [
       { role: 'system', content: SYSTEM_PROMPT },
       { role: 'user', content: buildUserPrompt({ recipientName, recipientInfo, purpose, gender, relationship, budgetMin, budgetMax, budgetAny, quality, summary, recent, note: convoNote }) },
     ], { json: true, temperature: 0.7 });
@@ -514,11 +520,15 @@ export default async function handler(req, res) {
     }
 
     log('request.complete', { durationMs: Date.now() - startedAt });
+    await recordSlo({ ok: true, durationMs: Date.now() - startedAt, feature: 'recommend' });
     res.status(200).json(result);
   } catch (err) {
+    await recordSlo({ ok: false, durationMs: Date.now() - startedAt, feature: 'recommend' });
     log('request.error', { name: err.name, message: err.message, durationMs: Date.now() - startedAt }, 'error');
     console.error(err);
     const status = err.status && err.status >= 400 && err.status < 600 ? 502 : 500;
     res.status(status).json({ error: err.message || '서버 오류' });
   }
 }
+
+export default observeAiRequest(handler, 'present-to-u.recommend');

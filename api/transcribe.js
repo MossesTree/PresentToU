@@ -4,6 +4,8 @@
 // (키는 서버 측에만 존재 — 브라우저 비노출)
 // Groq는 OpenAI 호환 API라 요청 형식이 동일하다.
 
+import { observeAiRequest, recordSlo } from './langfuse.js';
+
 const GROQ_TRANSCRIBE_URL = 'https://api.groq.com/openai/v1/audio/transcriptions';
 // 음성 전사 요청의 단계별 처리 시간을 요청 ID와 함께 기록한다
 function createRequestId(req) {
@@ -24,7 +26,7 @@ async function readRawBody(req) {
   return Buffer.concat(chunks);
 }
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   const requestId = createRequestId(req);
   const startedAt = Date.now();
   const log = (event, details = {}, level = 'info') => logEvent(requestId, event, details, level);
@@ -70,10 +72,14 @@ export default async function handler(req, res) {
 
     const data = await aiRes.json();
     log('groq.request.complete', { status: aiRes.status, durationMs: Date.now() - startedAt, textLength: (data.text || '').length });
+    await recordSlo({ ok: true, durationMs: Date.now() - startedAt, feature: 'transcribe' });
     res.status(200).json({ text: data.text || '' });
   } catch (err) {
+    await recordSlo({ ok: false, durationMs: Date.now() - startedAt, feature: 'transcribe' });
     log('request.error', { name: err.name, message: err.message, durationMs: Date.now() - startedAt }, 'error');
     console.error(err);
     res.status(500).json({ error: err.message || '서버 오류' });
   }
 }
+
+export default observeAiRequest(handler, 'present-to-u.transcribe');
