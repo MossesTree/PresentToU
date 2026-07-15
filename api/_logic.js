@@ -201,3 +201,60 @@ export function sanitizeResult(result, verdict, recipientName) {
   }
   return replaced;
 }
+
+/* ===== 상품 정책(중고 금지·신뢰 링크만) ===== */
+
+// 중고·리퍼 등 새 제품이 아님을 드러내는 표현 (선물 정책상 절대 금지)
+const SECONDHAND_PATTERN = /중고|리퍼(?:비쉬드)?|refurb|再生|전시\s?상품|반품\s?상품|스크래치\s?상품|B급|빈티지\s?제품/i;
+
+// 신뢰할 수 있는 판매처 도메인 (국내 주요 커머스·백화점몰 — 이 목록에 없으면 링크를 걸지 않는다)
+const TRUSTED_STORE_DOMAINS = [
+  'coupang.com', 'naver.com', 'shopping.naver.com', 'smartstore.naver.com', 'brand.naver.com',
+  '11st.co.kr', 'gmarket.co.kr', 'auction.co.kr', 'ssg.com', 'emart.ssg.com',
+  'lotteon.com', 'lotteimall.com', 'thehyundai.com', 'kurly.com', 'oliveyoung.co.kr',
+  'musinsa.com', '29cm.co.kr', 'wconcept.co.kr', 'gift.kakao.com', 'ohou.se',
+  'interpark.com', 'himart.co.kr', 'e-himart.co.kr', 'costco.co.kr', 'kyobobook.co.kr', 'yes24.com',
+];
+
+// 중고 거래 플랫폼 도메인 (신뢰 목록보다 우선해 무조건 거부)
+const SECONDHAND_DOMAINS = ['daangn.com', 'bunjang.co.kr', 'joongna.com', 'fleaauction.co', 'hellomarket.com'];
+
+// 구매 링크가 신뢰할 수 있는 판매처인지 판정한다 (중고 플랫폼·미등록 도메인·비 http(s)는 거부)
+export function isTrustedPurchaseUrl(url) {
+  if (typeof url !== 'string' || !/^https?:\/\//.test(url)) return false;
+  let host;
+  try {
+    host = new URL(url).hostname.toLowerCase();
+  } catch {
+    return false;
+  }
+  const matches = (domain) => host === domain || host.endsWith(`.${domain}`);
+  if (SECONDHAND_DOMAINS.some(matches)) return false;
+  // 네이버는 쇼핑 관련 하위 도메인만 허용 (카페 중고 거래 글 등 차단)
+  if (matches('naver.com')) {
+    return ['shopping.naver.com', 'smartstore.naver.com', 'brand.naver.com', 'search.shopping.naver.com', 'msearch.shopping.naver.com']
+      .some((allowed) => host === allowed);
+  }
+  return TRUSTED_STORE_DOMAINS.some(matches);
+}
+
+// 추천 카드에 상품 정책을 강제한다 → 조치 목록 반환
+// - 중고·리퍼 상품: 카드 전체를 안전 선물로 교체 (카드 3개 유지)
+// - 신뢰되지 않는 구매 링크: 링크만 제거 (클라이언트가 네이버 쇼핑 검색 링크로 대체)
+export function enforceProductPolicy(result) {
+  const actions = [];
+  if (!Array.isArray(result.top3)) return actions;
+  result.top3 = result.top3.map((gift, index) => {
+    const text = [gift.name, gift.detail, gift.reason, gift.store].filter(Boolean).join(' ');
+    if (SECONDHAND_PATTERN.test(text)) {
+      actions.push(`top3[${index}]: 중고성 상품 → 안전 선물 교체`);
+      return { ...SAFE_GIFT, price: gift.price || '' };
+    }
+    if (gift.url && !isTrustedPurchaseUrl(gift.url)) {
+      actions.push(`top3[${index}]: 비신뢰 링크 제거 (${String(gift.url).slice(0, 60)})`);
+      return { ...gift, url: '', store: '' };
+    }
+    return gift;
+  });
+  return actions;
+}
