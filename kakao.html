@@ -29,12 +29,14 @@
     #chat { background: #F6EEE8; }
     #chat .status-bar { background: rgba(255,248,239,0.96); }
     /* 모든 안내 단계가 같은 위치에서 이어지도록 상단바 규격을 한 곳에서 공유한다 */
-    .chat-header, .white-header { position: relative; display: flex; align-items: center; min-height: 36px; padding: 6px 16px 8px; flex-shrink: 0; }
+    .chat-header, .white-header { position: relative; display: flex; align-items: center; min-height: 40px; padding: 8px 16px 6px; flex-shrink: 0; }
     .chat-header { background: rgba(255,248,239,0.92); backdrop-filter: blur(12px); }
-    .chat-header .center-title { position: absolute; left: 50%; transform: translateX(-50%); font-size: 15px; font-weight: 600; color: #111; background: none; border: none; font-family: inherit; }
+    .chat-header .center-title { position: absolute; left: 50%; transform: translateX(-50%); font-size: 15.5px; font-weight: 600; color: #111; background: none; border: none; font-family: inherit; }
     .chat-header .right { display: flex; align-items: center; gap: 12px; margin-left: auto; color: #555; }
+    .chat-header .icon-btn svg, .white-header .icon-btn svg { width: 23px; height: 23px; }
+    .chat-header .right svg, .white-header .hdr-right svg { width: 21px; height: 21px; }
 
-    .messages { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 28px 16px 80px; display: flex; flex-direction: column; gap: 24px; }
+    .messages { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 34px 16px 80px; display: flex; flex-direction: column; gap: 24px; }
 
     .msg-row { display: flex; align-items: flex-end; gap: 8px; }
     .msg-row.me { justify-content: flex-end; }
@@ -46,24 +48,25 @@
     .bubble-row { display: flex; align-items: flex-end; gap: 8px; }
     .bubble-row.me { justify-content: flex-end; }
     /* 대화 예시를 빠르게 훑을 수 있도록 각 문장을 한 줄 말풍선으로 보여준다 */
-    .bubble { flex-shrink:1; min-width:0; padding:10px 13px; color:#111; font-size:12.5px; line-height:1.5; white-space:nowrap; box-shadow:0 1px 2px rgba(0,0,0,0.08); }
+    .bubble { flex-shrink:1; min-width:0; padding:12px 15px; color:#111; font-size:13.5px; line-height:1.5; white-space:nowrap; box-shadow:0 1px 2px rgba(0,0,0,0.08); }
     .bubble.other { max-width:none; background:#FFFCF5; border-radius:18px 18px 18px 4px; }
     .bubble.me { max-width:none; background:#efbcc7; border-radius:18px 18px 4px 18px; }
     .msg-time { font-size: 10px; color: #666; white-space: nowrap; padding-bottom: 2px; flex-shrink: 0; }
 
     /* Floating input bar */
-    .input-wrap { position: absolute; bottom: 0; left: 0; right: 0; padding: 4px 12px 16px; background: transparent; }
+    .input-wrap { position: absolute; bottom: 0; left: 0; right: 0; padding: 4px 12px 36px; background: transparent; }
     .input-bar { display: flex; align-items: center; gap: 8px; width: 100%; min-width: 0; padding: 8px 12px; border-radius: 999px; background: rgba(255,255,255,0.75); backdrop-filter: blur(16px); box-shadow: 0 2px 12px rgba(0,0,0,0.1); }
     .plus-btn { width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid rgba(193,126,138,.55); background: rgba(247,222,226,.32); font-size: 20px; color: rgba(193,126,138,.72); display: flex; align-items: center; justify-content: center; cursor: default; flex-shrink: 0; line-height: 1; font-weight: 300; }
     .msg-input { flex: 1 1 auto; min-width: 0; color: #999; font-size: 13.5px; cursor: default; }
     .emoji-btn { width: 32px; height: 32px; flex: 0 0 32px; background: none; border: none; cursor: default; display: flex; align-items: center; justify-content: center; }
     .emoji-btn svg { stroke: var(--ptu-primary); }
-    .send-btn { width: 32px; height: 32px; flex: 0 0 32px; border-radius: 50%; background: #d48a97; border: none; cursor: default; display: flex; align-items: center; justify-content: center; }
+    .send-btn { width: 32px; height: 32px; flex: 0 0 32px; border: 1px solid rgba(193,126,138,.38); border-radius: 50%; background: rgba(232,200,207,.88); cursor: default; display: flex; align-items: center; justify-content: center; }
+    .send-btn svg { stroke: var(--ptu-primary); }
 
     /* INFO */
     .white-status { background: white; }
     .white-header { background: white; border-bottom: 1px solid #f0f0f0; }
-    .white-header .title-center { flex: 1; text-align: center; font-size: 15px; font-weight: 600; color: #111; }
+    .white-header .title-center { flex: 1; text-align: center; font-size: 15.5px; font-weight: 600; color: #111; }
     .white-header .hdr-right { display: flex; align-items: center; gap: 16px; color: #555; margin-left: auto; }
     .scroll-area { flex: 1; overflow-y: auto; background: #f5f5f5; display: flex; flex-direction: column; gap: 10px; }
 
@@ -101,6 +104,7 @@
     .c-av.add, .c-av.user { border: 1px solid rgba(193,126,138,.32); background: linear-gradient(135deg,#FFF8EF,#F7DEE2); color: var(--ptu-primary); }
     .c-av.add { font-size: 18px; }
     .c-av.user svg { width: 20px; height: 20px; }
+    .c-av.friend { border: 1px solid rgba(193,126,138,.32); background: linear-gradient(135deg,#F7DEE2,#E8C8CF); }
 
     /* SETTINGS */
     .s-profile { background: white; padding: 14px 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #f0f0f0; }
@@ -155,25 +159,28 @@
     .edit-btn { border-color:var(--ptu-border); color:var(--ptu-muted); }
     #settings { background:#F6EEE8; }
     #settings .white-header { background:#FFF8EF; border-bottom-color:rgba(217,191,192,.7); }
-    #settings .s-profile { margin:10px 12px 0; border:1px solid var(--ptu-border); border-radius:18px 14px 16px 12px; background:linear-gradient(135deg,#FFF8EF,#F7DEE2); box-shadow:0 5px 14px rgba(120,90,70,.08); }
+    #settings .s-profile { margin:10px 12px 0; border:1px solid rgba(217,191,192,.78); border-radius:18px 14px 16px 12px; background:rgba(255,252,245,.92); box-shadow:0 5px 14px rgba(120,90,70,.08); }
     #settings .section-card { margin:10px 12px 0; border:1px solid rgba(217,191,192,.78); border-radius:18px 14px 16px 12px; background:rgba(255,252,245,.92); box-shadow:0 5px 14px rgba(120,90,70,.06); }
     #settings .section-label { color:var(--ptu-primary); font-family:'Gowun Batang',serif; font-size:12px; }
-    #settings .settings-row { border-bottom-color:rgba(217,191,192,.5); }
+    #settings .settings-row { border-bottom-color:rgba(217,191,192,.25); }
     /* 안내 단계에서 실제 다음 화면으로 이어지는 항목만 클릭 대상으로 인식시킨다 */
     #settings .edit-btn, #settings .toggle, #settings .leave-btn { pointer-events:none; cursor:default; }
     #settings .export-trigger { cursor:pointer; }
-    #settings .leave-wrap { background:#F6EEE8; }
+    #settings .leave-wrap { padding-bottom:36px; background:#F6EEE8; }
     #settings .leave-btn { box-shadow:0 5px 12px rgba(193,126,138,.22); }
     #settings svg { stroke:var(--ptu-primary) !important; }
     #info { background:#F6EEE8; }
     #info .white-header { background:#FFF8EF; border-bottom-color:rgba(217,191,192,.7); }
-    #info .scroll-area { gap:10px; padding:10px 12px 16px; background:#F6EEE8; }
+    #info .scroll-area { gap:7px; padding:0 12px 8px; background:#F6EEE8; }
     #info .info-profile, #info .card, #info .list-card, #info .grid-card, #info .chatbot-row, #info .contacts-card { border:1px solid rgba(217,191,192,.72); border-radius:18px 14px 16px 12px; box-shadow:0 5px 14px rgba(120,90,70,.06); }
-    #info .info-profile { margin:0; padding:20px 16px 18px; border:0; border-radius:0; background:transparent; box-shadow:none; }
+    #info .info-profile { margin:0; padding:28px 16px 8px; border:0; border-radius:0; background:transparent; box-shadow:none; }
     #info .info-name { font-family:'Gowun Batang',serif; font-size:16px; }
+    #info .card-title { margin-bottom:0; }
     #info .card-title, #info .contacts-label { color:var(--ptu-primary); font-family:'Gowun Batang',serif; }
-    #info .list-item, #info .grid-cell, #info .contact-row { border-bottom-color:rgba(217,191,192,.5); }
+    #info .list-item, #info .grid-cell, #info .contact-row { border-bottom-color:transparent; }
+    #info .gc-l { border-right-color:transparent; }
     #info .chatbot-row { color:var(--ptu-foreground); }
+    #info .contacts-card { padding-bottom:4px; }
     #info svg { stroke:var(--ptu-primary) !important; }
     #info .photo-row { display:none; }
     #export { background:#F6EEE8; }
@@ -275,8 +282,8 @@
         <div class="contacts-label">대화상대</div>
         <div class="contact-row"><div class="c-av add">+</div><span style="font-size:13.5px;">초대하기</span></div>
         <div class="contact-row"><div class="c-av user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 20c.7-4 3-6 6.5-6s5.8 2 6.5 6"/></svg></div><span style="font-size:13.5px;">나</span></div>
+        <div class="contact-row"><div class="c-av friend"><svg class="profile-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="M8 13 6.5 5.5l6 3.5c1.3-.7 2.9-1 4.5-1s3.2.3 4.5 1l6-3.5L26 13v4.2c0 5-4 8.3-9 8.3s-9-3.3-9-8.3V13Z" fill="#FFF8EF" stroke="#A96978" stroke-width="1.4" stroke-linejoin="round"/><path d="m12.5 8.8 2.1-3.3 1.4 2.1 1.4-2.1 2.1 3.3" fill="none" stroke="#C17E8A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="13" cy="15.8" r="1" fill="#6F4D55"/><circle cx="19" cy="15.8" r="1" fill="#6F4D55"/><path d="M15 19c.7.6 1.3.6 2 0M10 18.5 6.5 17M22 18.5l3.5-1.5" fill="none" stroke="#A96978" stroke-width="1.1" stroke-linecap="round"/></svg></div><span style="font-size:13.5px;">은서</span></div>
       </div>
-      <div style="height:16px"></div>
     </div>
   </div>
 
