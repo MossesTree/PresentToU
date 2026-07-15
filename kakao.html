@@ -129,9 +129,11 @@
     :root { --ptu-background:#FBF3E6; --ptu-card:#FFFCF5; --ptu-foreground:#4B4038; --ptu-muted:#83766A; --ptu-primary:#C17E8A; --ptu-accent:#F7DEE2; --ptu-blue-soft:#D8E4F0; --ptu-border:#D9BFC0; --ptu-island:#000; --ptu-display:'Song Myung','Gowun Batang',serif; }
     body, button, input { font-family:'Gowun Dodum','Gowun Batang',sans-serif; }
     .status-bar, .white-status, #chat .status-bar { background:#FFF8EF !important; }
-    .status-bar .time { color:var(--ptu-foreground); }
+    /* 단계가 바뀌어도 iOS 상태 정보는 첫 대화 화면과 같은 검정색을 유지한다 */
+    .status-bar .time { color:#111; }
     .island { background:var(--ptu-island); }
-    .status-icons svg { color:var(--ptu-foreground); }
+    .status-icons svg { color:#111; }
+    .status-icons svg [fill]:not([fill="none"]) { fill:#111 !important; }
     .phone { background:var(--ptu-card); box-shadow:0 30px 80px rgba(120,90,70,.2),inset 0 0 0 1px rgba(75,64,56,.12); }
     .white-status, .white-header, .info-profile, .card, .list-card, .grid-card, .chatbot-row, .contacts-card, .s-profile, .section-card, .leave-wrap { background:var(--ptu-card); }
     .scroll-area { background:#F6EEE8; }
