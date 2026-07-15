@@ -5,6 +5,8 @@
   "type": "module",
   "description": "대화 데이터 기반 선물 TOP 3 추천 데모 (Vercel + OpenAI)",
   "scripts": {
+    "test": "node --test \"tests/*.test.js\"",
+    "test:snapshot": "node eval/snapshot.js",
     "eval": "node eval/run-golden.js",
     "eval:rejudge": "node eval/rejudge.js",
     "eval:repeat": "node eval/repeat.js"
