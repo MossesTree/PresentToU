@@ -61,6 +61,26 @@
     .primary-link { display: inline-flex; align-items: center; gap: 6px; padding: 10px 16px; border: 2px solid var(--ink-line); border-radius: 18px 14px 16px 20px; color: var(--primary-foreground) !important; background: var(--primary); font-size: 14px; font-weight: 700 !important; box-shadow: 0 1px 2px rgba(0, 0, 0, .05); transition: transform .15s ease; }
     .primary-link:hover { transform: translateY(-2px); }
 
+    .giftbox { position: relative; width: 160px; height: 160px; margin: 0 auto 10px; animation: gift-float 3s ease-in-out infinite; }
+    .giftbox .spark { position: absolute; color: var(--gold); }
+    .giftbox .spark.s1 { right: 4px; top: 32px; }
+    .giftbox .spark.s2 { left: 12px; top: 24px; color: var(--pink); }
+    .giftbox .spark.s3 { left: 4px; bottom: 24px; color: var(--pink); }
+    .gb { position: absolute; bottom: 8px; left: 50%; width: 112px; height: 112px; transform: translateX(-50%); }
+    .gb-bow { position: absolute; top: -16px; left: 50%; width: 36px; height: 36px; border-radius: 9999px; background: var(--gold); box-shadow: 0 4px 6px -1px rgb(0 0 0 / .1), 0 2px 4px -2px rgb(0 0 0 / .1); }
+    .gb-bow.l { transform: translateX(-115%); }
+    .gb-bow.r { transform: translateX(15%); }
+    .gb-body { position: absolute; inset: 8px 0 0; border: 2px solid var(--ink-line); border-radius: 1rem; background: var(--primary); box-shadow: 0 20px 25px -5px rgb(0 0 0 / .1), 0 8px 10px -6px rgb(0 0 0 / .1); }
+    .gb-ribbon-h { position: absolute; right: 0; left: 0; top: 50%; height: 20px; transform: translateY(-50%); background: var(--gold); }
+    .gb-ribbon-v { position: absolute; top: 8px; bottom: 0; left: 50%; width: 20px; transform: translateX(-50%); background: var(--gold); }
+    @keyframes gift-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+    @media (prefers-reduced-motion: reduce) { .giftbox { animation: none; } }
+
+    .service-message { max-width: 760px; margin: 0 auto; padding: 48px 0 12px; text-align: center; }
+    .service-message h1 { margin: 0; color: var(--primary); font-family: var(--font-display); font-size: clamp(40px, 7vw, 64px); font-weight: 400; line-height: 1.2; }
+    .service-message-tagline { margin-top: 16px; color: var(--foreground); font-family: var(--font-serif); font-size: clamp(20px, 3vw, 28px); }
+    .service-message-lead { margin-top: 12px; color: var(--muted); font-size: 17px; }
+    .service-message-lead b { color: var(--primary); font-weight: 700; }
     .hero { position: relative; max-width: 860px; margin: 0 auto; padding: 42px 0 64px; text-align: center; animation: reveal-up 1.2s ease both; }
     .hero::before, .hero::after { position: absolute; z-index: -1; color: var(--gold); content: "✦"; font-family: var(--font-serif); font-size: 26px; opacity: .7; animation: float-spark 3.6s ease-in-out infinite; }
     .hero::before { top: 54px; left: 7%; }
@@ -213,6 +233,18 @@
     </header>
 
     <main>
+      <section class="service-message" aria-labelledby="service-message-title">
+        <div class="giftbox" aria-hidden="true">
+          <svg class="spark s1" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"></path></svg>
+          <svg class="spark s2" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 1-1.437 1.437l-1.582 6.135a.5 0 0 1-.963 0z"></path></svg>
+          <svg class="spark s3" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5 0 0 1-.963 0z"></path></svg>
+          <div class="gb"><div class="gb-bow l"></div><div class="gb-bow r"></div><div class="gb-body"></div><div class="gb-ribbon-h"></div><div class="gb-ribbon-v"></div></div>
+        </div>
+        <h1 id="service-message-title">선물 해결사</h1>
+        <p class="service-message-tagline">어떤 선물을 고를지, 이제 혼자 고민하지 마세요</p>
+        <p class="service-message-lead">"아무거나 괜찮아"에 숨겨진 <b>진짜 취향</b>을 찾아 드립니다.</p>
+      </section>
+
       <section class="hero" aria-labelledby="hero-title">
         <span class="eyebrow">✦ 서비스 소개</span>
         <h1 id="hero-title">그날의 한마디를 기억해<span>마음을 선물하세요.</span></h1>
