@@ -103,7 +103,7 @@ export function judgeLetterVoice(relationship) {
 export function judgeLetterMood(purpose) {
   const p = (purpose || '').trim();
   const has = (...words) => words.some((word) => p.includes(word));
-  if (!p) return '목적이 명시되지 않았으니 생일 축하 편지로 쓴다. 함께해 줘서 고맙다는 따뜻한 마음을 담는다.';
+  if (!p) return '특정한 날을 가정하지 않는다. 선물을 고른 이유와 상대를 생각하는 마음, 고마움이나 다정한 응원을 자연스럽게 담는다.';
   if (has('생일', '생신')) return '생일 축하. 함께해 줘서 고맙다는 마음과 앞으로의 날들에 대한 다정한 응원을 담는다.';
   if (has('기념', '100일', '200일', '300일', '1000일', '주년')) return '기념일 축하. 함께 보낸 시간을 돌아보고 앞으로도 함께하고 싶다는 마음을 담는다.';
   if (has('감사', '고마', '고맙', '스승')) return '감사 전달. 무엇이 고마웠는지 구체적으로 짚으며 담백한 진심으로 쓴다.';
