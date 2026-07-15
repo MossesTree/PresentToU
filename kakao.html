@@ -181,6 +181,10 @@
     #export .export-item h3 { color:var(--ptu-foreground); font-family:'Gowun Batang',serif; }
     #export .export-item p { color:var(--ptu-muted); }
     #export svg { stroke:var(--ptu-primary) !important; }
+    /* 본문 아이콘의 강조색은 유지하되 상단바만 첫 채팅 화면의 색상 체계를 따른다 */
+    .white-header .title-center { color:#111; }
+    .chat-header .icon-btn svg, .white-header .icon-btn svg { stroke:#444 !important; }
+    .chat-header .right svg, .white-header .hdr-right svg { stroke:#555 !important; }
   </style>
 </head>
 <body>
