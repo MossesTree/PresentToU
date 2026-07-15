@@ -12,3 +12,9 @@ Thumbs.db
 
 # 참고용 클론 프로젝트 (최종 배포에서 제외)
 website-clone-for-ai/
+
+# npm 의존성 (langfuse SDK 설치로 생김)
+node_modules/
+
+# 설정 예시 파일은 추적한다 (.env.* 패턴의 예외)
+!.env.example
