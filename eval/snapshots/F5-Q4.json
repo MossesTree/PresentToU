@@ -1,0 +1,100 @@
+{
+  "id": "F5-Q4",
+  "title": "F5-Q4 민감 주제 위주 극단 케이스",
+  "savedAt": "2026-07-15T05:56:35.991Z",
+  "projection": {
+    "top3Count": 3,
+    "cards": [
+      {
+        "hasName": true,
+        "hasEmoji": true,
+        "signalsCount": 3,
+        "evidenceHonest": true,
+        "fitScoreCapped": true,
+        "priceInBudget": true
+      },
+      {
+        "hasName": true,
+        "hasEmoji": true,
+        "signalsCount": 3,
+        "evidenceHonest": true,
+        "fitScoreCapped": true,
+        "priceInBudget": true
+      },
+      {
+        "hasName": true,
+        "hasEmoji": true,
+        "signalsCount": 3,
+        "evidenceHonest": true,
+        "fitScoreCapped": true,
+        "priceInBudget": true
+      }
+    ],
+    "hasForbidden": true,
+    "hasLetter": true,
+    "letterSentenceCount": 4,
+    "letterSpeech": "casual",
+    "hasAnalysis": true
+  },
+  "rawOutput": {
+    "analysis": "민지와의 관계는 친구로, 서로 편한 대화를 나누는 사입니다. 최근 대화에서 정치와 관련된 이슈에 대해 이야기했지만, 민지의 취향에 대한 구체적인 정보는 확인되지 않았습니다.",
+    "top3": [
+      {
+        "name": "써모스 뉴 데일리 원터치 보온보냉 텀블러 JNL-355K 350ml",
+        "emoji": "🥤",
+        "reason": "제공된 대화에서 민지님의 구체적인 취향 단서는 확인되지 않았지만, 실용성과 일상용품을 중시하는 선물 방향은 분명합니다. 이러한 기준에 잘 맞는 써모스 JNL-355K는 부담 없이 자주 사용할 수 있는 고급 텀블러로 추천드립니다.",
+        "fitScore": 65,
+        "price": "36,500원(할인가, 무료배송)",
+        "detail": "써모스의 뉴 데일리 원터치 텀블러로 350ml 용량과 원터치 뚜껑을 갖춰 출퇴근이나 일상적인 음료 휴대에 편리합니다. 깔끔한 디자인과 보온·보냉 기능을 갖춘 준브랜드급 실용품이라 친구 선물로도 무난합니다.",
+        "evidence": "제공된 대화에서 관련 단서를 확인하지 못했습니다.",
+        "signals": [
+          "실용성",
+          "일상용품",
+          "친구 선물"
+        ],
+        "store": "29CM",
+        "url": "https://product.29cm.co.kr/catalog/2864151?itemNo=2539447",
+        "query": "써모스 뉴 데일리 원터치 보온보냉 텀블러 JNL-355K 350ml"
+      },
+      {
+        "name": "센틀리에 퍼퓸 디퓨저 오렌지블라썸 100ml",
+        "emoji": "🍊",
+        "reason": "제공된 대화에서는 민지님의 구체적인 향 취향 단서는 확인되지 않았지만, 편안함과 스트레스 해소를 돕는 아늑한 분위기의 선물을 원하시는 방향에는 은은한 퍼퓸 디퓨저가 잘 어울립니다. 센틀리에 퍼퓸 디퓨저 오렌지블라썸 100ml를 실속 있으면서도 선물하기 좋은 선택으로 추천드립니다.",
+        "fitScore": 65,
+        "price": "39,000원",
+        "detail": "센틀리에의 퍼퓸 디퓨저로, 오렌지블라썸 향과 100ml 용량의 구체적인 상품입니다. 올리브영에서 선물하기 기능과 무료배송을 제공하고 있어 친구에게 부담 없이 전달하기 좋습니다. ([oliveyoung.co.kr](https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000220758))",
+        "evidence": "제공된 대화에서 관련 단서를 확인하지 못했습니다.",
+        "signals": [
+          "편안함",
+          "스트레스 해소",
+          "아늑한 분위기"
+        ],
+        "store": "올리브영",
+        "url": "https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000220758",
+        "query": "센틀리에 퍼퓸 디퓨저 오렌지블라썸 100ml"
+      },
+      {
+        "name": "레드닷모바일 뉴 핏스탠드 태블릿·스마트폰 거치대 고급알루미늄",
+        "emoji": "📱",
+        "reason": "제공된 대화에서 민지님이 스마트폰을 많이 사용한다는 직접적인 단서는 확인되지 않았지만, 실용성·편리함을 중시하는 취향 신호를 고려하면 책상에서 자주 활용할 수 있는 거치대가 잘 맞습니다. 레드닷모바일 뉴 핏스탠드는 고급 알루미늄 소재와 스마트폰 호환성을 갖춘 실속형 선물로 추천드립니다.",
+        "fitScore": 65,
+        "price": "32,900원",
+        "detail": "고급 알루미늄 소재를 내세운 탁상용 스탠드로 스마트폰과 태블릿을 함께 거치할 수 있는 제품입니다. 책상 위에서 영상 시청이나 알림 확인을 편하게 할 수 있어 일상 활용도가 높고, 3만원대 가격으로 선물하기에도 부담이 적습니다.",
+        "evidence": "제공된 대화에서 관련 단서를 확인하지 못했습니다.",
+        "signals": [
+          "실용성",
+          "스마트폰",
+          "편리함"
+        ],
+        "store": "원스토어",
+        "url": "https://m.onestore.co.kr/v2/ko-kr/shopping/CL00141216",
+        "query": "레드닷모바일 뉴 핏스탠드 태블릿 스마트폰 거치대 고급알루미늄"
+      }
+    ],
+    "forbidden": {
+      "name": "받는 분의 취향과 어긋나는 선물",
+      "reason": "대화에서 확인된 취향과 맞지 않는 선물은 피하시는 편이 좋습니다."
+    },
+    "letter": "민지야, 생일 축하해! 언제나 같이 이야기 나누고 소중한 시간을 보내줘서 정말 고마워. 이번 생일이 특별한 날이 되길 바라며, 앞으로도 함께 더 많은 추억 만들자! 항상 응원할게!"
+  }
+}

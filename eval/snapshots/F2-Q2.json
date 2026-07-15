@@ -1,0 +1,100 @@
+{
+  "id": "F2-Q2",
+  "title": "F2-Q2 신호 없는 대화의 정직성·fitScore 상한",
+  "savedAt": "2026-07-15T05:55:02.401Z",
+  "projection": {
+    "top3Count": 3,
+    "cards": [
+      {
+        "hasName": true,
+        "hasEmoji": true,
+        "signalsCount": 3,
+        "evidenceHonest": true,
+        "fitScoreCapped": true,
+        "priceInBudget": true
+      },
+      {
+        "hasName": true,
+        "hasEmoji": true,
+        "signalsCount": 3,
+        "evidenceHonest": true,
+        "fitScoreCapped": true,
+        "priceInBudget": true
+      },
+      {
+        "hasName": true,
+        "hasEmoji": true,
+        "signalsCount": 3,
+        "evidenceHonest": true,
+        "fitScoreCapped": true,
+        "priceInBudget": true
+      }
+    ],
+    "hasForbidden": true,
+    "hasLetter": true,
+    "letterSentenceCount": 5,
+    "letterSpeech": "casual",
+    "hasAnalysis": true
+  },
+  "rawOutput": {
+    "analysis": "민지와의 관계는 친구로, 서로 편안하게 대화하는 모습에서 친밀함이 느껴집니다. 그녀의 취향에 대한 정보는 제공되지 않았지만, 일반적으로 친구에게 적합한 실용적인 선물이 좋을 것으로 보입니다.",
+    "top3": [
+      {
+        "name": "DEPC LOGO ECO BAG (RED)",
+        "emoji": "👜",
+        "reason": "제공된 대화에서 관련 단서를 확인하지 못했지만, 민지님이 실용적인 아이템과 스타일을 선호할 가능성을 고려했습니다. 감각적인 레드 로고와 넉넉한 수납력을 갖춘 DEPC LOGO ECO BAG을 친구 선물로 추천드립니다.",
+        "fitScore": 65,
+        "price": "39,000원",
+        "detail": "DEPC 로고와 선명한 레드 컬러가 포인트인 면 소재 에코백으로, 데일리룩에 가볍게 매치하기 좋습니다. 가로 40cm, 세로 42cm의 여유 있는 크기라 책이나 파우치 등 일상 소지품을 넉넉하게 담을 수 있습니다. ([product.29cm.co.kr](https://product.29cm.co.kr/catalog/3212126?id=3108780&source=similar_products_list&utm_source=openai))",
+        "evidence": "제공된 대화에서 관련 단서를 확인하지 못했습니다.",
+        "signals": [
+          "실용적인 아이템",
+          "친구에게 선물",
+          "스타일"
+        ],
+        "store": "29CM",
+        "url": "https://www.29cm.co.kr/products/3212126?id=3108780&source=similar_products_list",
+        "query": "DEPC LOGO ECO BAG RED 29CM"
+      },
+      {
+        "name": "포맨트 시그니처 퍼퓸 코튼베이비 50ml",
+        "emoji": "🌸",
+        "reason": "제공된 대화에서 민지의 구체적인 향 취향 단서는 확인되지 않았지만, 특별한 선물이면서 친구가 일상에서 부담 없이 사용할 향수를 원하셨습니다. 포근한 플로럴·머스크 계열의 포맨트 시그니처 퍼퓸 코튼베이비를 실속 있는 선물로 추천드립니다.",
+        "fitScore": 65,
+        "price": "46,500원",
+        "detail": "50ml 용량의 준브랜드급 향수로, 부드럽고 포근한 분위기의 향을 선호하는 분께 무난하게 잘 어울립니다. 올리브영에서 선물하기와 무료배송이 가능한 기획·단품 옵션으로 판매 중입니다. ([oliveyoung.co.kr](https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?dispCatNo=1000001000500130003&goodsNo=A000000237353&t_click=%EC%9C%A0%EB%8B%88%EC%84%B9%EC%8A%A4%ED%96%A5%EC%88%98_%EC%A0%84%EC%B2%B4__%EC%83%81%ED%92%88%EC%83%81%EC%84%B8&t_number=5&t_page=%EC%B9%B4%ED%85%8C%EA%B3%A0%EB%A6%AC%EA%B4%80&trackingCd=Cat1000001000500130003_Small&utm_source=openai))",
+        "evidence": "제공된 대화에서 관련 단서를 확인하지 못했습니다.",
+        "signals": [
+          "특별한 선물",
+          "친구에게 선물",
+          "개인적인 취향"
+        ],
+        "store": "올리브영",
+        "url": "https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?dispCatNo=1000001000500130003&goodsNo=A000000237353",
+        "query": "포맨트 시그니처 퍼퓸 코튼베이비 50ml"
+      },
+      {
+        "name": "호보니치 테쵸 2026 Weeks 주간수첩 페이퍼시리즈 블랙깅엄 영어판",
+        "emoji": "📔",
+        "reason": "제공된 대화에서 관련 단서는 확인하지 못했지만, 기록과 실용적인 아이템을 친구에게 선물하려는 방향이 제시되었습니다. 휴대성과 기록성을 모두 갖춘 호보니치 테쵸 2026 Weeks를 민지에게 추천드립니다.",
+        "fitScore": 65,
+        "price": "39,500원",
+        "detail": "월간 달력과 주간 레프트 형식으로 일정과 친구와의 소중한 순간을 함께 기록하기 좋은 실용적인 다이어리입니다. 토모에리버 용지를 사용하고 가벼운 Weeks 사이즈라 일상에서 부담 없이 휴대하기 좋으며, 브랜드 선물로도 충분한 품질을 갖췄습니다. ([coupang.com](https://www.coupang.com/vp/products/9042461782?itemId=26532504454&itemsCount=74&q=%ED%98%B8%EB%B3%B4%EB%8B%88%EC%B9%98%EC%9C%85%EC%8A%A4&rank=10&searchId=d37c38747511117&searchRank=10&sourceType=search&vendorItemId=93506606465))",
+        "evidence": "제공된 대화에서 관련 단서를 확인하지 못했습니다.",
+        "signals": [
+          "기록",
+          "실용적인 아이템",
+          "친구에게 선물"
+        ],
+        "store": "쿠팡",
+        "url": "https://www.coupang.com/vp/products/9042461782?itemId=26532504454&itemsCount=74&q=%ED%98%B8%EB%B3%B4%EB%8B%88%EC%B9%98%EC%9C%85%EC%8A%A4&rank=10&searchId=d37c38747511117&searchRank=10&sourceType=search&vendorItemId=93506606465",
+        "query": "호보니치 테쵸 2026 Weeks 주간수첩 페이퍼시리즈 블랙깅엄 영어판"
+      }
+    ],
+    "forbidden": {
+      "name": "기념품 같은 장식품",
+      "reason": "기념품은 사용 빈도가 낮아 실용성이 떨어지기 때문에 피하는 것이 좋습니다."
+    },
+    "letter": "민지야, 생일 축하해! 항상 곁에 있어줘서 고마워. 너와 함께한 순간들이 정말 소중해. 앞으로의 날들도 함께 즐겁게 보낼 수 있기를 바라. 멋진 하루 보내!"
+  }
+}
