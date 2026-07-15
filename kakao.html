@@ -181,10 +181,14 @@
     #export .export-item h3 { color:var(--ptu-foreground); font-family:'Gowun Batang',serif; }
     #export .export-item p { color:var(--ptu-muted); }
     #export svg { stroke:var(--ptu-primary) !important; }
-    /* 본문 아이콘의 강조색은 유지하되 상단바만 첫 채팅 화면의 색상 체계를 따른다 */
-    .white-header .title-center { color:#111; }
-    .chat-header .icon-btn svg, .white-header .icon-btn svg { stroke:#444 !important; }
-    .chat-header .right svg, .white-header .hdr-right svg { stroke:#555 !important; }
+    /* 단계가 바뀌어도 첫 안내 화면의 분홍색 강조 체계가 이어지도록 상단바 색상을 고정한다 */
+    .chat-header .center-title, .white-header .title-center { color:var(--ptu-primary); }
+    .chat-header .icon-btn svg,
+    #info .white-header .icon-btn svg,
+    #settings .white-header .icon-btn svg,
+    #export .white-header .icon-btn svg { stroke:var(--ptu-primary) !important; }
+    .chat-header .right svg,
+    #info .white-header .hdr-right svg { stroke:var(--ptu-primary) !important; }
   </style>
 </head>
 <body>
