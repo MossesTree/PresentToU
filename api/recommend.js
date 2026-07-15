@@ -5,9 +5,9 @@
 // 긴 대화 처리: 최근 12,000자는 원문 그대로, 그 이전 내용은 4,000자 이내 요약으로 압축해
 // 컨텍스트 길이 초과(context_length_exceeded)를 방지한다.
 
-// 추천·요약·민감 검증에 쓰는 기본 모델. 접근 권한이 열린 gpt-5.6-sol을 사용한다.
+// 추천·요약·민감 검증에 쓰는 기본 모델.
 // (Vercel에 OPENAI_MODEL 환경변수가 설정돼 있으면 그 값이 우선한다)
-const MODEL = process.env.OPENAI_MODEL || 'gpt-5.6-sol';
+const MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini';
 
 // gpt-5 계열은 temperature 조정을 지원하지 않아(기본값 고정) 요청에서 파라미터를 생략한다
 const SUPPORTS_TEMPERATURE = !MODEL.startsWith('gpt-5');
