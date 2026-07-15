@@ -114,6 +114,14 @@ export function judgeLetterMood(purpose) {
   return `입력된 목적(${p})에 어울리는 감정을 해석해 담는다.`;
 }
 
+// 손글씨 글꼴에서 ㅡ처럼 보이는 긴 대시를 문장 구분용 마침표로 정리한다
+export function normalizeLetterPunctuation(letter) {
+  return String(letter || '')
+    .replace(/\s*[—–―]\s*/g, '. ')
+    .replace(/([.!?])\.\s+/g, '$1 ')
+    .trim();
+}
+
 /* ===== 프롬프트 조립 ===== */
 
 // 1차 추천용 사용자 프롬프트를 조립한다 (입력이 같으면 결과도 같은 순수 함수)

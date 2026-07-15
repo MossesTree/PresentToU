@@ -12,6 +12,7 @@ import {
   judgeQualityExpectation,
   judgeLetterVoice,
   judgeLetterMood,
+  normalizeLetterPunctuation,
   buildUserPrompt,
   sanitizeResult,
   SAFE_GIFT,
@@ -170,6 +171,20 @@ test('judgeLetterMood: 미매칭 목적은 원문을 담아 해석 위임', () =
   const mood = judgeLetterMood('이사 인사');
   assert.match(mood, /이사 인사/);
   assert.match(mood, /해석/);
+});
+
+test('normalizeLetterPunctuation: 긴 대시를 마침표와 공백으로 바꾼다', () => {
+  assert.equal(
+    normalizeLetterPunctuation('앞으로도 오래 보자—늘 고맙고 응원할게.'),
+    '앞으로도 오래 보자. 늘 고맙고 응원할게.',
+  );
+  assert.equal(normalizeLetterPunctuation('고마워 – 항상 응원할게.'), '고마워. 항상 응원할게.');
+  assert.equal(normalizeLetterPunctuation('잘 지내자―또 만나.'), '잘 지내자. 또 만나.');
+});
+
+test('normalizeLetterPunctuation: 기존 마침표 뒤 대시는 중복 마침표를 만들지 않는다', () => {
+  assert.equal(normalizeLetterPunctuation('오래 보자.—늘 고마워.'), '오래 보자. 늘 고마워.');
+  assert.equal(normalizeLetterPunctuation(null), '');
 });
 
 /* ===== buildUserPrompt: 프롬프트 조립 ===== */
