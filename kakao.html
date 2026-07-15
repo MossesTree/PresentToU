@@ -18,7 +18,7 @@
     /* STATUS BAR */
     .status-bar { position: relative; height: 54px; display: flex; align-items: center; justify-content: space-between; padding: 0 22px 0 28px; flex-shrink: 0; }
     .status-bar .time { font-size: 15px; font-weight: 600; letter-spacing: -0.3px; color: #111; z-index: 1; }
-    .island { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 120px; height: 34px; background: #000; border-radius: 20px; }
+    .island { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 120px; height: 34px; background: #8B7B72; border: 1px solid rgba(255,255,255,.22); border-radius: 20px; box-shadow: inset 0 1px 1px rgba(255,255,255,.18), 0 1px 2px rgba(75,64,56,.08); }
     .status-icons { display: flex; align-items: center; gap: 6px; z-index: 1; }
     .battery-icon { position: relative; width: 25px; height: 12px; }
     .battery-body { width: 23px; height: 12px; border: 1.5px solid #111; border-radius: 3.5px; overflow: hidden; }
@@ -123,10 +123,11 @@
     .icon-btn { background: none; border: none; cursor: pointer; padding: 0; display: flex; align-items: center; color: inherit; }
 
     /* ===== PresentToU 디자인 토큰 ===== */
-    :root { --ptu-background:#FBF3E6; --ptu-card:#FFFCF5; --ptu-foreground:#4B4038; --ptu-muted:#83766A; --ptu-primary:#C17E8A; --ptu-accent:#F7DEE2; --ptu-blue-soft:#D8E4F0; --ptu-border:#D9BFC0; --ptu-display:'Song Myung','Gowun Batang',serif; }
+    :root { --ptu-background:#FBF3E6; --ptu-card:#FFFCF5; --ptu-foreground:#4B4038; --ptu-muted:#83766A; --ptu-primary:#C17E8A; --ptu-accent:#F7DEE2; --ptu-blue-soft:#D8E4F0; --ptu-border:#D9BFC0; --ptu-island:#8B7B72; --ptu-display:'Song Myung','Gowun Batang',serif; }
     body, button, input { font-family:'Gowun Dodum','Gowun Batang',sans-serif; }
     .status-bar, .white-status, #chat .status-bar { background:#FFF8EF !important; }
     .status-bar .time { color:var(--ptu-foreground); }
+    .island { background:var(--ptu-island); }
     .status-icons svg { color:var(--ptu-foreground); }
     .phone { background:var(--ptu-card); box-shadow:0 30px 80px rgba(120,90,70,.2),inset 0 0 0 1px rgba(75,64,56,.12); }
     .white-status, .white-header, .info-profile, .card, .list-card, .grid-card, .chatbot-row, .contacts-card, .s-profile, .section-card, .leave-wrap { background:var(--ptu-card); }
