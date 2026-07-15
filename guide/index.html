@@ -127,13 +127,13 @@
     /* 순서를 연결된 스텝퍼로 보여줘 각 행의 클릭 흐름을 자연스럽게 인지시킨다 */
     .kakao-steps { position:relative; display:grid; gap:3px; width:min(100%,560px); margin-top:28px; padding:4px 0; list-style:none; }
     .kakao-steps::before { position:absolute; top:20px; bottom:20px; left:24px; width:1px; background:var(--border); content:""; }
-    .kakao-step { position:relative; display:grid; grid-template-columns:30px minmax(0,1fr); align-items:center; justify-self:stretch; gap:9px; width:100%; padding:10px 12px; border:1px solid transparent; border-radius:16px; color:var(--muted); background:transparent; text-align:left; cursor:pointer; font:inherit; transition:background .2s ease,border-color .2s ease,transform .2s ease,box-shadow .2s ease; }
+    .kakao-step { position:relative; display:grid; grid-template-columns:36px minmax(0,1fr); align-items:center; justify-self:stretch; gap:9px; width:100%; padding:10px 12px; border:1px solid transparent; border-radius:16px; color:var(--muted); background:transparent; text-align:left; cursor:pointer; font:inherit; transition:background .2s ease,border-color .2s ease,transform .2s ease,box-shadow .2s ease; }
     .kakao-step:hover,.kakao-step:focus-visible { border-color:rgba(217,191,192,.7); background:rgba(255,252,245,.72); box-shadow:0 4px 10px rgba(120,90,70,.06); transform:translateX(3px); outline:none; }
     .kakao-step.is-selected { border-color:rgba(193,126,138,.5); color:var(--foreground); background:var(--accent); box-shadow:0 5px 14px rgba(193,126,138,.12); }
-    .kakao-step-number { position:relative; z-index:1; display:flex; align-items:center; justify-content:center; width:28px; height:28px; border:1px solid var(--border); border-radius:50%; color:var(--primary); background:var(--background); font-family:var(--font-serif); font-size:14px; font-weight:700; }
+    .kakao-step-number { position:relative; z-index:1; display:flex; align-items:center; justify-content:center; width:34px; height:34px; border:1px solid var(--border); border-radius:50%; color:var(--primary); background:var(--background); font-family:var(--font-serif); font-size:16px; font-weight:700; }
     .kakao-step.is-selected .kakao-step-number { border-color:var(--primary); color:var(--primary-foreground); background:var(--primary); }
-    .kakao-step strong { display:block; color:inherit; font-size:14px; }
-    .kakao-step small { display:flex; align-items:center; gap:5px; margin-top:2px; color:var(--muted); font-size:11px; }
+    .kakao-step strong { display:block; color:inherit; font-size:18px; line-height:1.35; }
+    .kakao-step small { display:flex; align-items:center; gap:5px; margin-top:5px; color:var(--muted); font-size:14px; line-height:1.4; }
     .kakao-step small svg { flex:none; width:14px; height:14px; fill:none; stroke:var(--primary); stroke-linecap:round; stroke-linejoin:round; stroke-width:1.8; }
     .kakao-step[data-screen="chat"] { display:none; }
     .kakao-demo { position:relative; display:flex; justify-content:center; height:756px; padding:14px 14px 0; overflow:visible; }
