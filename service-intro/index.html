@@ -171,8 +171,8 @@
     .cta p { margin-top: 16px; color: rgba(255, 252, 245, .8); }
     .cta-link { display: inline-flex; align-items: center; gap: 8px; min-height: 52px; margin-top: 32px; padding: 14px 32px; border: 1px solid var(--card); border-radius: 999px; color: var(--foreground); background: var(--card); font-size: 14px; font-weight: 700; text-decoration: none; box-shadow: 3px 3px 0 rgba(199, 165, 106, .5); transition: transform .2s ease, box-shadow .2s ease; }
     .cta-link:hover { transform: translateY(-2px); box-shadow: 3px 5px 0 rgba(199, 165, 106, .5); }
-    .js .section, .js .cta { opacity: 0; transform: translateY(26px); }
-    .js .section.is-visible, .js .cta.is-visible { opacity: 1; transform: translateY(0); transition: opacity .9s ease, transform .9s cubic-bezier(.2,.8,.3,1); }
+    .js .section, .js .cta, .js .service-message { opacity: 0; transform: translateY(26px); }
+    .js .section.is-visible, .js .cta.is-visible, .js .service-message.is-visible { opacity: 1; transform: translateY(0); transition: opacity .9s ease, transform .9s cubic-bezier(.2,.8,.3,1); }
     .js .section.is-visible .section-title::after { width: 54px; }
     .js .section .info-card { opacity: 0; transform: translateY(18px); }
     .js .section.is-visible .info-card { animation: card-rise .8s ease both; }
@@ -208,7 +208,7 @@
     @media (max-width: 640px) { .header-nav a:not(.primary-link) { display: none; } }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition-duration: .01ms !important; transform: none !important; }
-      .js .section, .js .cta, .js .section .info-card { opacity: 1; }
+      .js .section, .js .cta, .js .service-message, .js .section .info-card { opacity: 1; }
       .cta-accent::after { opacity: 1; transform: none; }
     }
   </style>
@@ -300,7 +300,7 @@
     const revealOptions = { threshold: 0.16, rootMargin: "0px 0px -8%" };
 
     /* ===== 2. 상태(state) ===== */
-    const revealTargets = document.querySelectorAll(".section, .cta");
+    const revealTargets = document.querySelectorAll(".service-message, .section, .cta");
 
     /* ===== 3. 순수 함수 (계산/변환) ===== */
     // 사용자의 모션 감소 설정을 존중해 애니메이션 대상을 즉시 표시할지 판단한다
