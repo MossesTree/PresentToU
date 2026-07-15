@@ -4,6 +4,11 @@
   "private": true,
   "type": "module",
   "description": "대화 데이터 기반 선물 TOP 3 추천 데모 (Vercel + OpenAI)",
+  "scripts": {
+    "eval": "node eval/run-golden.js",
+    "eval:rejudge": "node eval/rejudge.js",
+    "eval:repeat": "node eval/repeat.js"
+  },
   "engines": {
     "node": ">=20"
   },

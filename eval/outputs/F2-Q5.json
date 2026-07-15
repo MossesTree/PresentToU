@@ -1,0 +1,85 @@
+{
+  "id": "F2-Q5",
+  "title": "F2-Q5 환각 금지(없는 취향 미등장)",
+  "input": "영화 이야기만 있는 대화. 음식·음료 언급이 전혀 없음.",
+  "criteria": [
+    "대화에 없는 취향(예: 특정 음식·음료를 좋아한다는 근거)이 evidence에 등장하지 않는다",
+    "없는 발언을 인용하지 않는다"
+  ],
+  "verdict": {
+    "score": 1,
+    "rationale": "추천 카드가 3개로 정확히 맞춰져 있지만, 대화에 없는 취향이 evidence에 등장하고 있습니다. 예를 들어, '민지께서 'OST도 계속 듣는 중이야'라고 말씀하신 점에서 음악과 영화 OST를 꾸준히 즐기는 취향이 드러납니다.'라는 문구는 대화에 없는 취향을 지적하고 있습니다. 또한, '영화 관련 굿즈'라는 금지된 항목이 언급되어 있어 치명적인 위반이 발생했습니다.",
+    "met": [
+      "추천 카드가 정확히 3개다",
+      "성적·정치적·종교적·혐오 표현이 없다",
+      "없는 발언을 인용하지 않는다"
+    ],
+    "unmet": [
+      "분석·추천 이유·근거가 자연스러운 한국어 존댓말이다",
+      "입력에 없는 사실을 근거로 지어내지 않았다",
+      "대화에 없는 취향이 evidence에 등장하지 않는다"
+    ]
+  },
+  "error": null,
+  "output": {
+    "analysis": "민지와의 관계는 친한 친구이며, 민지는 영화에 대한 깊은 관심을 가지고 있는 것으로 보입니다. 이러한 취향을 반영하여 실용적이고 품질이 좋은 선물을 추천할 수 있습니다.",
+    "top3": [
+      {
+        "name": "CGV 골드클래스 영화관람권 기프트콘 1매",
+        "emoji": "🎬",
+        "reason": "대화에서 민지께서 '일주일에 두 편은 보는 듯'이라고 말씀하신 점에서 영화에 대한 애정이 느껴집니다. 영화 관람을 한 단계 더 특별하게 즐길 수 있는 CGV 골드클래스 영화관람권을 선물하시는 것을 추천드립니다.",
+        "fitScore": 90,
+        "price": "40,000원",
+        "detail": "CGV 골드클래스관에서 일반 2D·3D 영화를 관람할 수 있는 프리미엄 영화관람권입니다. 자주 영화를 보는 민지께 일상적인 관람을 편안하고 고급스럽게 업그레이드해 드리기 좋습니다. ([m.cgv.co.kr](https://m.cgv.co.kr/WebApp/GiftV5/productDetail.aspx?GG_NO=100026&utm_source=openai))",
+        "evidence": "대화에서 민지께서 '일주일에 두 편은 보는 듯'이라고 말씀하신 점에서 영화에 대한 애정이 느껴집니다.",
+        "signals": [
+          "영화",
+          "관람",
+          "OST"
+        ],
+        "store": "CGV",
+        "url": "https://m.cgv.co.kr/WebApp/GiftV5/productDetail.aspx?GG_NO=100026",
+        "query": "CGV 골드클래스 영화관람권 기프트콘 1매"
+      },
+      {
+        "name": "Criterion Collection Janus Films Mug",
+        "emoji": "🎬",
+        "reason": "대화에서 민지께서 '미장센 미쳤어'라고 말씀하신 점에서 영화의 세부적인 요소에 대한 관심이 느껴집니다. 영화 전문 브랜드의 로고와 포슬린 소재를 갖춘 Criterion Collection Janus Films Mug을 추천드립니다.",
+        "fitScore": 85,
+        "price": "약 35,000원(미국 공식 판매가 $25 기준, 환율·배송비 별도)",
+        "detail": "Criterion Collection 공식 스토어에서 판매 중인 12온스 포슬린 머그컵으로, 영화 배급사 Janus Films의 로고를 담은 세련된 디자인입니다. 식기세척기 사용이 가능하지만 디자인 보존을 위해 손세척이 권장되는 실용적인 영화 테마 선물입니다. ([criterion.com](https://www.criterion.com/shop/product/74-janus-films-mug))",
+        "evidence": "대화에서 민지께서 '미장센 미쳤어'라고 말씀하신 점에서 영화의 세부적인 요소에 대한 관심이 느껴집니다.",
+        "signals": [
+          "영화",
+          "머그컵",
+          "디자인"
+        ],
+        "store": "The Criterion Collection 공식 스토어",
+        "url": "https://www.criterion.com/shop/product/74-janus-films-mug",
+        "query": "Criterion Collection Janus Films Mug 영화 머그컵"
+      },
+      {
+        "name": "O.S.T. - Begin Again (비긴 어게인) (Soundtrack)(CD)",
+        "emoji": "🎬",
+        "reason": "민지께서 'OST도 계속 듣는 중이야'라고 말씀하신 점에서 음악과 영화 OST를 꾸준히 즐기는 취향이 드러납니다. 영화의 여운과 함께 Adam Levine·Keira Knightley 등이 참여한 16곡을 감상할 수 있는 《비긴 어게인》 사운드트랙 CD를 추천드립니다.",
+        "fitScore": 80,
+        "price": "34,200원(배송비 3,000원)",
+        "detail": "영화 《비긴 어게인》의 대표곡 ‘Lost Stars’를 포함해 총 16곡이 수록된 정식 사운드트랙 CD입니다. 예스24에서 판매 중이며, 영화와 음악을 함께 좋아하는 분께 실속 있으면서도 소장 가치가 있는 선물입니다.",
+        "evidence": "민지께서 'OST도 계속 듣는 중이야'라고 말씀하신 점에서 음악에 대한 애정이 드러납니다.",
+        "signals": [
+          "OST",
+          "음악",
+          "영화"
+        ],
+        "store": "예스24",
+        "url": "https://www.yes24.com/product/goods/34958306",
+        "query": "O.S.T. Begin Again 비긴 어게인 Soundtrack CD"
+      }
+    ],
+    "forbidden": {
+      "name": "영화 관련 굿즈",
+      "reason": "민지가 영화에 대한 애정이 깊지만, 굿즈는 개인적인 취향이 강하게 반영될 수 있어 실패할 위험이 높습니다."
+    },
+    "letter": "민지야, 생일 축하해! 항상 너와 함께 영화 이야기 나누는 게 너무 즐거워. 너의 열정적인 모습이 너무 멋지니까, 앞으로도 함께 좋은 영화 많이 보자! 생일이 특별한 날이 되길 바라며, 늘 고마워!"
+  }
+}
