@@ -59,7 +59,8 @@
 
     /* INFO */
     .white-status { background: white; }
-    .white-header { background: white; display: flex; align-items: center; padding: 10px 16px; border-bottom: 1px solid #f0f0f0; flex-shrink: 0; position: relative; }
+    /* 단계 전환 때 휴대폰 상단이 흔들리지 않도록 첫 채팅 화면과 같은 높이를 유지한다 */
+    .white-header { background: white; display: flex; align-items: center; padding: 6px 16px; border-bottom: 1px solid #f0f0f0; flex-shrink: 0; position: relative; }
     .white-header .title-center { flex: 1; text-align: center; font-size: 15px; font-weight: 600; color: #111; }
     .white-header .hdr-right { display: flex; align-items: center; gap: 16px; color: #555; margin-left: auto; }
     .scroll-area { flex: 1; overflow-y: auto; background: #f5f5f5; display: flex; flex-direction: column; gap: 10px; }
