@@ -120,20 +120,22 @@
     .guide-footer-nav a:hover { color:var(--primary); }
     @media (max-width:640px) { .guide-page footer { grid-template-columns:1fr; justify-items:center; text-align:center; } .guide-footer-copy { white-space:normal; } .guide-footer-nav { justify-content:center; } }
     .kakao-walkthrough-copy { min-width:0; padding:0 0 24px; }
-    .kakao-walkthrough-kicker { display:inline-flex; align-items:center; gap:7px; color:var(--primary); font-size:13px; font-weight:700; }
+    .kakao-walkthrough-kicker { display:inline-flex; align-items:center; gap:7px; padding:7px 12px; border:1px solid rgba(193,126,138,.45); border-radius:999px; color:var(--primary); background:var(--accent); font-size:14px; font-weight:700; box-shadow:0 3px 0 rgba(193,126,138,.12); }
     .kakao-walkthrough-kicker::before { width:8px; height:8px; border-radius:50%; background:#F5E642; box-shadow:0 0 0 4px rgba(245,230,66,.24); content:""; }
     .kakao-walkthrough h3 { margin-top:12px; color:var(--foreground); font-size:32px; line-height:1.4; letter-spacing:-.02em; }
     .kakao-walkthrough-lead { max-width:430px; margin-top:14px; color:var(--muted); font-size:14px; line-height:1.75; }
     /* 순서를 연결된 스텝퍼로 보여줘 각 행의 클릭 흐름을 자연스럽게 인지시킨다 */
     .kakao-steps { position:relative; display:grid; gap:3px; width:min(100%,560px); margin-top:28px; padding:4px 0; list-style:none; }
     .kakao-steps::before { position:absolute; top:20px; bottom:20px; left:24px; width:1px; background:var(--border); content:""; }
-    .kakao-step { position:relative; display:grid; grid-template-columns:30px minmax(0,1fr); align-items:center; justify-self:stretch; gap:9px; width:100%; padding:10px 12px; border:1px solid transparent; border-radius:16px; color:var(--muted); background:transparent; text-align:left; cursor:pointer; font:inherit; transition:background .2s ease,border-color .2s ease,transform .2s ease,box-shadow .2s ease; }
-    .kakao-step:hover,.kakao-step:focus-visible { border-color:rgba(217,191,192,.7); background:rgba(255,252,245,.72); box-shadow:0 4px 10px rgba(120,90,70,.06); transform:translateX(3px); outline:none; }
+    .kakao-step { position:relative; display:grid; grid-template-columns:38px minmax(0,1fr) auto; align-items:center; justify-self:stretch; gap:11px; width:100%; padding:13px 14px; border:1px solid rgba(217,191,192,.7); border-radius:18px; color:var(--muted); background:rgba(255,252,245,.58); text-align:left; cursor:pointer; font:inherit; transition:background .2s ease,border-color .2s ease,transform .2s ease,box-shadow .2s ease; }
+    .kakao-step::after { display:inline-flex; align-items:center; min-height:24px; padding:3px 8px; border:1px solid rgba(193,126,138,.35); border-radius:999px; color:var(--primary); background:var(--card); content:"눌러보기 ↗"; font-size:11px; font-weight:700; white-space:nowrap; }
+    .kakao-step:hover,.kakao-step:focus-visible { border-color:var(--primary); background:var(--accent); box-shadow:0 6px 14px rgba(193,126,138,.16); transform:translateX(5px); outline:none; }
+    .kakao-step:hover::after,.kakao-step:focus-visible::after { color:var(--primary-foreground); background:var(--primary); }
     .kakao-step.is-selected { border-color:rgba(193,126,138,.5); color:var(--foreground); background:var(--accent); box-shadow:0 5px 14px rgba(193,126,138,.12); }
-    .kakao-step-number { position:relative; z-index:1; display:flex; align-items:center; justify-content:center; width:28px; height:28px; border:1px solid var(--border); border-radius:50%; color:var(--primary); background:var(--background); font-family:var(--font-serif); font-size:14px; font-weight:700; }
+    .kakao-step-number { position:relative; z-index:1; display:flex; align-items:center; justify-content:center; width:36px; height:36px; border:2px solid var(--border); border-radius:50%; color:var(--primary); background:var(--background); font-family:var(--font-serif); font-size:17px; font-weight:700; }
     .kakao-step.is-selected .kakao-step-number { border-color:var(--primary); color:var(--primary-foreground); background:var(--primary); }
-    .kakao-step strong { display:block; color:inherit; font-size:14px; }
-    .kakao-step small { display:flex; align-items:center; gap:5px; margin-top:2px; color:var(--muted); font-size:11px; }
+    .kakao-step strong { display:block; color:inherit; font-size:17px; line-height:1.35; }
+    .kakao-step small { display:flex; align-items:center; gap:5px; margin-top:5px; color:var(--muted); font-size:13px; line-height:1.4; }
     .kakao-step small svg { flex:none; width:14px; height:14px; fill:none; stroke:var(--primary); stroke-linecap:round; stroke-linejoin:round; stroke-width:1.8; }
     .kakao-step[data-screen="chat"] { display:none; }
     .kakao-demo { position:relative; display:flex; justify-content:center; height:756px; padding:14px 14px 0; overflow:visible; }
@@ -145,7 +147,7 @@
     .kakao-iframe { position:absolute; top:0; left:0; width:390px; height:844px; border:0; border-radius:44px; background:transparent; box-shadow:0 4px 10px rgba(75,64,56,.1); transform:scale(.82); transform-origin:top left; }
     .kakao-demo-caption { position:absolute; z-index:2; top:724px; right:0; left:0; color:var(--muted); font-size:11px; text-align:center; }
     @media (max-width:900px) { .kakao-walkthrough { grid-template-columns:1fr 340px; gap:20px; padding:22px; } .kakao-demo { height:666px; } .kakao-frame-shell { width:273px; height:591px; } .kakao-frame-shell::before { border-radius:38px; } .kakao-iframe { transform:scale(.7); } .kakao-demo-caption { top:623px; } }
-    @media (max-width:640px) { .kakao-walkthrough { grid-template-columns:1fr; padding:18px; } .kakao-demo { justify-content:center; height:716px; padding:14px 14px 0; } .kakao-frame-shell { width:293px; height:633px; } .kakao-frame-shell::before { border-radius:39px; } .kakao-iframe { transform:scale(.75); } .kakao-demo-caption { top:665px; } }
+    @media (max-width:640px) { .kakao-walkthrough { grid-template-columns:1fr; padding:18px; } .kakao-step { grid-template-columns:36px minmax(0,1fr); } .kakao-step::after { grid-column:2; justify-self:start; } .kakao-demo { justify-content:center; height:716px; padding:14px 14px 0; } .kakao-frame-shell { width:293px; height:633px; } .kakao-frame-shell::before { border-radius:39px; } .kakao-iframe { transform:scale(.75); } .kakao-demo-caption { top:665px; } }
     @media (prefers-reduced-motion:reduce) { .kakao-step { transition:none; } }
   </style>
 </head>
