@@ -154,8 +154,8 @@
     .kakao-frame-shell { position:relative; z-index:1; isolation:isolate; flex:none; width:320px; height:692px; }
     .kakao-frame-shell::before { position:absolute; z-index:-1; inset:-6px; border:1px solid rgba(255,255,255,.28); border-radius:42px; background:linear-gradient(145deg,#746A63,#3F3935 52%,#5B514B); box-shadow:0 4px 10px rgba(75,64,56,.12),inset 1px 1px 2px rgba(255,255,255,.2),inset -2px -2px 4px rgba(20,17,15,.2); content:""; }
     .kakao-frame-shell::after { position:absolute; z-index:2; top:126px; right:-9px; width:3px; height:52px; border-radius:0 3px 3px 0; background:#49413C; box-shadow:0 70px 0 #49413C,0 104px 0 #49413C; content:""; }
-    /* 기기 프레임이 깊이감을 만들기 때문에 iframe의 중복 그림자와 클릭 포커스 외곽선을 표시하지 않는다 */
-    .kakao-iframe { position:absolute; top:0; left:0; width:390px; height:844px; border:0; border-radius:44px; outline:none; background:transparent; transform:scale(.82); transform-origin:top left; }
+    /* 소수점 배율에서 스크롤 화면을 다시 그려도 iframe 픽셀이 기기 경계 밖으로 새지 않게 자른다 */
+    .kakao-iframe { position:absolute; top:0; left:0; width:390px; height:844px; border:0; border-radius:44px; outline:none; background:transparent; clip-path:inset(0 round 44px); transform:scale(.82); transform-origin:top left; }
     .kakao-demo-caption { position:absolute; z-index:2; top:724px; right:0; left:0; color:var(--muted); font-size:11px; text-align:center; }
     @media (max-width:900px) { .kakao-walkthrough { grid-template-columns:1fr 340px; gap:20px; padding:22px; } .kakao-demo { height:666px; } .kakao-frame-shell { width:273px; height:591px; } .kakao-frame-shell::before { border-radius:38px; } .kakao-iframe { transform:scale(.7); } .kakao-demo-caption { top:623px; } }
     @media (max-width:640px) { .kakao-walkthrough { grid-template-columns:1fr; padding:18px; } .kakao-demo { justify-content:center; height:716px; padding:14px 14px 0; } .kakao-frame-shell { width:293px; height:633px; } .kakao-frame-shell::before { border-radius:39px; } .kakao-iframe { transform:scale(.75); } .kakao-demo-caption { top:665px; } }
