@@ -1,6 +1,6 @@
-# Feature Specification: PresentToU — 대화 데이터 기반 선물 TOP 3 추천
+# Feature Specification: presen2U — 대화 데이터 기반 선물 TOP 3 추천
 
-**Feature Branch**: `001-present-to-u`
+**Feature Branch**: `001-presen2u`
 
 **Created**: 2026-07-13
 

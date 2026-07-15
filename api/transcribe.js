@@ -1,4 +1,4 @@
-// PresentToU — 음성 파일 STT (Vercel 서버리스, Groq)
+// presen2U — 음성 파일 STT (Vercel 서버리스, Groq)
 // 클라이언트가 multipart/form-data로 오디오(file) + model 을 보내면,
 // GROQ_API_KEY로 Groq 음성 인식(whisper-large-v3)에 그대로 전달해 전사 텍스트를 반환한다.
 // (키는 서버 측에만 존재 — 브라우저 비노출)
@@ -82,4 +82,4 @@ async function handler(req, res) {
   }
 }
 
-export default observeAiRequest(handler, 'present-to-u.transcribe');
+export default observeAiRequest(handler, 'presen2u.transcribe');

@@ -1,4 +1,4 @@
-# Specification Quality Checklist: PresentToU — 대화 데이터 기반 선물 TOP 3 추천
+# Specification Quality Checklist: presen2U — 대화 데이터 기반 선물 TOP 3 추천
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
 **Created**: 2026-07-13

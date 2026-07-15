@@ -1,4 +1,4 @@
-# PresentToU — PRD (보완본 v1)
+# presen2U — PRD (보완본 v1)
 
 > 원본 아이디어를 6대 기준으로 점검·보완한 문서. 필드 구성은 원본 `idea` 양식(문제·타깃·유저스토리·핵심기능·비목표·성공기준)을 따른다.
 > 점검 체크리스트: [[prd-quality]] (`checklists/prd-quality.md`)
