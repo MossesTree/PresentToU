@@ -132,8 +132,8 @@
     /* 단계가 바뀌어도 iOS 상태 정보는 첫 대화 화면과 같은 검정색을 유지한다 */
     .status-bar .time { color:#111; }
     .island { background:var(--ptu-island); }
-    .status-icons svg { color:#111; }
-    .status-icons svg [fill]:not([fill="none"]) { fill:#111 !important; }
+    .status-icons svg { color:#111; stroke:none !important; }
+    .status-icons svg * { fill:#111 !important; stroke:none !important; }
     .phone { background:var(--ptu-card); box-shadow:0 30px 80px rgba(120,90,70,.2),inset 0 0 0 1px rgba(75,64,56,.12); }
     .white-status, .white-header, .info-profile, .card, .list-card, .grid-card, .chatbot-row, .contacts-card, .s-profile, .section-card, .leave-wrap { background:var(--ptu-card); }
     .scroll-area { background:#F6EEE8; }
@@ -161,7 +161,6 @@
     #settings .leave-wrap { background:#F6EEE8; }
     #settings .leave-btn { box-shadow:0 5px 12px rgba(193,126,138,.22); }
     #settings svg { stroke:var(--ptu-primary) !important; }
-    #settings .status-icons svg { stroke:none !important; }
     #info { background:#F6EEE8; }
     #info .white-header { background:#FFF8EF; border-bottom-color:rgba(217,191,192,.7); }
     #info .scroll-area { gap:10px; padding:10px 12px 16px; background:#F6EEE8; }
@@ -181,7 +180,6 @@
     #export .export-item h3 { color:var(--ptu-foreground); font-family:'Gowun Batang',serif; }
     #export .export-item p { color:var(--ptu-muted); }
     #export svg { stroke:var(--ptu-primary) !important; }
-    #export .status-icons svg { stroke:none !important; }
   </style>
 </head>
 <body>
